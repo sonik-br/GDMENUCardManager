@@ -1,0 +1,31 @@
+﻿<Window x:Class="GDMENUCardManager.CopyNameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GDMENUCardManager"
+        mc:Ignorable="d"
+        Title="Batch Rename" Height="270" Width="350"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <StackPanel>
+        <GroupBox Header="Rename all games located on" Margin="5">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding OnCard}">SD Card</CheckBox>
+                <CheckBox IsChecked="{Binding NotOnCard}">Other</CheckBox>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Copy name from" Margin="5">
+            <StackPanel>
+                <RadioButton IsChecked="{Binding FolderName}">Folder</RadioButton>
+                <RadioButton>File</RadioButton>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Special parsing (Experimental!)" Margin="5">
+            <CheckBox IsChecked="{Binding ParseTosec}">Read TOSEC naming</CheckBox>
+        </GroupBox>
+
+        <Button Click="Button_Click" IsDefault="True" Margin="5" Padding="20 10">Ok</Button>
+
+    </StackPanel>
+</Window>
