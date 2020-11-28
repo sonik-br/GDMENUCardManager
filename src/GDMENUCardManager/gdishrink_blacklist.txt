@@ -1,0 +1,38 @@
+5737;T41903N;4X4 EVO v1.001 (2000)(GOD)(US)[!]
+E9E3;T15130N;Atari Anniversary Edition v1.001 (2001)(Infogrames)(US)[!][compilation]
+5966;T-8117N;Bust-A-Move 4 v1.001 (2000)(Acclaim)(US)[!]
+1800;T-8113N;Ducati World - Racing Challenge v1.000 (2001)(Acclaim)(US)[!]
+7CD6;T-40502-N;Hidden & Dangerous v1.100 (2000)(Take 2)(US)[!]
+076A;T11010N;Maximum Pool v1.004 (2000)(Sierra)(US)[!]
+715E;T9504M;Nightmare Creatures II v1.000 (2000)(Konami)(US)[!]
+4780;T40403N;Q-bert v1.003 (2000)(Majesco)(US)[!]
+DFDB;T41902N;Railroad Tycoon II - Gold Edition v1.004 (2000)(GOD)(US)[!]
+5D92;T1205N;Resident Evil 2 v1.001 (2000)(Capcom)(US)(Disc 1 of 2)[!][Leon] ... (Disc 2 of 2)[!][Claire]
+CC8A;T22901N;Roadsters v1.007 (2000)(Titus)(US)[!]
+A9CF;T40207N;SnoCross - Championship Racing v1.000 (2000)(Crave)(US)[!]
+DAF7;T40209N;StarLancer v1.002 (2000)(Crave)(US)[!]
+A394;T12509N;Super Runabout - San Francisco Edition v1.005 (2000)(Interplay)(US)[!]
+9577;TAXI2;Taxi 2 - Le Jeu v1.000 (2000)(Ubi Soft)(PAL)(FR)[!]
+97D4;T40401N;Tom Clancy's Rainbow Six v1.004 (2000)(Majesco - Red Storm)(US)[!]
+DA5E;T-36806N;Tomb Raider - The Last Revelation v1.001 (2000)(EIDOS)(US)[!]
+D1D8;T36812N;Tomb Raider Chronicles v1.000 (2000)(EIDOS)(US)[!]
+716B;T36810N;Urban Chaos v1.000 (2000)(EIDOS)(US)(en-fr)[!]
+DF23;T11011N;Who Wants to Beat Up a Millionaire v1.004 (2000)(Simon & Schuster)(US)[!]
+5BF0;T42101N 00;Wild Metal v1.003 (2000)(Rockstar - Take 2)(US)(M6)[!]
+4DB7;T40601N;Worms Armageddon v1.001 (1999)(MicroProse)(US)[!]
+F818;T0000M;METAL SLUG 6
+F818;T0001M;KING OF FIGHTERS XI
+F818;T0002M;SAMURAI SPIRITS TENKAICHI KENKAKUDEN
+F818;T0003M;NEOGEO BATTLE COLISEUM
+F818;T0004M;KNIGHTS OF VALOUR THE SEVEN SPIRITS
+F818;T0005M;FASTER THAN SPEED
+F818;T0006M;DOLPHIN BLUE
+F818;T0006M;MAXIMUM SPEED
+F818;T0007M;KING OF FIGHTERS NEOWAVE
+F818;T0008M;DEMOLISH FIST
+F818;T0009M;FIST OF THE NORTH STAR
+F818;T0009M;RUMBLE FISH
+F818;T0011M;GUILTY GEAR X VER 1.5
+F818;T0012M;RUMBLE FISH 2
+F818;T0013M;GUILTY GEAR ISUKA
+F818;T0014M;SUSHI BAR

@@ -11,7 +11,12 @@ namespace GDMENUCardManager
 
         public string Guid { get; set; }
 
-        public ByteSize Length { get; set; }
+        private ByteSize _Length;
+        public ByteSize Length
+        {
+            get { return _Length; }
+            set { _Length = value; RaisePropertyChanged(); }
+        }
 
         public long CdiTarget { get; set; }
 
@@ -47,7 +52,12 @@ namespace GDMENUCardManager
             set { _FullFolderPath = value; RaisePropertyChanged(); }
         }
 
-        public IpBin Ip { get; set; }
+        private IpBin _Ip;
+        public IpBin Ip
+        {
+            get { return _Ip; }
+            set { _Ip = value; RaisePropertyChanged(); }
+        }
 
         private int _SdNumber;
         public int SdNumber
@@ -66,6 +76,14 @@ namespace GDMENUCardManager
         public string Location
         {
             get { return SdNumber == 0 ? "Other" : "SD Card"; }
+        }
+
+
+        private FileFormat _FileFormat;
+        public FileFormat FileFormat
+        {
+            get { return _FileFormat; }
+            set { _FileFormat = value; RaisePropertyChanged(); }
         }
 
 #if DEBUG
@@ -88,5 +106,11 @@ namespace GDMENUCardManager
         None,
         New,
         Move
+    }
+
+    public enum FileFormat
+    {
+        Uncompressed,
+        SevenZip
     }
 }

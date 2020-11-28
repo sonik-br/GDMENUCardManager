@@ -1,0 +1,211 @@
+﻿<Window x:Class="GDMENUCardManager.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GDMENUCardManager"
+        mc:Ignorable="d"
+        Title="About" Height="700" Width="760" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <FlowDocumentScrollViewer VerticalScrollBarVisibility="Disabled">
+            <FlowDocument>
+                <Paragraph>
+                    <Bold>
+                        <Run Text="{Binding TitleAndVersion, Mode=OneTime}"/> - by Sonik
+                    </Bold>
+                    <LineBreak/>
+                    Tool to manage games on SD card - For use with GDEMU/GDMENU
+                </Paragraph>
+
+                <Paragraph>
+                    <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/sonik-br/GDMENUCardManager/">https://github.com/sonik-br/GDMENUCardManager/</Hyperlink>
+                </Paragraph>
+
+                <Paragraph>
+                    Accepts GDI, CDI, Compressed GDI files.
+                    <LineBreak/>
+                    Supported compressed formats: 7Z, RAR or ZIP
+                </Paragraph>
+
+                <Table>
+                    <Table.Columns>
+                        <TableColumn Width="200" />
+                        <TableColumn />
+                    </Table.Columns>
+                    <TableRowGroup>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 1 0 1">
+                                <Paragraph FontWeight="Bold">Add items to list</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 1 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>Click on [+] button and select gdi, cdi or compressed gdi files</Paragraph>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Paragraph>
+                                            Or drag/drop gdi/cdi (or compressed gdi) files into "Games List"
+                                            <!--<LineBreak/>
+                                            Only one game per compressed file-->
+                                        </Paragraph>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Paragraph>
+                                            Or drag/drop folders with games into "Games List"
+                                            <LineBreak/>
+                                            Only one game per folder will be added
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">Remove items from list</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>Select items and click on [-] button</Paragraph>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Paragraph>
+                                            Or select items and press Delete key
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">Change list order</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Select items and drag/drop to reorder
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">Sort list alphabetically</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Click on [Sort List] button
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">Rename a single item</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Double click on item name
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Or right mouse button on item and select "Rename"
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Or select item and press F2 key
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">Automatically
+                                    <LineBreak/> rename item(s)
+                                </Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Select item(s) and right mouse button click then select "Automatically Rename"
+                                        </Paragraph>
+                                    </ListItem>
+                                    <!--<ListItem>
+                                    <Paragraph>
+                                        Or click on [Batch Rename] to rename all items with more options
+                                    </Paragraph>
+                                </ListItem>-->
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">GDI Shrink</Paragraph>
+                                <Paragraph/>
+                                <Paragraph Foreground="Red">
+                                    Use with caution!
+                                    <LineBreak/>
+                                    Some games may not work properly after shrinking
+                                </Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>Check "Enable GDI Shrink"</Paragraph>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Paragraph>Optionally check "Also shrink compressed games</Paragraph>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Paragraph>It's recommended check "Use Blacklist"</Paragraph>
+                                        <Paragraph>This will not shrink games known to not work</Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <Paragraph FontWeight="Bold">Commit changes</Paragraph>
+                            </TableCell>
+                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
+                                <List Margin="0 4">
+                                    <ListItem>
+                                        <Paragraph>
+                                            Click on [Save Changes] button
+                                        </Paragraph>
+                                    </ListItem>
+                                </List>
+                            </TableCell>
+                        </TableRow>
+
+                    </TableRowGroup>
+                </Table>
+                <Paragraph>
+                    <Bold>GDEMU</Bold> - Deunan;&#160;
+                    <Bold>mkisofs</Bold> - E.YOUNGDALE/J.PEARSON/J.SCHILLING;
+                    <LineBreak/>
+                    <Bold>GDmenu</Bold> - neuroacid;&#160;
+                    <Bold>CDI4DC</Bold> - [big_fury]SiZiOUS;&#160;
+                    <Bold>gdishrink</Bold> - FamilyGuy;&#160;
+                    <Bold>7z</Bold> - Igor Pavlov
+                </Paragraph>
+
+            </FlowDocument>
+        </FlowDocumentScrollViewer>
+    </Grid>
+</Window>

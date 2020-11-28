@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,16 @@ namespace GDMENUCardManager
 {
     internal static class Helper
     {
+        public static Task<string[]> GetDirectoriesAsync(string path)
+        {
+            return Task.Run(() => Directory.GetDirectories(path));
+        }
+
+        public static Task<string[]> GetFilesAsync(string path)
+        {
+            return Task.Run(() => Directory.GetFiles(path));
+        }
+
         public static Task MoveDirectoryAsync(string from, string to)
         {
             return Task.Run(() => Directory.Move(from, to));
@@ -22,14 +33,39 @@ namespace GDMENUCardManager
             return Task.Run(() => Directory.Delete(path, true));
         }
 
+        public static Task<bool> DirectoryExistsAsync(string path)
+        {
+            return Task.Run(() => Directory.Exists(path));
+        }
+
         public static Task MoveFileAsync(string from, string to)
         {
             return Task.Run(() => File.Move(from, to));
         }
 
+        public static Task DeleteFileAsync(string path)
+        {
+            return Task.Run(() => File.Delete(path));
+        }
+
+        public static Task<bool> FileExistsAsync(string path)
+        {
+            return Task.Run(() => File.Exists(path));
+        }
+
+        public static Task<FileAttributes> GetAttributesAsync(string path)
+        {
+            return Task.Run(() => File.GetAttributes(path));
+        }
+
         public static Task WriteTextFileAsync(string path, string text)
         {
             return Task.Run(() => File.WriteAllText(path, text));
+        }
+
+        public static Task<string> ReadAllTextAsync(string path)
+        {
+            return Task.Run(() => File.ReadAllText(path));
         }
 
         public static async Task CopyDirectoryAsync(string sourceDirName, string destDirName)
@@ -71,5 +107,7 @@ namespace GDMENUCardManager
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
+
+        internal static System.Func<string, bool> CompressedFileExpression = new System.Func<string, bool>(x => x.EndsWith(".7z", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".rar", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase));
     }
 }

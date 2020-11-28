@@ -8,5 +8,7 @@
         public string Version { get; set; }
         public string ReleaseDate { get; set; }
         public string Name { get; set; }
+        public string CRC { get; set; }
+        public string ProductNumber { get; set; }
     }
 }
