@@ -271,14 +271,22 @@ namespace GDMENUCardManager
                 var folder01 = Path.Combine(sdPath, "01");
                 if (await Helper.DirectoryExistsAsync(folder01))
                 {
-                    var ip01 = await CreateGdItemAsync(folder01);
-                    if (ip01 != null && ip01.Name == "GDMENU")
+                    try
                     {
-                        foundMenuOnSdCard = true;
-                        ammountToIncrement = 1;
+                        var ip01 = await CreateGdItemAsync(folder01);
+                        if (ip01 != null && ip01.Ip.Name == "GDMENU")
+                        {
+                            foundMenuOnSdCard = true;
+                            ammountToIncrement = 1;
 
-                        //delete sdcard menu folder 01
-                        await Helper.DeleteDirectoryAsync(folder01);
+                            //delete sdcard menu folder 01
+                            await Helper.DeleteDirectoryAsync(folder01);
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+
                     }
                 }
 
@@ -725,7 +733,26 @@ namespace GDMENUCardManager
                 }
                 else
                 {
-                    await Helper.CopyDirectoryAsync(item.FullFolderPath, newPath);
+                    if (item.ImageFile.EndsWith(".gdi", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        await Helper.CopyDirectoryAsync(item.FullFolderPath, newPath);
+                    }
+                    else
+                    {
+                        if (!Directory.Exists(item.FullFolderPath))
+                            throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + item.FullFolderPath);
+
+                        // If the destination directory exist, delete it.
+                        if (Directory.Exists(newPath))
+                            await Helper.DeleteDirectoryAsync(newPath);
+                        //then create a new one
+                        await Helper.CreateDirectoryAsync(newPath);
+
+                        //todo async!
+                        await Task.Run(() => File.Copy(Path.Combine(item.FullFolderPath, Path.GetFileName(item.ImageFile)), Path.Combine(newPath, Path.GetFileName(item.ImageFile))));
+                    }
+
+
                 }
             }
 
@@ -793,7 +820,11 @@ namespace GDMENUCardManager
             string strnumber = FormatFolderNumber(number);
 
             sb.AppendLine($"{strnumber}.name={name}");
-            sb.AppendLine($"{strnumber}.disc={ip.Disc}");
+            //fix for codebreaker
+            if (ip.ProductNumber == "FCD" && ip.Name == "CodeBreaker for DreamCast" && ip.ReleaseDate == "20000627")
+                sb.AppendLine($"{strnumber}.disc=");
+            else
+                sb.AppendLine($"{strnumber}.disc={ip.Disc}");
             sb.AppendLine($"{strnumber}.vga={ip.Vga}");
             sb.AppendLine($"{strnumber}.region={ip.Region}");
             sb.AppendLine($"{strnumber}.version={ip.Version}");
@@ -947,17 +978,28 @@ namespace GDMENUCardManager
 
                 fs.Seek(headerOffset, SeekOrigin.Begin);
 
-                byte[] buffer = new byte[16];
+                byte[] buffer = new byte[128];
 
                 if (GetString(buffer, fs, headerOffset, 16) != katana)
                     return null;
+
+                string crc = GetString(buffer, fs, headerOffset + 32, 4);
+                string disc;
+                try
+                {
+                    disc = GetString(buffer, fs, headerOffset + 37, 11).Substring(6);
+                }
+                catch (Exception)
+                {
+                    disc = "1/1";//fallback in case of error
+                }
 
                 var ip = new IpBin
                 {
                     //hardwareid = gettemp(buffer, fs, headerOffset, 16),
                     //makerid = gettemp(buffer, fs, headerOffset + 16, 16),
-                    CRC = GetString(buffer, fs, headerOffset + 32, 4),
-                    Disc = GetString(buffer, fs, headerOffset + 37, 11).Substring(6),
+                    CRC = crc,
+                    Disc = disc,
                     Region = GetString(buffer, fs, headerOffset + 47, 8),
                     //peripherals = gettemp(buffer, fs, headerOffset + 55, 7),
                     Vga = GetString(buffer, fs, headerOffset + 61, 1),
@@ -965,8 +1007,16 @@ namespace GDMENUCardManager
                     Version = GetString(buffer, fs, headerOffset + 74, 6),
                     ReleaseDate = GetString(buffer, fs, headerOffset + 80, 16),
                     //Producer = gettemp(buffer, fs, headerOffset + 112, 16),
-                    Name = GetString(buffer, fs, headerOffset + 128, 16),
+                    Name = GetString(buffer, fs, headerOffset + 128, 128),
                 };
+                //remove bad chars
+                int index = ip.Name.IndexOf("\0");
+                if (index > -1)
+                    ip.Name = ip.Name.Substring(0, index);
+
+                index = ip.ProductNumber.IndexOf("\0");
+                if (index > -1)
+                    ip.ProductNumber = ip.ProductNumber.Substring(0, index);
 
                 return ip;
             }
@@ -1228,7 +1278,7 @@ Also Compressed GDI files inside 7Z, RAR or ZIP.
 
                 foreach (var item in ItemList)
                 {
-                    if (item.SdNumber == 1 && item.Name == "GDMENU")
+                    if (item.SdNumber == 1 && item.Ip.Name == "GDMENU")
                         continue;
 
                     if ((item.SdNumber == 0 && w.NotOnCard) || (item.SdNumber != 0 && w.OnCard))
