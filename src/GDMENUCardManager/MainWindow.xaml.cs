@@ -24,6 +24,7 @@ namespace GDMENUCardManager
     public partial class MainWindow : Window, IDropTarget, INotifyPropertyChanged
     {
         private const string katana = "SEGA SEGAKATANA";
+        private const string segaenterprises = "SEGA ENTERPRISES";
         private const string gdiregstr = @"\d+ \d+ \d+ \d+ (track\d+.\w+) \d+$";
         private const string tosecnameregstr = @" (V\d\.\d{3}) (\(\d{4}\))";
 
@@ -147,8 +148,8 @@ namespace GDMENUCardManager
             gdishrinkPath = Path.Combine(currentAppPath, "tools", "gdishrink.exe");
             ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
 
-            katanachar = katana.ToCharArray();//Encoding.UTF8.GetBytes(katana);
-            gdiregexp = new Regex(gdiregstr, RegexOptions.Compiled);
+            katanachar = $"{katana} {segaenterprises}".ToCharArray();//Encoding.UTF8.GetBytes(katana);
+            gdiregexp = new Regex(gdiregstr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
             tosecnameregexp = new Regex(tosecnameregstr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 
@@ -980,7 +981,7 @@ namespace GDMENUCardManager
 
                 byte[] buffer = new byte[128];
 
-                if (GetString(buffer, fs, headerOffset, 16) != katana)
+                if (GetString(buffer, fs, headerOffset, 16) != katana || GetString(buffer, fs, headerOffset + 1, 16) != segaenterprises)
                     return null;
 
                 string crc = GetString(buffer, fs, headerOffset + 32, 4);
