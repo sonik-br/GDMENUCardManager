@@ -11,7 +11,7 @@
             <FlowDocument>
                 <Paragraph>
                     <Bold>
-                        <Run Text="{Binding TitleAndVersion, Mode=OneTime}"/> - by Sonik
+                        GD MENU Card Manager - by Sonik
                     </Bold>
                     <LineBreak/>
                     Tool to manage games on SD card - For use with GDEMU/GDMENU
@@ -207,5 +207,12 @@
 
             </FlowDocument>
         </FlowDocumentScrollViewer>
+        <GroupBox Header="Version" Width="100" Height="80" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 10 0">
+            <StackPanel>
+                <TextBlock Text="{Binding CurrentVersion, Mode=OneTime, StringFormat='Current: {0}'}"/>
+                <TextBlock Text="{Binding LatestVersion, Mode=OneWay, StringFormat='Latest: {0}'}"/>
+                <Button Click="ButtonVersion_Click">Check Online</Button>
+            </StackPanel>
+        </GroupBox>
     </Grid>
 </Window>

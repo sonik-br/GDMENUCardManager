@@ -1,6 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Json;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,12 +17,38 @@ namespace GDMENUCardManager
     /// <summary>
     /// Interaction logic for AboutWindow.xaml
     /// </summary>
-    public partial class AboutWindow : Window
+    public partial class AboutWindow : Window, INotifyPropertyChanged
     {
-        public string TitleAndVersion { get; set; }
+        public string CurrentVersion { get; set; }
+
+        private string _LatestVersion = "?";
+        public string LatestVersion
+        {
+            get { return _LatestVersion; }
+            set { _LatestVersion = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LatestVersion))); }
+        }
+
+        private static HttpClient _Client = null;
+        private HttpClient Client
+        {
+            get
+            {
+                if (_Client == null)
+                {
+                    _Client = new HttpClient();
+                    _Client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github.v3+json");
+                    _Client.DefaultRequestHeaders.UserAgent.ParseAdd(@"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0");
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                }
+                return _Client;
+            }
+        }
 
         private readonly Queue<Key> lastKeys = new Queue<Key>(10);
         private readonly Key[] konamiCodeKeys = new Key[] { Key.Up, Key.Up, Key.Down, Key.Down, Key.Left, Key.Right, Key.Left, Key.Right, Key.B, Key.A };
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
 
         public AboutWindow()
         {
@@ -51,5 +83,40 @@ namespace GDMENUCardManager
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
+
+        private async void ButtonVersion_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = (Button)sender;
+            var oldContent = btn.Content;
+            btn.IsEnabled = false;
+            btn.Content = "Checking...";
+            try
+            {
+                using (var response = await Client.GetAsync("https://api.github.com/repos/sonik-br/GDMENUCardManager/releases/latest", new CancellationTokenSource(10000).Token))//token for time out
+                {
+                    response.EnsureSuccessStatusCode();
+                    using (var stream = await response.Content.ReadAsStreamAsync())
+                    {
+                        var serializer = new DataContractJsonSerializer(typeof(GitLatest));
+                        var obj = serializer.ReadObject(stream) as GitLatest;
+                        LatestVersion = obj.tag_name;
+                    }
+                }
+            }
+            catch
+            {
+                LatestVersion = "Error";
+            }
+            finally
+            {
+                btn.IsEnabled = true;
+                btn.Content = oldContent;
+            }
+        }
+    }
+
+    public class GitLatest
+    {
+        public string tag_name { get; set; }
     }
 }

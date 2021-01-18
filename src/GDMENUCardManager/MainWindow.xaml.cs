@@ -55,6 +55,9 @@ namespace GDMENUCardManager
 
         public ObservableCollection<DriveInfo> DriveList { get; private set; } = new ObservableCollection<DriveInfo>();
 
+        public string Version { get; } = "v1.2.2";
+
+
         private bool _IsBusy;
         public bool IsBusy
         {
@@ -1134,7 +1137,7 @@ namespace GDMENUCardManager
         private void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
             //new AboutWindow() { Title = $"{this.Title} - by Sonik", Owner = this }.ShowDialog();
-            new AboutWindow() { TitleAndVersion = this.Title, Owner = this }.ShowDialog();
+            new AboutWindow() { CurrentVersion = Version, Owner = this }.ShowDialog();
             return;
             IsBusy = true;
 
