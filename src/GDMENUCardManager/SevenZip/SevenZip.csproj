@@ -1,0 +1,98 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <AssemblyName>SevenZipSharp</AssemblyName>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>SevenZip.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags />
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <AssemblyTitle>SevenZipSharp</AssemblyTitle>
+    <Company>Markovtsev Vadim</Company>
+    <Product>SevenZipSharp</Product>
+    <Description>7-zip native library wrapper</Description>
+    <Copyright>Copyright (C) Markovtsev Vadim 2009, 2010, licenced under LGPLv3</Copyright>
+    <AssemblyVersion>0.64</AssemblyVersion>
+    <FileVersion>0.64</FileVersion>
+    <IntermediateOutputPath>..\Stage\obj\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\Stage\$(Configuration)\</OutputPath>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>TRACE;DEBUG;UNMANAGED</DefineConstants>
+    <DocumentationFile>..\Stage\$(Configuration)\SevenZip.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DefineConstants>TRACE;UNMANAGED</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="sfx\7zS.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_All.sfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="sfx\Configs.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="7z.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="7z64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="arch\Test.txt" />
+    <Content Include="sfx\Configs.xslt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="sfx\7zSD.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_Deflate.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_LZMA.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_PPMd.sfx" />
+    <EmbeddedResource Include="sfx\Configs.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="arch\Test.bzip2.7z" />
+    <EmbeddedResource Include="arch\Test.lzma.7z" />
+    <EmbeddedResource Include="arch\Test.lzma2.7z" />
+    <EmbeddedResource Include="arch\Test.ppmd.7z" />
+    <EmbeddedResource Include="arch\Test.rar" />
+    <EmbeddedResource Include="arch\Test.tar" />
+    <EmbeddedResource Include="arch\Test.txt.bz2" />
+    <EmbeddedResource Include="arch\Test.txt.gz" />
+    <EmbeddedResource Include="arch\Test.txt.xz" />
+    <EmbeddedResource Include="arch\Test.zip" />
+    <None Include="SevenZip.snk" />
+    <EmbeddedResource Include="sfx\7z.sfx" />
+    <EmbeddedResource Include="sfx\7zCon.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_All_x64.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_Deflate_x64.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_LZMA2.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_LZMA2_x64.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_LZMA_x64.sfx" />
+    <EmbeddedResource Include="sfx\7zxSD_PPMd_x64.sfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.Security.Permissions" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net45'">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\System.Configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Configuration.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

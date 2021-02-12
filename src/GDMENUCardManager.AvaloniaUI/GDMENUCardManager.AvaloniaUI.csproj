@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <IsPackable>False</IsPackable>
+    <AssemblyName>GDMENUCardManager</AssemblyName>
+    <ApplicationIcon>Assets\GDMENUCardManager.ico</ApplicationIcon>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
+    <PackageReference Include="ByteSize" Version="2.0.0" />
+    <PackageReference Include="MessageBox.Avalonia" Version="1.0.5" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\GDMENUCardManager.Core\GDMENUCardManager.Core.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+</Project>

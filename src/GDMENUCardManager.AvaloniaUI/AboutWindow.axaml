@@ -1,0 +1,138 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:conv="clr-namespace:GDMENUCardManager.Converter"
+        mc:Ignorable="d" d:DesignWidth="760" d:DesignHeight="700"
+        x:Class="GDMENUCardManager.AboutWindow"
+        Title="About" Height="500" Width="700" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <Window.Resources>
+    <Viewbox x:Key="ViewOpenInNew" Width="12" Height="12">
+      <Canvas Width="24" Height="24">
+        <Path Fill="Black" Data="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
+      </Canvas>
+    </Viewbox>
+  </Window.Resources>
+  <Grid Margin="10">
+    <StackPanel>
+      <TextBlock FontWeight="Bold">GD MENU Card Manager - by Sonik</TextBlock>
+      <TextBlock>Tool to manage games on SD card - For use with GDEMU/GDMENU</TextBlock>
+      <!--<Rectangle Fill="Black" Height="1"/>-->
+      <TextBlock Text=" "/>
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock>https://github.com/sonik-br/GDMENUCardManager/</TextBlock>
+        <Button Margin="5 0 0 0" ToolTip.Tip="Open Link" Padding="2" Background="Transparent" BorderBrush="Transparent" Click="ButtonLink_Click">
+          <ContentControl Content="{StaticResource ViewOpenInNew}"/>
+        </Button>
+      </StackPanel>
+      <TextBlock Text=" "/>
+      <TextBlock>Supported image formats: GDI, CDI, CCD and MDS</TextBlock>
+      <TextBlock>Supported compressed formats: ZIP</TextBlock>
+      
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+      
+      <!--<Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="210"/>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+      </Grid>-->
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Width="210" FontWeight="Bold">Add items to list</TextBlock>
+        <TextBlock>
+          - Click on [+] button and select supported files
+        </TextBlock>
+      </StackPanel>
+
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Width="210" FontWeight="Bold">Remove items from list</TextBlock>
+        <TextBlock>
+          - Select items and click on [-] button&#x0a;- Or select items and press Delete key
+        </TextBlock>
+      </StackPanel>
+
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Width="210" FontWeight="Bold">Change list order</TextBlock>
+        <TextBlock>
+          - Select items and click on [up] or [down] button
+        </TextBlock>
+      </StackPanel>
+
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Width="210" FontWeight="Bold">Rename a single item</TextBlock>
+        <TextBlock>
+          - Double click on item name&#x0a;- Or right mouse button on item and select "Rename"&#x0a;- Or select item and press F2 key
+        </TextBlock>
+      </StackPanel>
+
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Width="210" FontWeight="Bold">Automatically rename item(s)</TextBlock>
+        <TextBlock>
+          - Select item(s) and right mouse button click then select "Automatically Rename"
+        </TextBlock>
+      </StackPanel>
+
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Width="210" FontWeight="Bold">Commit changes</TextBlock>
+        <TextBlock>
+          - Click on [Save Changes] button
+        </TextBlock>
+      </StackPanel>
+
+      <Rectangle Fill="Black" Height="1" Margin="0 10"/>
+
+      <WrapPanel Orientation="Horizontal">
+        <TextBlock FontWeight="Bold" Text="GDEMU"/>
+        <TextBlock Text=" - Deunan; "/>
+        
+        <TextBlock FontWeight="Bold">GDmenu</TextBlock>
+        <TextBlock Text=" - neuroacid; "></TextBlock>
+        
+        <!--<TextBlock FontWeight="Bold" Text="GdiShrink"/>
+        <TextBlock Text=" - FamilyGuy; "/>-->
+        <TextBlock FontWeight="Bold" Text="GdiBuilder"/>
+        <TextBlock Text=" - Paul Kratt; "/>
+        
+        <TextBlock FontWeight="Bold" Text="Aaru"/>
+        <TextBlock Text=" - Natalia Portillo; "/>
+        
+        <TextBlock FontWeight="Bold" Text="PuyoTools"/>
+        <TextBlock Text=" - Nick Woronekin; "/>
+      </WrapPanel>
+      <WrapPanel Orientation="Horizontal">
+        <!--<TextBlock FontWeight="Bold" Text="7z"/>
+        <TextBlock Text=" - Igor Pavlov; "/>
+        <TextBlock FontWeight="Bold" Text="SevenZipSharp"/>
+        <TextBlock Text=" - Joel Ahlgren; "/>-->
+      </WrapPanel>
+      
+    </StackPanel>
+
+    <HeaderedContentControl Header="Version" Width="120" Height="80" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 10 0">
+      <StackPanel>
+        <TextBlock Text="{Binding CurrentVersion, Mode=OneTime, StringFormat='Current: {0}'}"/>
+        <TextBlock Text="{Binding LatestVersion, Mode=OneWay, StringFormat='Latest: {0}'}"/>
+        <Button Click="ButtonVersion_Click">Check Online</Button>
+      </StackPanel>
+    </HeaderedContentControl>
+
+  </Grid>
+
+</Window>

@@ -7,7 +7,7 @@
         xmlns:conv="clr-namespace:GDMENUCardManager.Converter"
         xmlns:dd="urn:gong-wpf-dragdrop"
         mc:Ignorable="d"
-        Title="{Binding Version, Mode=OneTime, StringFormat='GD MENU Card Manager {0}'}" Height="700" Width="800" MinHeight="400" MinWidth="800"
+        Title="GD MENU Card Manager" Height="700" Width="800" MinHeight="400" MinWidth="800"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ResourceDictionary>
@@ -109,13 +109,13 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="2" Margin="10 0 10 10">
+        <GroupBox Grid.Row="2" Margin="10 0 10 10" IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}">
             <GroupBox.Header>
                 <TextBlock>
                     Games List [<Run Text="{Binding TotalFilesLength, Mode=OneWay}"/>]
                 </TextBlock>
             </GroupBox.Header>
-            <DataGrid x:Name="dg1" ItemsSource="{Binding ItemList}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.DropHandler="{Binding}" dd:DragDrop.IsDragSource="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.IsDropTarget="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" PreviewKeyDown="DataGrid_PreviewKeyDown" Margin="0,8,0,8">
+            <DataGrid x:Name="dg1" ItemsSource="{Binding Manager.ItemList, Mode=OneTime}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.DropHandler="{Binding}" dd:DragDrop.IsDragSource="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.IsDropTarget="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" PreviewKeyDown="DataGrid_PreviewKeyDown" Margin="0,8,0,8">
                 <DataGrid.Resources>
                     <ContextMenu x:Key="rowmenu">
                         <ContextMenu.Items>
@@ -205,13 +205,15 @@
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0" Width="50" Margin="10 0" ToolTip="Add game(s)" Click="ButtonAddGames_Click" Content="{StaticResource ViewAdd}"/>
                 <Button Grid.Column="1" Width="50" Margin="0 0 10 0" ToolTip="Remove selected game(s)" Click="ButtonRemoveGame_Click" Content="{StaticResource ViewRemove}"/>
                 <Button Grid.Column="2" Margin="10 0" Padding="0 10" Click="ButtonSaveChanges_Click" FontWeight="Bold">Save Changes</Button>
-                <Button Grid.Column="3" Margin="10 0" Padding="20 10" Click="ButtonSort_Click">Sort List</Button>
-                <Button Grid.Column="4" Margin="10 0" Padding="20 10" Click="ButtonNameFromFolder_Click">Batch Rename</Button>
+                <Button Grid.Column="3" Margin="10 0" Padding="10 10" ToolTip="Load info from files that are already on sd card" Click="ButtonPreload_Click">Preload</Button>
+                <Button Grid.Column="4" Margin="10 0" Padding="10 10" Click="ButtonSort_Click">Sort List</Button>
+                <Button Grid.Column="5" Margin="10 0" Padding="10 10" Click="ButtonBatchRename_Click">Batch Rename</Button>
             </Grid>
         </Grid>
 

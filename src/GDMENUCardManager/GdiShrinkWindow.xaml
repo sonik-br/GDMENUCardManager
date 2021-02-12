@@ -27,9 +27,9 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTextColumn Header="Length" Width="Auto" Binding="{Binding Key.Length, Mode=OneWay, Converter={StaticResource ByteSizeToString}}"/>
-                <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Key.Name, Mode=OneWay}"/>
-                <DataGridTextColumn Header="Disc" Width="Auto" Binding="{Binding Key.Ip.Disc, Mode=OneWay}"/>
+                <DataGridTextColumn Header="Length" Width="Auto" Binding="{Binding Key.Length, Mode=OneTime, Converter={StaticResource ByteSizeToString}}"/>
+                <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Key.Name, Mode=OneTime}"/>
+                <DataGridTextColumn Header="Disc" Width="Auto" Binding="{Binding Key.Ip.Disc, Mode=OneTime}"/>
             </DataGrid.Columns>
 
         </DataGrid>

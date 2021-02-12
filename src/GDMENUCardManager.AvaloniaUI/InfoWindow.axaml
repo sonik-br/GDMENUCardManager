@@ -1,0 +1,37 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="400"
+        x:Class="GDMENUCardManager.InfoWindow"
+        Title="Info" Height="400" Width="650" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="1*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="1*"/>
+      <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+
+    <HeaderedContentControl Grid.Row="0" Grid.ColumnSpan="2" Header="File Info" Margin="5">
+      <TextBlock Text="{Binding FileInfo, Mode=OneTime}" TextWrapping="Wrap"/>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Grid.Row="1" Grid.Column="0" Header="IP.BIN Info" Margin="5">
+      <TextBlock Text="{Binding IpInfo, Mode=OneTime}" TextWrapping="Wrap"/>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Grid.Row="1" Grid.Column="1" Header="0GDTEX.PVR" Width="192" Height="192" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5">
+      <Grid>
+        <TextBlock Text="{Binding LabelText, Mode=OneWay}" TextWrapping="Wrap"/>
+        <Image Source="{Binding GdTexture, Mode=OneWay}"/>
+      </Grid>
+    </HeaderedContentControl>
+    
+  </Grid>
+
+</Window>

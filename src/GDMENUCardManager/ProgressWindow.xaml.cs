@@ -10,7 +10,7 @@ namespace GDMENUCardManager
     /// <summary>
     /// Interaction logic for ProgressWindow.xaml
     /// </summary>
-    public partial class ProgressWindow : Window, INotifyPropertyChanged
+    public partial class ProgressWindow : Window, INotifyPropertyChanged, GDMENUCardManager.Core.Interface.IProgressWindow
     {
         [DllImport("user32.dll")]
         private static extern int GetWindowLong(IntPtr hWnd, int nIndex);

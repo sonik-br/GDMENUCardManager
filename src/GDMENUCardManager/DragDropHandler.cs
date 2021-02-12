@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using GDMENUCardManager.Core;
 using GongSolutions.Wpf.DragDrop;
 using GongSolutions.Wpf.DragDrop.Utilities;
 
@@ -42,7 +43,7 @@ namespace GDMENUCardManager
                 {
                     try
                     {
-                        var toInsert = await MainWindow.CreateGdItemAsync(o);
+                        var toInsert = await ImageHelper.CreateGdItemAsync(o);
                         destinationList.Insert(insertIndex++, toInsert);
                     }
                     catch

@@ -1,0 +1,31 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="400"
+        x:Class="GDMENUCardManager.CopyNameWindow"
+        Title="Batch Rename" Height="270" Width="350" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel>
+    <HeaderedContentControl Header="Rename all games located on" Margin="5">
+      <StackPanel>
+        <CheckBox IsChecked="{Binding OnCard}">SD Card</CheckBox>
+        <CheckBox IsChecked="{Binding NotOnCard}">Other</CheckBox>
+      </StackPanel>
+    </HeaderedContentControl>
+
+    <HeaderedContentControl Header="Copy name from" Margin="5">
+      <StackPanel>
+        <RadioButton IsChecked="{Binding FolderName}">Folder</RadioButton>
+        <RadioButton>File</RadioButton>
+      </StackPanel>
+    </HeaderedContentControl>
+    <HeaderedContentControl Header="Special parsing" Margin="5">
+      <CheckBox IsChecked="{Binding ParseTosec}">Read TOSEC naming</CheckBox>
+    </HeaderedContentControl>
+
+    <Button Click="Button_Click" IsDefault="True" Margin="5" Padding="20 10">Ok</Button>
+
+  </StackPanel>
+
+</Window>

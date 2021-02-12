@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using GDMENUCardManager.Core;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +19,7 @@ namespace GDMENUCardManager
     /// </summary>
     public partial class AboutWindow : Window, INotifyPropertyChanged
     {
-        public string CurrentVersion { get; set; }
+        public string CurrentVersion => Constants.Version;
 
         private string _LatestVersion = "?";
         public string LatestVersion
@@ -38,7 +38,7 @@ namespace GDMENUCardManager
                     _Client = new HttpClient();
                     _Client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github.v3+json");
                     _Client.DefaultRequestHeaders.UserAgent.ParseAdd(@"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0");
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                 }
                 return _Client;
             }
@@ -92,18 +92,18 @@ namespace GDMENUCardManager
             btn.Content = "Checking...";
             try
             {
-                using (var response = await Client.GetAsync("https://api.github.com/repos/sonik-br/GDMENUCardManager/releases/latest", new CancellationTokenSource(10000).Token))//token for time out
+                var token = new CancellationTokenSource(10000).Token;//for time out
+                using (var response = await Client.GetAsync("https://api.github.com/repos/sonik-br/GDMENUCardManager/releases/latest", token))
                 {
                     response.EnsureSuccessStatusCode();
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {
-                        var serializer = new DataContractJsonSerializer(typeof(GitLatest));
-                        var obj = serializer.ReadObject(stream) as GitLatest;
-                        LatestVersion = obj.tag_name;
+                        var obj = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+                        LatestVersion = obj.RootElement.GetProperty("tag_name").GetString();
                     }
                 }
             }
-            catch
+            catch(System.Exception ex)
             {
                 LatestVersion = "Error";
             }
@@ -113,10 +113,5 @@ namespace GDMENUCardManager
                 btn.Content = oldContent;
             }
         }
-    }
-
-    public class GitLatest
-    {
-        public string tag_name { get; set; }
     }
 }

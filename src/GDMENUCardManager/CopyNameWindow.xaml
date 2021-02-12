@@ -21,7 +21,7 @@
                 <RadioButton>File</RadioButton>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Special parsing (Experimental!)" Margin="5">
+        <GroupBox Header="Special parsing" Margin="5">
             <CheckBox IsChecked="{Binding ParseTosec}">Read TOSEC naming</CheckBox>
         </GroupBox>
 

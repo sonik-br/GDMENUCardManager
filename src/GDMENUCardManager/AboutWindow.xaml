@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDMENUCardManager"
         mc:Ignorable="d"
-        Title="About" Height="700" Width="760" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="About" Height="690" Width="760" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
         <FlowDocumentScrollViewer VerticalScrollBarVisibility="Disabled">
             <FlowDocument>
@@ -22,10 +22,10 @@
                 </Paragraph>
 
                 <Paragraph>
-                    Accepts GDI, CDI, Compressed GDI files.
-                    <LineBreak/>
-                    Supported compressed formats: 7Z, RAR or ZIP
+                    <TextBlock Width="350">Image formats: GDI, CDI, CCD, MDS</TextBlock>
+                    <TextBlock>Compressed formats: 7Z, RAR, ZIP</TextBlock>
                 </Paragraph>
+
 
                 <Table>
                     <Table.Columns>
@@ -40,11 +40,11 @@
                             <TableCell BorderBrush="Gray" BorderThickness="0 1 0 1">
                                 <List Margin="0 4">
                                     <ListItem>
-                                        <Paragraph>Click on [+] button and select gdi, cdi or compressed gdi files</Paragraph>
+                                        <Paragraph>Click on [+] button and select supported files</Paragraph>
                                     </ListItem>
                                     <ListItem>
                                         <Paragraph>
-                                            Or drag/drop gdi/cdi (or compressed gdi) files into "Games List"
+                                            Or drag/drop supported files into "Games List"
                                             <!--<LineBreak/>
                                             Only one game per compressed file-->
                                         </Paragraph>
@@ -156,8 +156,8 @@
                         <TableRow>
                             <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
                                 <Paragraph FontWeight="Bold">GDI Shrink</Paragraph>
-                                <Paragraph/>
-                                <Paragraph Foreground="Red">
+                                <!--<Paragraph/>-->
+                                <Paragraph Foreground="Red" Margin="0 5 0 0">
                                     Use with caution!
                                     <LineBreak/>
                                     Some games may not work properly after shrinking
@@ -192,17 +192,18 @@
                                 </List>
                             </TableCell>
                         </TableRow>
-
                     </TableRowGroup>
                 </Table>
                 <Paragraph>
                     <Bold>GDEMU</Bold> - Deunan;&#160;
-                    <Bold>mkisofs</Bold> - E.YOUNGDALE/J.PEARSON/J.SCHILLING;
-                    <LineBreak/>
                     <Bold>GDmenu</Bold> - neuroacid;&#160;
-                    <Bold>CDI4DC</Bold> - [big_fury]SiZiOUS;&#160;
-                    <Bold>gdishrink</Bold> - FamilyGuy;&#160;
-                    <Bold>7z</Bold> - Igor Pavlov
+                    <Bold>GdiShrink</Bold> - FamilyGuy;&#160;
+                    <Bold>GdiBuilder</Bold> - Paul Kratt;&#160;
+                    <LineBreak/>
+                    <Bold>Aaru</Bold> - Natalia Portillo;&#160;
+                    <Bold>PuyoTools</Bold> - Nick Woronekin;&#160;
+                    <Bold>7z</Bold> - Igor Pavlov;&#160;
+                    <Bold>SevenZipSharp</Bold> - Joel Ahlgren;&#160;
                 </Paragraph>
 
             </FlowDocument>

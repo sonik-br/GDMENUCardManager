@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GDMENUCardManager.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -22,13 +23,7 @@ namespace GDMENUCardManager
         public class ItemToShrink : INotifyPropertyChanged
         {
             public GdItem Key { get; set; }
-            private bool myVar;
-
-            //public bool Value
-            //{
-            //    get { return myVar; }
-            //    set { myVar = value; }
-            //}
+            
             private bool _Value;
             public bool Value
             {
@@ -54,7 +49,7 @@ namespace GDMENUCardManager
         private const int WS_MAXIMIZEBTN = 0x10000;
         private const int WS_MINIMIZEBTN = 0x20000;
 
-        public GdiShrinkWindow(GdItem[] items)
+        public GdiShrinkWindow(System.Collections.Generic.IEnumerable<GdItem> items)
         {
             InitializeComponent();
             DataContext = this;
