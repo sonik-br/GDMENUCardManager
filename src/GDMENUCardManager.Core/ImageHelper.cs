@@ -270,7 +270,13 @@ namespace GDMENUCardManager.Core
 
         private static string GetString(byte[] bytearray)
         {
-            return Encoding.ASCII.GetString(bytearray).Trim();
+            var str = Encoding.ASCII.GetString(bytearray).Trim();
+
+            //handle null terminated string
+            int index = str.IndexOf('\0');
+            if (index > -1)
+                str = str.Substring(0, index).Trim();
+            return str;
         }
 
 

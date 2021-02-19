@@ -635,11 +635,17 @@ namespace GDMENUCardManager.Core
             }
 
             item.FullFolderPath = newPath;
-            item.Work = WorkMode.None;
             item.SdNumber = folderNumber;
 
             if (item.Work == WorkMode.New && shrink)
+            {
+                //get the new filenames
+                var gdi = await ImageHelper.CreateGdItemAsync(newPath);
+                item.ImageFiles.Clear();
+                item.ImageFiles.AddRange(gdi.ImageFiles);
                 UpdateItemLength(item);
+            }
+            item.Work = WorkMode.None;
         }
 
         private Process CreateProcess(string fileName)
@@ -751,6 +757,9 @@ namespace GDMENUCardManager.Core
                                     using (var p = CreateProcess(gdishrinkPath))
                                         if (!await RunShrinkProcess(p, Path.Combine(tempExtractDir, gdi.ImageFile), newPath))
                                             throw new Exception("Error during GDIShrink");
+
+                                    //get the new filenames
+                                    gdi = await ImageHelper.CreateGdItemAsync(newPath);
                                 }
                                 else
                                 {
@@ -767,7 +776,7 @@ namespace GDMENUCardManager.Core
 
                                 item.FileFormat = FileFormat.Uncompressed;
 
-                                item.ImageFiles[0] = gdi.ImageFile;
+                                //item.ImageFiles[0] = gdi.ImageFile;
                                 item.ImageFiles.Clear();
                                 item.ImageFiles.AddRange(gdi.ImageFiles);
 
@@ -775,7 +784,7 @@ namespace GDMENUCardManager.Core
 
                                 UpdateItemLength(item);
                             }
-                            else// if not whrinking, can extract directly to card
+                            else// if not shrinking, can extract directly to card
                             {
                                 progress.TextContent = $"Uncompressing {item.Name} ...";
                                 await Uncompress(item, i + 1);//+ ammountToIncrement

@@ -38,6 +38,21 @@ namespace Aaru.Filesystems
 {
     public sealed partial class ISO9660
     {
+        private static readonly TimeZoneInfo GMT = null;
+
+        static ISO9660()
+        {
+            foreach (var timezone in new string[] { "GMT Standard Time", "GMT" })
+            {
+                try
+                {
+                    GMT = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+                    break;
+                }
+                catch { }
+            }
+        }
+
         static DateTime? DecodeIsoDateTime(byte[] timestamp)
         {
             switch(timestamp?.Length)
@@ -57,7 +72,7 @@ namespace Aaru.Filesystems
 
                 date = date.AddMinutes(timestamp.GmtOffset * 15);
 
-                return TimeZoneInfo.ConvertTimeToUtc(date, TimeZoneInfo.FindSystemTimeZoneById("GMT"));
+                return TimeZoneInfo.ConvertTimeToUtc(date, GMT);
             }
             catch(Exception)
             {
