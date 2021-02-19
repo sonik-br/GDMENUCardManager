@@ -32,7 +32,7 @@ By default the blacklist will be used and those games will not be shrinked.
 ### Limitations
 Linux version can't open rar and 7z files. Also it's not possible to use drag-and-drop.
 
-**OSX version is untested as I don't have access to a mac**
+**If you can't run it on OSX please check issue #4 for a workaround**
 
 ### Credits
 This software is made possible by using third party toosl:
