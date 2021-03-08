@@ -732,7 +732,15 @@ namespace Aaru.DiscImages
             return true;
         }
 
-        public void Close() { }
+        public void Close()
+        {
+            if (Tracks != null)
+                foreach (var track in Tracks)
+                {
+                    track.TrackFilter?.Close();
+                    track.TrackSubchannelFilter?.Close();
+                }
+        }
 
         public byte[] ReadDiskTag(MediaTagType tag)
         {

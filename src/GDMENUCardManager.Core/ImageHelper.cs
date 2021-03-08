@@ -1,4 +1,5 @@
 ﻿using Aaru.CommonTypes;
+using Aaru.CommonTypes.Exceptions;
 using Aaru.CommonTypes.Interfaces;
 using Aaru.Filesystems;
 using System;
@@ -131,10 +132,58 @@ namespace GDMENUCardManager.Core
 
                     try
                     {
-                        if (! await Task.Run(() => opticalImage.Open(inputFilter)))
-                        {
-                            //if cant open using diskutils, try to parse file manually
+                        bool useAaru = await Task.Run(() => opticalImage.Open(inputFilter));
 
+                        if (useAaru) //try to load file using Aaru
+                        {
+                            try
+                            {
+                                Partition partition;
+
+                                if (Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase))//first track not audio and skip one
+                                {
+                                    partition = opticalImage.Partitions.Where(x => x.Type != "Audio").Skip(1).First();
+                                    ip = await GetIpData(opticalImage, partition);
+                                }
+                                else//try to find from last
+                                {
+                                    for (int i = opticalImage.Partitions.Count - 1; i >= 0; i--)
+                                    {
+                                        partition = opticalImage.Partitions[i];
+                                        ip = await GetIpData(opticalImage, partition);
+                                        if (ip != null)
+                                            break;
+                                    }
+                                }
+
+
+                                //var imageFiles = new List<string> { Path.GetFileName(item.ImageFile) };
+                                item.ImageFiles.Add(Path.GetFileName(itemImageFile));
+                                foreach (var track in opticalImage.Tracks)
+                                {
+                                    if (!string.IsNullOrEmpty(track.TrackFile) && !item.ImageFiles.Any(x => x.Equals(track.TrackFile, StringComparison.InvariantCultureIgnoreCase)))
+                                        item.ImageFiles.Add(track.TrackFile);
+                                    if (!string.IsNullOrEmpty(track.TrackSubchannelFile) && !item.ImageFiles.Any(x => x.Equals(track.TrackSubchannelFile, StringComparison.InvariantCultureIgnoreCase)))
+                                        item.ImageFiles.Add(track.TrackSubchannelFile);
+                                }
+
+                                item.CanApplyGDIShrink = Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase);
+
+                                Manager.UpdateItemLength(item);
+                            }
+                            catch
+                            {
+                                useAaru = false;
+                            }
+                            finally
+                            {
+                                opticalImage?.Close();
+                            }
+                        }
+
+
+                        if (!useAaru) //if cant open using Aaru, try to parse file manually
+                        {
                             if (inputFilter != null && inputFilter.IsOpened())
                                 inputFilter.Close();
 
@@ -146,42 +195,7 @@ namespace GDMENUCardManager.Core
                             ip = temp.Ip;
                             item = temp;
                         }
-                        else
-                        {
-                            Partition partition;
 
-                            if (Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase))//first track not audio and skip one
-                            {
-                                partition = opticalImage.Partitions.Where(x => x.Type != "Audio").Skip(1).First();
-                                ip = await GetIpData(opticalImage, partition);
-                            }
-                            else//try to find from last
-                            {
-                                for (int i = opticalImage.Partitions.Count - 1; i >= 0; i--)
-                                {
-                                    partition = opticalImage.Partitions[i];
-                                    ip = await GetIpData(opticalImage, partition);
-                                    if (ip != null)
-                                        break;
-                                }
-                            }
-
-
-                            //var imageFiles = new List<string> { Path.GetFileName(item.ImageFile) };
-                            item.ImageFiles.Add(Path.GetFileName(itemImageFile));
-                            foreach (var track in opticalImage.Tracks)
-                            {
-                                if (!string.IsNullOrEmpty(track.TrackFile) && !item.ImageFiles.Any(x => x.Equals(track.TrackFile, StringComparison.InvariantCultureIgnoreCase)))
-                                    item.ImageFiles.Add(track.TrackFile);
-                                if (!string.IsNullOrEmpty(track.TrackSubchannelFile) && !item.ImageFiles.Any(x => x.Equals(track.TrackSubchannelFile, StringComparison.InvariantCultureIgnoreCase)))
-                                    item.ImageFiles.Add(track.TrackSubchannelFile);
-                            }
-
-                            item.CanApplyGDIShrink = Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase);
-
-
-                            Manager.UpdateItemLength(item);
-                        }
                     }
                     finally
                     {
