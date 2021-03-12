@@ -1,5 +1,4 @@
 ﻿using Aaru.CommonTypes;
-using Aaru.CommonTypes.Exceptions;
 using Aaru.CommonTypes.Interfaces;
 using Aaru.Filesystems;
 using System;
@@ -132,7 +131,17 @@ namespace GDMENUCardManager.Core
 
                     try
                     {
-                        bool useAaru = await Task.Run(() => opticalImage.Open(inputFilter));
+                        bool useAaru;
+                        try
+                        {
+                            useAaru = await Task.Run(() => opticalImage.Open(inputFilter));
+                        }
+                        catch (Exception)
+                        {
+                            useAaru = false;
+                            opticalImage?.Close();
+                        }
+
 
                         if (useAaru) //try to load file using Aaru
                         {
