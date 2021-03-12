@@ -7,6 +7,6 @@
         public const string MenuConfigTextFile = "GDEMU.ini";
         public const string GdiShrinkBlacklistFile = "gdishrink_blacklist.txt";
         public const string DefaultImageFileName = "disc";
-        public const string Version = "v1.3.1";
+        public const string Version = "v1.3.2";
     }
 }
