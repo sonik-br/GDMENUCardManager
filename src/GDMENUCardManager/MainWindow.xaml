@@ -126,6 +126,7 @@
                             </MenuItem>
                             <Separator/>
                             <MenuItem Header="Rename" Click="MenuItemRename_Click" CommandParameter="{Binding}"/>
+                            <MenuItem Header="Sentence Case" Click="MenuItemRenameSentence_Click" CommandParameter="{Binding}"/>
                             <MenuItem Header="Automatically Rename">
                                 <MenuItem Header="Using IP.BIN _info" Click="MenuItemRenameIP_Click" CommandParameter="{Binding}"/>
                                 <MenuItem Header="Using Folder name" Click="MenuItemRenameFolder_Click" CommandParameter="{Binding}"/>
