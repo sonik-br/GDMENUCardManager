@@ -84,11 +84,15 @@ namespace GDMENUCardManager.Core
                 await CreateDirectoryAsync(destDirName);
 
             // Get the files in the directory and copy them to the new location.
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 FileInfo[] files = dir.GetFiles();
                 foreach (FileInfo file in files)
                     file.CopyTo(Path.Combine(destDirName, file.Name), true);
+
+                DirectoryInfo[] dirs = dir.GetDirectories();
+                foreach (DirectoryInfo folder in dirs)
+                    await CopyDirectoryAsync(Path.Combine(sourceDirName, folder.Name), Path.Combine(destDirName, folder.Name));
             });
         }
 
