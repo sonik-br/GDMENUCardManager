@@ -29,7 +29,7 @@
       </StackPanel>
       <TextBlock Text=" "/>
       <TextBlock>Supported image formats: GDI, CDI, CCD and MDS</TextBlock>
-      <TextBlock>Supported compressed formats: ZIP</TextBlock>
+      <TextBlock>Supported compressed formats: 7Z, RAR, ZIP</TextBlock>
       
       <Rectangle Fill="Black" Height="1" Margin="0 10"/>
       
@@ -117,10 +117,8 @@
         <TextBlock Text=" - Nick Woronekin; "/>
       </WrapPanel>
       <WrapPanel Orientation="Horizontal">
-        <!--<TextBlock FontWeight="Bold" Text="7z"/>
-        <TextBlock Text=" - Igor Pavlov; "/>
-        <TextBlock FontWeight="Bold" Text="SevenZipSharp"/>
-        <TextBlock Text=" - Joel Ahlgren; "/>-->
+        <TextBlock FontWeight="Bold" Text="SharpCompress"/>
+        <TextBlock Text=" - Adam Hathcock; "/>
       </WrapPanel>
       
     </StackPanel>

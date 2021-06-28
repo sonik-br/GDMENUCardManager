@@ -851,6 +851,9 @@ namespace GDMENUCardManager.Core
         private async Task Uncompress(GdItem item, int folderNumber)
         {
             var newPath = Path.Combine(sdPath, FormatFolderNumber(folderNumber));
+            
+            if (!await Helper.DirectoryExistsAsync(newPath))
+                await Helper.CreateDirectoryAsync(newPath);
 
             await Task.Run(() => Helper.DependencyManager.ExtractArchive(Path.Combine(item.FullFolderPath, item.ImageFile), newPath));
 
