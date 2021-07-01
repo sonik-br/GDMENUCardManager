@@ -530,6 +530,14 @@ namespace GDMENUCardManager.Core
                 if (isRebuilding)
                     return;
 
+                //if user's menu is not in GDI format, update to GDI format.
+                if (!Path.GetExtension(item.ImageFile).Equals(".gdi", StringComparison.OrdinalIgnoreCase))
+                {
+                    item.ImageFiles.Clear();
+                    var gdi = await ImageHelper.CreateGdItemAsync(cdiPath);
+                    item.ImageFiles.AddRange(gdi.ImageFiles);
+                }
+
                 item.FullFolderPath = cdiPath;
                 item.ImageFiles[0] = Path.GetFileName(cdiFilePath);
                 //item.RenameImageFile(Path.GetFileName(cdiFilePath));
