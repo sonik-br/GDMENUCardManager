@@ -30,12 +30,12 @@ The program have a blacklist with some games known to have problems after shrink
 By default the blacklist will be used and those games will not be shrinked.
 
 ### Limitations
-Linux version can't open rar and 7z files. Also it's not possible to use drag-and-drop.
+On Linux version it's not possible to use drag-and-drop.
 
 **If you can't run it on OSX please check issue #4 for a workaround**
 
 ### Credits
-This software is made possible by using third party toosl:
+This software is made possible by using third party tools:
 
 GDmenu by neuroacid<br />
 [GdiTools](https://sourceforge.net/projects/dcisotools/), 

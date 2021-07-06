@@ -9,6 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using GDMENUCardManager.Core;
 using GDMENUCardManager.Core.Interface;
+using SharpCompress.Readers;
+using SharpCompress.Common;
+using SharpCompress.Archives;
 
 namespace GDMENUCardManager
 {
@@ -33,26 +36,26 @@ namespace GDMENUCardManager
 
         public void ExtractArchive(string archivePath, string extractTo)
         {
-            using (var compressedfile = ZipFile.OpenRead(archivePath))
+            var extOptions = new ExtractionOptions()
             {
-                compressedfile.ExtractToDirectory(extractTo, true);
-                //move files from subfolders to root folder
-                foreach (var file in compressedfile.Entries.Where(x => !string.IsNullOrEmpty(x.Name) && x.FullName.Split('/').Length > 1))
-                    File.Move(Path.Combine(extractTo, file.FullName), Path.Combine(extractTo, file.Name), true);
+                ExtractFullPath = false,
+                Overwrite = true
+            };
 
-                //todo delete subfolders?
-                //foreach (var dir in compressedfile.Entries.Where(x => string.IsNullOrEmpty(x.Name) && x.FullName.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 1))
-                //    Directory.Delete(Path.Combine(extractTo, dir.FullName), true);
-            }
+            using (var stream = File.OpenRead(archivePath))
+            using (var archive = ArchiveFactory.Open(stream))
+            using (var reader = archive.ExtractAllEntries())
+                reader.WriteAllToDirectory(extractTo, extOptions);
         }
 
         public Dictionary<string, long> GetArchiveFiles(string archivePath)
         {
             var toReturn = new Dictionary<string, long>();
-            using (var compressedfile = ZipFile.OpenRead(archivePath))
-                foreach (var item in compressedfile.Entries.Where(x => !string.IsNullOrEmpty(x.Name)))
-                    if (!toReturn.ContainsKey(item.FullName))
-                        toReturn.Add(item.FullName, item.Length);
+            using (var stream = File.OpenRead(archivePath))
+            using (var archive = ArchiveFactory.Open(stream))
+                foreach (var item in archive.Entries)
+                    if (!item.IsDirectory && !toReturn.ContainsKey(item.Key))
+                        toReturn.Add(item.Key, item.Size);
             return toReturn;
         }
     }

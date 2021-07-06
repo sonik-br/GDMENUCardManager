@@ -78,7 +78,7 @@ namespace GDMENUCardManager
             //this.OpenDevTools();
 #endif
 
-            var compressedFileFormats = new string[] { ".zip" };
+            var compressedFileFormats = new string[] { ".7z", ".rar", ".zip" };
             _ManagerInstance = GDMENUCardManager.Core.Manager.CreateInstance(new DependencyManager(), compressedFileFormats);
             var fullList = Manager.supportedImageFormats.Concat(compressedFileFormats).ToArray();
             fileFilterList = new List<FileDialogFilter>
