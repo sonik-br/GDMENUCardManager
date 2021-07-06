@@ -594,7 +594,7 @@ namespace GDMENUCardManager.Core
             sb.AppendLine($"{strnumber}.date={ip.ReleaseDate}");
             if(is_openmenu)
             {
-                string productid = ip.ProductNumber.Replace("-", "").Replace(" ", "");
+                string productid = ip.ProductNumber.Replace("-", "").Split(' ')[0];
                 sb.AppendLine($"{strnumber}.product={productid}");
             }
             sb.AppendLine();
