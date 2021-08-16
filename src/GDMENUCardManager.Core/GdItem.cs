@@ -9,7 +9,7 @@ namespace GDMENUCardManager.Core
 
     public sealed class GdItem : INotifyPropertyChanged
     {
-        private const int namemaxlen = 40;
+        private const int namemaxlen = 39;
 
         public string Guid { get; set; }
 
