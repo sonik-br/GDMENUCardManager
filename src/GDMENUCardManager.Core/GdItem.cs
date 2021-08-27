@@ -9,7 +9,7 @@ namespace GDMENUCardManager.Core
 
     public sealed class GdItem : INotifyPropertyChanged
     {
-        private const int namemaxlen = 40;
+        private const int namemaxlen = 39;
 
         public string Guid { get; set; }
 
@@ -33,7 +33,7 @@ namespace GDMENUCardManager.Core
                 {
                     if (_Name.Length > namemaxlen)
                         _Name = _Name.Substring(0, namemaxlen);
-                    _Name = Helper.RemoveDiacritics(_Name).ToUpperInvariant().Trim();
+                    _Name = Helper.RemoveDiacritics(_Name).Trim();
                 }
 
                 RaisePropertyChanged();
