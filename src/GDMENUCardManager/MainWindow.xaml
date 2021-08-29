@@ -54,9 +54,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ProgressBar Grid.Row="0" Height="5" IsIndeterminate="{Binding IsBusy}"/>
+        <ProgressBar Grid.Row="0" Height="5" IsIndeterminate="{Binding IsBusy, Mode=OneWay}"/>
 
-        <GroupBox Grid.Row="1" Header="Settings" Margin="10" IsEnabled="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}">
+        <GroupBox Grid.Row="1" Header="Settings" Margin="10" IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
@@ -73,7 +73,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Label Grid.Column="0" Margin="0 3 0 0">SD Drive</Label>
-                    <ComboBox Grid.Column="1" ItemsSource="{Binding DriveList}" SelectedItem="{Binding SelectedDrive}" ToolTip="{Binding SelectedDrive.VolumeLabel}"/>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding DriveList, Mode=OneWay}" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}" ToolTip="{Binding SelectedDrive.VolumeLabel, Mode=OneWay}"/>
                     <Button Grid.Column="2" Width="30" Margin="10 0 0 0" ToolTip="Refresh Drive List" Click="ButtonRefreshDrive_Click">
                         <ContentControl Content="{StaticResource ViewRefresh}" />
                     </Button>
@@ -95,7 +95,7 @@
                         <Button Width="30" Click="ButtonFolder_Click" ToolTip="Select Folder">
                             <ContentControl Content="{StaticResource ViewOpenFolder}" />
                         </Button>
-                        <TextBox Grid.Column="1" Text="{Binding TempFolder}"/>
+                        <TextBox Grid.Column="1" Text="{Binding TempFolder, Mode=TwoWay}"/>
                     </Grid>
                 </Grid>
 
@@ -115,21 +115,21 @@
                     Games List [<Run Text="{Binding TotalFilesLength, Mode=OneWay}"/>]
                 </TextBlock>
             </GroupBox.Header>
-            <DataGrid x:Name="dg1" ItemsSource="{Binding Manager.ItemList, Mode=OneTime}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.DropHandler="{Binding}" dd:DragDrop.IsDragSource="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.IsDropTarget="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}" PreviewKeyDown="DataGrid_PreviewKeyDown" Margin="0,8,0,8">
+            <DataGrid x:Name="dg1" ItemsSource="{Binding Manager.ItemList, Mode=OneTime}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.DropHandler="{Binding Path=., Mode=OneWay}" dd:DragDrop.IsDragSource="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.IsDropTarget="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" PreviewKeyDown="DataGrid_PreviewKeyDown" Margin="0,8,0,8">
                 <DataGrid.Resources>
                     <ContextMenu x:Key="rowmenu">
                         <ContextMenu.Items>
-                            <MenuItem Header="{Binding Name}" IsEnabled="False">
+                            <MenuItem Header="{Binding Name, Mode=OneWay}" IsEnabled="False">
                                 <MenuItem.Icon>
                                     <Image Source="{StaticResource dreamcastLogoDrawingImage}"/>
                                 </MenuItem.Icon>
                             </MenuItem>
                             <Separator/>
-                            <MenuItem Header="Rename" Click="MenuItemRename_Click" CommandParameter="{Binding}"/>
+                            <MenuItem Header="Rename" Click="MenuItemRename_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
                             <MenuItem Header="Automatically Rename">
-                                <MenuItem Header="Using IP.BIN _info" Click="MenuItemRenameIP_Click" CommandParameter="{Binding}"/>
-                                <MenuItem Header="Using Folder name" Click="MenuItemRenameFolder_Click" CommandParameter="{Binding}"/>
-                                <MenuItem Header="Using File name" Click="MenuItemRenameFile_Click" CommandParameter="{Binding}"/>
+                                <MenuItem Header="Using IP.BIN _info" Click="MenuItemRenameIP_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                <MenuItem Header="Using Folder name" Click="MenuItemRenameFolder_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                <MenuItem Header="Using File name" Click="MenuItemRenameFile_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
                             </MenuItem>
                         </ContextMenu.Items>
                     </ContextMenu>
@@ -148,7 +148,7 @@
                     <DataGridTemplateColumn Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Click="ButtonInfo_Click" ToolTip="View File Info" CommandParameter="{Binding}">
+                                <Button Click="ButtonInfo_Click" ToolTip="View File Info" CommandParameter="{Binding Path=., Mode=OneWay}">
                                     <ContentControl Content="{StaticResource ViewInfo}" />
                                 </Button>
                             </DataTemplate>
@@ -161,15 +161,15 @@
                         </DataGridTextColumn.Header>
                     </DataGridTextColumn>
                     <DataGridTextColumn Header="Length" Width="Auto" IsReadOnly="True" Binding="{Binding Length, Mode=OneWay, Converter={StaticResource ByteSizeToString}}"/>
-                    <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Name, Mode=TwoWay}"/>
                     <DataGridTextColumn Header="Disc" Width="Auto" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>
 
-        <GroupBox Grid.Row="3" Header="GDI Shrink" Margin="5 0 5 10" IsEnabled="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}">
+        <GroupBox Grid.Row="3" Header="GDI Shrink" Margin="5 0 5 10" IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}">
             <StackPanel Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding EnableGDIShrink, UpdateSourceTrigger=PropertyChanged}">
+                <CheckBox IsChecked="{Binding EnableGDIShrink, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <TextBlock>
                         Enable GDI Shrink for new games
                         <LineBreak/>
@@ -177,14 +177,14 @@
                     </TextBlock>
                 </CheckBox>
                 <StackPanel Orientation="Horizontal" Visibility="{Binding EnableGDIShrink, Mode=OneWay, Converter={StaticResource BoolToVisibleOrCollapsed}}">
-                    <CheckBox IsChecked="{Binding EnableGDIShrinkCompressed, UpdateSourceTrigger=PropertyChanged}" Margin="25 0 0 0">
+                    <CheckBox IsChecked="{Binding EnableGDIShrinkCompressed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="25 0 0 0">
                         <TextBlock>
                             Also shrink compressed games
                             <LineBreak/>
                             Games will be extracted to temp folder prior to shrinking
                         </TextBlock>
                     </CheckBox>
-                    <CheckBox IsChecked="{Binding EnableGDIShrinkBlackList, UpdateSourceTrigger=PropertyChanged}" Margin="25 0 0 0" Visibility="{Binding HaveGDIShrinkBlacklist, Mode=OneWay, Converter={StaticResource BoolToVisibleOrCollapsed}}">
+                    <CheckBox IsChecked="{Binding EnableGDIShrinkBlackList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="25 0 0 0" Visibility="{Binding HaveGDIShrinkBlacklist, Mode=OneWay, Converter={StaticResource BoolToVisibleOrCollapsed}}">
                         <TextBlock>
                             Use Blacklist
                             <LineBreak/>
@@ -196,9 +196,9 @@
             </StackPanel>
         </GroupBox>
 
-        <Grid Grid.Row="4" Margin="5 0 5 10" IsEnabled="{Binding IsBusy, Converter={StaticResource BoolToInverseBool}}">
+        <Grid Grid.Row="4" Margin="5 0 5 10" IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}">
 
-            <Grid IsEnabled="{Binding SelectedDrive, Converter={StaticResource NotNullToBool}}">
+            <Grid IsEnabled="{Binding SelectedDrive, Mode=OneWay, Converter={StaticResource NotNullToBool}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>

@@ -22,7 +22,7 @@
                 <DataGridTemplateColumn Width="Auto" Header="Shrink">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox IsChecked="{Binding Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" CommandParameter="{Binding}"/>
+                            <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" CommandParameter="{Binding Path=., Mode=OneTime}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

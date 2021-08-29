@@ -10,19 +10,19 @@
     <StackPanel>
         <GroupBox Header="Rename all games located on" Margin="5">
             <StackPanel>
-                <CheckBox IsChecked="{Binding OnCard}">SD Card</CheckBox>
-                <CheckBox IsChecked="{Binding NotOnCard}">Other</CheckBox>
+                <CheckBox IsChecked="{Binding OnCard, Mode=TwoWay}">SD Card</CheckBox>
+                <CheckBox IsChecked="{Binding NotOnCard, Mode=TwoWay}">Other</CheckBox>
             </StackPanel>
         </GroupBox>
 
         <GroupBox Header="Copy name from" Margin="5">
             <StackPanel>
-                <RadioButton IsChecked="{Binding FolderName}">Folder</RadioButton>
+                <RadioButton IsChecked="{Binding FolderName, Mode=TwoWay}">Folder</RadioButton>
                 <RadioButton>File</RadioButton>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="Special parsing" Margin="5">
-            <CheckBox IsChecked="{Binding ParseTosec}">Read TOSEC naming</CheckBox>
+            <CheckBox IsChecked="{Binding ParseTosec, Mode=TwoWay}">Read TOSEC naming</CheckBox>
         </GroupBox>
 
         <Button Click="Button_Click" IsDefault="True" Margin="5" Padding="20 10">Ok</Button>
