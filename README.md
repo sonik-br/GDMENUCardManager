@@ -29,6 +29,10 @@ The program have a blacklist with some games known to have problems after shrink
 
 By default the blacklist will be used and those games will not be shrinked.
 
+### Windows version requires the .Net 5 Desktop Runtime
+Donwload and install the [Desktop Runtime installer](https://dotnet.microsoft.com/download/dotnet/5.0/runtime) for your system.
+![Dot Net Runtime](docs/dotnetruntime.png)
+
 ### Limitations
 On Linux version it's not possible to use drag-and-drop.
 
