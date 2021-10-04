@@ -165,6 +165,9 @@ namespace GDMENUCardManager.Core
                                     }
                                 }
 
+                                //Aaru fails to read the ip.bin from some cdis in CdMode2Formless.
+                                if (ip == null)
+                                    throw new Exception();
 
                                 //var imageFiles = new List<string> { Path.GetFileName(item.ImageFile) };
                                 item.ImageFiles.Add(Path.GetFileName(itemImageFile));
