@@ -668,7 +668,7 @@ namespace DiscUtils.Gdrom
         }
 
 
-        public void CreateFirstTrack(string destinationIsoPath, FileInfo listFile)
+        public void CreateFirstTrack(string destinationIsoPath, List<FileInfo> fileList)
         {
             CDBuilder builder = new CDBuilder()
             {
@@ -681,7 +681,10 @@ namespace DiscUtils.Gdrom
                 UseJoliet = false,
             };
             //builder.EndSector = 512;
-            builder.AddFile(listFile.Name, listFile.FullName);
+            foreach (FileInfo file in fileList)
+            {
+                builder.AddFile(file.Name, file.FullName);
+            }
             builder.Build(destinationIsoPath);
         }
     }

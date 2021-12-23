@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace GDMENUCardManager
 
         public ObservableCollection<DriveInfo> DriveList { get; } = new ObservableCollection<DriveInfo>();
 
-        
+
 
 
         private bool _IsBusy;
@@ -407,6 +408,19 @@ namespace GDMENUCardManager
             dg1.BeginEdit();
         }
 
+        private void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
+        {
+            TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+
+            dg1.CurrentCell = new DataGridCellInfo(dg1.SelectedItem, dg1.Columns[4]);
+            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
+
+            foreach (var item in items)
+            {
+                item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+            }
+        }
+
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
         {
             await renameSelection(RenameBy.Ip);
@@ -446,7 +460,7 @@ namespace GDMENUCardManager
                 var grid = (DataGrid)sender;
                 List<GdItem> toRemove = new List<GdItem>();
                 foreach (GdItem item in grid.SelectedItems)
-                    if (!(item.SdNumber == 1 && item.Ip.Name == "GDMENU"))//dont let the user exclude GDMENU
+                    if (!(item.SdNumber == 1 && (item.Ip.Name == "GDMENU" || item.Ip.Name == "openMenu")))//dont let the user exclude GDMENU, openMenu
                         toRemove.Add(item);
 
                 foreach (var item in toRemove)

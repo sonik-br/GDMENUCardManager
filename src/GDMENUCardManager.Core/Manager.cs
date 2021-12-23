@@ -179,7 +179,7 @@ namespace GDMENUCardManager.Core
                     if (item.Ip == null)
                         await LoadIP(item);
 
-                    if (item.Ip.Name == "GDMENU")
+                    if (item.Ip.Name == "GDMENU" || item.Ip.Name == "openMenu")
                         continue;
                 }
 
@@ -273,6 +273,7 @@ namespace GDMENUCardManager.Core
                 containsCompressedFile = ItemList.Any(x => x.FileFormat != FileFormat.Uncompressed);
 
                 StringBuilder sb = new StringBuilder();
+                StringBuilder sb_open = new StringBuilder();
 
                 //delete unused folders that are numbers
                 List<string> foldersToDelete = new List<string>();
@@ -312,6 +313,10 @@ namespace GDMENUCardManager.Core
                 bool foundMenuOnSdCard = false;
 
                 sb.AppendLine("[GDMENU]");
+                sb_open.AppendLine("[OPENMENU]");
+                sb_open.AppendLine($"num_items={ItemList.Count}");
+                sb_open.AppendLine();
+                sb_open.AppendLine("[ITEMS]");
 
                 var ammountToIncrement = 2;//foundMenuOnSdCard ? 2 : 1
                 var folder01 = Path.Combine(sdPath, "01");
@@ -320,7 +325,7 @@ namespace GDMENUCardManager.Core
                     try
                     {
                         var ip01 = await ImageHelper.CreateGdItemAsync(folder01);
-                        if (ip01 != null && ip01.Ip.Name == "GDMENU")
+                        if (ip01 != null && (ip01.Ip.Name == "GDMENU" || ip01.Ip.Name == "openMenu"))
                         {
                             foundMenuOnSdCard = true;
                             ammountToIncrement = 1;
@@ -345,14 +350,19 @@ namespace GDMENUCardManager.Core
                     //    item.SdNumber++;
 
                     FillListText(sb, menuIpBin, menuIpBin.Name, 1);//insert menu in text list
+                    FillListText(sb_open, menuIpBin, menuIpBin.Name, 1, true);//insert menu in text list
                 }
 
                 for (int i = 0; i < ItemList.Count; i++)
+                {
                     FillListText(sb, ItemList[i].Ip, ItemList[i].Name, i + ammountToIncrement);
+                    FillListText(sb_open, ItemList[i].Ip, ItemList[i].Name, i + ammountToIncrement, true);
+                }
 
                 //generate iso and save in temp
-                await GenerateMenuImageAsync(tempDirectory, sb.ToString());
+                await GenerateMenuImageAsync(tempDirectory, sb.ToString(), sb_open.ToString());
                 sb.Clear();
+                sb_open.Clear();
 
                 //define what to do with each folder
                 for (int i = 0; i < ItemList.Count; i++)
@@ -432,12 +442,19 @@ namespace GDMENUCardManager.Core
                     var orderedList = ItemList.OrderBy(x => x.SdNumber);
 
                     sb.AppendLine("[GDMENU]");
+                    sb_open.AppendLine("[OPENMENU]");
+                    sb_open.AppendLine($"num_items={ItemList.Count}");
+                    sb_open.AppendLine();
+                    sb_open.AppendLine("[ITEMS]");
 
                     foreach (var item in orderedList)
+                    {
                         FillListText(sb, item.Ip, item.Name, item.SdNumber);
+                        FillListText(sb_open, item.Ip, item.Name, item.SdNumber, true);
+                    }
 
                     //generate iso and save in temp
-                    await GenerateMenuImageAsync(tempDirectory, sb.ToString(), true);
+                    await GenerateMenuImageAsync(tempDirectory, sb.ToString(), sb_open.ToString(), true);
 
                     //move to card
                     var menuitem = orderedList.First();
@@ -449,6 +466,7 @@ namespace GDMENUCardManager.Core
                     await Helper.CopyDirectoryAsync(Path.Combine(tempDirectory, "menu_gdi"), menuitem.FullFolderPath);
 
                     sb.Clear();
+                    sb_open.Clear();
                 }
 
                 //write menu config to root of sdcard
@@ -476,7 +494,7 @@ namespace GDMENUCardManager.Core
             }
         }
 
-        private async Task GenerateMenuImageAsync(string tempDirectory, string listText, bool isRebuilding = false)
+        private async Task GenerateMenuImageAsync(string tempDirectory, string listText, string openmenuListText, bool isRebuilding = false)
         {
             //create hi density track
             var dataPath = Path.Combine(tempDirectory, "data");
@@ -499,26 +517,36 @@ namespace GDMENUCardManager.Core
 
             await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "menu_data"), dataPath);
             await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "menu_gdi"), cdiPath);
+            /* Write to low density */
             await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
+            await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "OPENMENU.INI"), openmenuListText);
+            /* Write to high density */
+            await Helper.WriteTextFileAsync(Path.Combine(dataPath, "LIST.INI"), listText);
+            await Helper.WriteTextFileAsync(Path.Combine(dataPath, "OPENMENU.INI"), openmenuListText);
+            /*@Debug*/
+            await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "LIST.INI"), listText);
+            await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "OPENMENU.INI"), openmenuListText);
 
             //generate menu gdi
             var builder = new DiscUtils.Gdrom.GDromBuilder()
             {
                 RawMode = false,
                 TruncateData = true,
-                VolumeIdentifier = "GDMENU"
+                VolumeIdentifier = "OPENMENU"
             };
             //builder.ReportProgress += ProgressReport;
 
             //create low density track
-            builder.CreateFirstTrack(Path.Combine(cdiPath, "track01.iso"), new FileInfo(Path.Combine(tempDirectory, "LIST.INI")));
+            List<FileInfo> fileList = new List<FileInfo>();
+            fileList.Add(new FileInfo(Path.Combine(tempDirectory, "LIST.INI")));
+            fileList.Add(new FileInfo(Path.Combine(tempDirectory, "OPENMENU.INI")));
 
-
+            builder.CreateFirstTrack(Path.Combine(cdiPath, "track01.iso"), fileList);
 
             var updatetDiscTracks = builder.BuildGDROM(dataPath, ipbinPath, new List<string> { Path.Combine(cdiPath, "track04.raw") }, cdiPath);//todo await
             builder.UpdateGdiFile(updatetDiscTracks, cdiFilePath);
 
-            if (ItemList.First().Ip.Name == "GDMENU")
+            if (ItemList.First().Ip.Name == "GDMENU" || ItemList.First().Ip.Name == "openMenu")
             {
                 //long start;
                 //GetIpData(cdiFilePath, out long fileLength);
@@ -551,7 +579,7 @@ namespace GDMENUCardManager.Core
             }
         }
 
-        private void FillListText(StringBuilder sb, IpBin ip, string name, int number)
+        private void FillListText(StringBuilder sb, IpBin ip, string name, int number, bool is_openmenu=false)
         {
             string strnumber = FormatFolderNumber(number);
 
@@ -564,6 +592,11 @@ namespace GDMENUCardManager.Core
             sb.AppendLine($"{strnumber}.region={ip.Region}");
             sb.AppendLine($"{strnumber}.version={ip.Version}");
             sb.AppendLine($"{strnumber}.date={ip.ReleaseDate}");
+            if(is_openmenu)
+            {
+                string productid = ip.ProductNumber.Replace("-", "").Split(' ')[0];
+                sb.AppendLine($"{strnumber}.product={productid}");
+            }
             sb.AppendLine();
         }
 
@@ -691,7 +724,7 @@ namespace GDMENUCardManager.Core
                 }
 
                 var shrinkableItems = ItemList.Where(x =>
-                    x.Work == WorkMode.New && x.Ip.Name != "GDMENU" && x.CanApplyGDIShrink
+                    x.Work == WorkMode.New && x.Ip.Name != "GDMENU" && x.Ip.Name != "openMenu" && x.CanApplyGDIShrink
                         && (x.FileFormat == FileFormat.Uncompressed || (EnableGDIShrinkCompressed)
                         && !ignoreShrinkList.Contains(x.Ip.ProductNumber, StringComparer.OrdinalIgnoreCase)
                     )).OrderBy(x => x.Name).ThenBy(x => x.Ip.Disc).ToArray();
@@ -842,7 +875,7 @@ namespace GDMENUCardManager.Core
             }
 
             var sortedlist = new List<GdItem>(ItemList.Count);
-            if (ItemList.First().Ip.Name == "GDMENU")
+            if (ItemList.First().Ip.Name == "GDMENU" || ItemList.First().Ip.Name == "openMenu")
             {
                 sortedlist.Add(ItemList.First());
                 ItemList.RemoveAt(0);

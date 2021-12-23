@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -424,6 +425,16 @@ namespace GDMENUCardManager
                 item.Name = result.Message.Trim();
         }
 
+        private void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
+        {
+            TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+
+            var menuitem = (MenuItem)sender;
+            var item = (GdItem)menuitem.CommandParameter;
+
+            item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+        }
+
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
         {
             await renameSelection(RenameBy.Ip);
@@ -503,7 +514,7 @@ namespace GDMENUCardManager
             {
                 List<GdItem> toRemove = new List<GdItem>();
                 foreach (GdItem item in dg1.SelectedItems)
-                    if (!(item.SdNumber == 1 && item.Ip.Name == "GDMENU"))//dont let the user exclude GDMENU
+                    if (!(item.SdNumber == 1 && (item.Ip.Name == "GDMENU" || item.Ip.Name == "openMenu")))//dont let the user exclude GDMENU, openMenu
                         toRemove.Add(item);
 
                 foreach (var item in toRemove)
