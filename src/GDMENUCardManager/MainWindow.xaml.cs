@@ -48,6 +48,7 @@ namespace GDMENUCardManager
                 _DriveInfo = value;
                 Manager.ItemList.Clear();
                 Manager.sdPath = value?.RootDirectory.ToString();
+                Filter = null;
                 RaisePropertyChanged();
             }
         }
@@ -92,6 +93,13 @@ namespace GDMENUCardManager
         {
             get { return Manager.EnableGDIShrinkBlackList; }
             set { Manager.EnableGDIShrinkBlackList = value; RaisePropertyChanged(); }
+        }
+
+        private string _Filter;
+        public string Filter
+        {
+            get { return _Filter; }
+            set { _Filter = value; RaisePropertyChanged(); }
         }
 
         private readonly string fileFilterList;
@@ -485,5 +493,41 @@ namespace GDMENUCardManager
             while (dg1.SelectedItems.Count > 0)
                 Manager.ItemList.Remove((GdItem)dg1.SelectedItems[0]);
         }
+
+        private async void ButtonSearch_Click(object sender, RoutedEventArgs e)
+        {
+            if (Manager.ItemList.Count == 0 || string.IsNullOrWhiteSpace(Filter))
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await Manager.LoadIpAll();
+                IsBusy = false;
+            }
+            catch (ProgressWindowClosedException)
+            {
+
+            }
+
+            if (dg1.SelectedIndex == -1 || !searchInGrid(dg1.SelectedIndex))
+                searchInGrid(0);
+        }
+
+        private bool searchInGrid(int start)
+        {
+            for (int i = start; i < Manager.ItemList.Count; i++)
+            {
+                var item = Manager.ItemList[i];
+                if (dg1.SelectedItem != item && Manager.SearchInItem(item, Filter))
+                {
+                    dg1.SelectedItem = item;
+                    dg1.ScrollIntoView(item);
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
