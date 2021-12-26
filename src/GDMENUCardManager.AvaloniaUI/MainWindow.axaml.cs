@@ -437,10 +437,12 @@ namespace GDMENUCardManager
         {
             TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
 
-            var menuitem = (MenuItem)sender;
-            var item = (GdItem)menuitem.CommandParameter;
+            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
 
-            item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+            foreach (var item in items)
+            {
+                item.Name = textInfo.ToTitleCase(textInfo.ToLower(item.Name));
+            }
         }
 
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
