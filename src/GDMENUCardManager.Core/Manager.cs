@@ -967,6 +967,23 @@ namespace GDMENUCardManager.Core
             return invalid;
         }
 
+        public bool SearchInItem(GdItem item, string text)
+        {
+            if (item.Name?.IndexOf(text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+            {
+                return true;
+            }
+            else if (item.Ip != null)
+            {
+                if (item.Ip.Name?.IndexOf(text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+                    return true;
+                //if (item.Ip.ProductNumber?.IndexOf(text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+                //    return true;
+            }
+
+            return false;
+        }
+
     }
 
     public class ProgressWindowClosedException : Exception

@@ -43,6 +43,11 @@
                     <Path Fill="Black" Data="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7,13H17V11H7" />
                 </Canvas>
             </Viewbox>
+            <Viewbox x:Key="ViewMagnify" Width="20" Height="20">
+                <Canvas Width="24" Height="24">
+                    <Path Fill="Black" Data="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                </Canvas>
+            </Viewbox>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -115,57 +120,72 @@
                     Games List [<Run Text="{Binding TotalFilesLength, Mode=OneWay}"/>]
                 </TextBlock>
             </GroupBox.Header>
-            <DataGrid x:Name="dg1" ItemsSource="{Binding Manager.ItemList, Mode=OneTime}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.DropHandler="{Binding Path=., Mode=OneWay}" dd:DragDrop.IsDragSource="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.IsDropTarget="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" PreviewKeyDown="DataGrid_PreviewKeyDown" Margin="0,8,0,8">
-                <DataGrid.Resources>
-                    <ContextMenu x:Key="rowmenu">
-                        <ContextMenu.Items>
-                            <MenuItem Header="{Binding Name, Mode=OneWay}" IsEnabled="False">
-                                <MenuItem.Icon>
-                                    <Image Source="{StaticResource dreamcastLogoDrawingImage}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <Separator/>
-                            <MenuItem Header="Rename" Click="MenuItemRename_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
-                            <MenuItem Header="Sentence Case" Click="MenuItemRenameSentence_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
-                            <MenuItem Header="Automatically Rename">
-                                <MenuItem Header="Using IP.BIN _info" Click="MenuItemRenameIP_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
-                                <MenuItem Header="Using Folder name" Click="MenuItemRenameFolder_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
-                                <MenuItem Header="Using File name" Click="MenuItemRenameFile_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
-                            </MenuItem>
-                        </ContextMenu.Items>
-                    </ContextMenu>
-                </DataGrid.Resources>
-                <!--<DataGrid.RowStyle>
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Width="500" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Margin="0 3 0 0">Search</Label>
+                    <TextBox Grid.Column="1" x:Name="tbFilter" Width="260" MaxLength="39" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Grid.Column="2" Width="30" ToolTip="Search" IsDefault="{Binding Path=IsFocused, ElementName=tbFilter, Mode=OneWay}" Click="ButtonSearch_Click">
+                        <ContentControl Content="{StaticResource ViewMagnify}" />
+                    </Button>
+                </Grid>
+                
+                <DataGrid x:Name="dg1" ItemsSource="{Binding Manager.ItemList, Mode=OneTime}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.DropHandler="{Binding Path=., Mode=OneWay}" dd:DragDrop.IsDragSource="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" dd:DragDrop.IsDropTarget="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}" PreviewKeyDown="DataGrid_PreviewKeyDown" Margin="0,8,0,8">
+                    <DataGrid.Resources>
+                        <ContextMenu x:Key="rowmenu">
+                            <ContextMenu.Items>
+                                <MenuItem Header="{Binding Name, Mode=OneWay}" IsEnabled="False">
+                                    <MenuItem.Icon>
+                                        <Image Source="{StaticResource dreamcastLogoDrawingImage}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator/>
+                                <MenuItem Header="Rename" Click="MenuItemRename_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                <MenuItem Header="Sentence Case" Click="MenuItemRenameSentence_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                <MenuItem Header="Automatically Rename">
+                                    <MenuItem Header="Using IP.BIN _info" Click="MenuItemRenameIP_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                    <MenuItem Header="Using Folder name" Click="MenuItemRenameFolder_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                    <MenuItem Header="Using File name" Click="MenuItemRenameFile_Click" CommandParameter="{Binding Path=., Mode=OneWay}"/>
+                                </MenuItem>
+                            </ContextMenu.Items>
+                        </ContextMenu>
+                    </DataGrid.Resources>
+                    <!--<DataGrid.RowStyle>
                     <Style>
                         <EventSetter Event="DataGridRow.MouseDoubleClick" Handler="DataGrid_MouseDoubleClick"/>
                     </Style>
                 </DataGrid.RowStyle>-->
-                <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-                        <Setter Property="ContextMenu" Value="{StaticResource rowmenu}" />
-                    </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Width="Auto">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Click="ButtonInfo_Click" ToolTip="View File Info" CommandParameter="{Binding Path=., Mode=OneWay}">
-                                    <ContentControl Content="{StaticResource ViewInfo}" />
-                                </Button>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Location" Width="Auto" IsReadOnly="True" Binding="{Binding Location, Mode=OneWay}"/>
-                    <DataGridTextColumn Width="Auto" IsReadOnly="True" Binding="{Binding SdNumber, Mode=OneWay, Converter={StaticResource FolderNumber}}">
-                        <DataGridTextColumn.Header>
-                            <TextBlock Text="Sd Number" ToolTip="Current item folder on SD Card"/>
-                        </DataGridTextColumn.Header>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Length" Width="Auto" IsReadOnly="True" Binding="{Binding Length, Mode=OneWay, Converter={StaticResource ByteSizeToString}}"/>
-                    <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Name, Mode=TwoWay}"/>
-                    <DataGridTextColumn Header="Disc" Width="Auto" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
-                </DataGrid.Columns>
-            </DataGrid>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                            <Setter Property="ContextMenu" Value="{StaticResource rowmenu}" />
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Click="ButtonInfo_Click" ToolTip="View File Info" CommandParameter="{Binding Path=., Mode=OneWay}">
+                                        <ContentControl Content="{StaticResource ViewInfo}" />
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Location" Width="Auto" IsReadOnly="True" Binding="{Binding Location, Mode=OneWay}"/>
+                        <DataGridTextColumn Width="Auto" IsReadOnly="True" Binding="{Binding SdNumber, Mode=OneWay, Converter={StaticResource FolderNumber}}">
+                            <DataGridTextColumn.Header>
+                                <TextBlock Text="Sd Number" ToolTip="Current item folder on SD Card"/>
+                            </DataGridTextColumn.Header>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Length" Width="Auto" IsReadOnly="True" Binding="{Binding Length, Mode=OneWay, Converter={StaticResource ByteSizeToString}}"/>
+                        <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Name, Mode=TwoWay}"/>
+                        <DataGridTextColumn Header="Disc" Width="Auto" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
         </GroupBox>
 
         <GroupBox Grid.Row="3" Header="GDI Shrink" Margin="5 0 5 10" IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToInverseBool}}">
