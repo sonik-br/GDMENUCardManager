@@ -19,7 +19,7 @@ namespace GDMENUCardManager.Core
         private readonly string currentAppPath = AppDomain.CurrentDomain.BaseDirectory;
 
         private readonly string gdishrinkPath;
-        private readonly string ipbinPath;
+        private string ipbinPath => Path.Combine(currentAppPath, "tools", "openMenu", "IP.BIN");
 
         public readonly bool EnableLazyLoading = true;
         public bool EnableGDIShrink;
@@ -40,7 +40,7 @@ namespace GDMENUCardManager.Core
         private Manager()
         {
             gdishrinkPath = Path.Combine(currentAppPath, "tools", "gdishrink.exe");
-            ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
+            //ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
         }
 
         public async Task LoadItemsFromCard()
@@ -515,8 +515,8 @@ namespace GDMENUCardManager.Core
             await Helper.CreateDirectoryAsync(cdiPath);
             var cdiFilePath = Path.Combine(cdiPath, "disc.gdi");
 
-            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "menu_data"), dataPath);
-            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "menu_gdi"), cdiPath);
+            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_data"), dataPath);
+            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_gdi"), cdiPath);
             /* Write to low density */
             await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
             await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "OPENMENU.INI"), openmenuListText);
