@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using GDMENUCardManager.Core;
+using System.Configuration;
 
 namespace GDMENUCardManager
 {
@@ -103,12 +104,13 @@ namespace GDMENUCardManager
             this.PropertyChanged += MainWindow_PropertyChanged;
             Manager.ItemList.CollectionChanged += ItemList_CollectionChanged;
 
-            //todo implement
-            //showAllDrives = ;
-            //bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
-            //if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
-            //    Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
-            
+            //config parsing. all settings are optional and must reverse to default values if missing
+            bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
+            if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
+                Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
+            if (int.TryParse(ConfigurationManager.AppSettings["CharLimit"], out int charLimit))
+                GdItem.namemaxlen = Math.Min(255, Math.Max(charLimit, 1));
+
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
             
