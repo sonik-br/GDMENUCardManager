@@ -125,9 +125,12 @@ namespace GDMENUCardManager
 
             SevenZip.SevenZipExtractor.SetLibraryPath(Environment.Is64BitProcess ? "7z64.dll" : "7z.dll");
 
+            //config parsing. all settings are optional and must reverse to default values if missing
             bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
             if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
                 Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
+            if (int.TryParse(ConfigurationManager.AppSettings["CharLimit"], out int charLimit))
+                GdItem.namemaxlen = Math.Min(255, Math.Max(charLimit, 1));
 
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
