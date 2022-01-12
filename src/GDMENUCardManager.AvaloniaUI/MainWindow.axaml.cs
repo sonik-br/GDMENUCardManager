@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using GDMENUCardManager.Core;
+using System.Configuration;
 
 namespace GDMENUCardManager
 {
@@ -45,6 +46,7 @@ namespace GDMENUCardManager
                 _DriveInfo = value;
                 Manager.ItemList.Clear();
                 Manager.sdPath = value?.RootDirectory.ToString();
+                Filter = null;
                 RaisePropertyChanged();
             }
         }
@@ -61,6 +63,13 @@ namespace GDMENUCardManager
         {
             get { return _TotalFilesLength; }
             private set { _TotalFilesLength = value; RaisePropertyChanged(); }
+        }
+
+        private string _Filter;
+        public string Filter
+        {
+            get { return _Filter; }
+            set { _Filter = value; RaisePropertyChanged(); }
         }
 
         private readonly List<FileDialogFilter> fileFilterList;
@@ -96,12 +105,13 @@ namespace GDMENUCardManager
             this.PropertyChanged += MainWindow_PropertyChanged;
             Manager.ItemList.CollectionChanged += ItemList_CollectionChanged;
 
-            //todo implement
-            //showAllDrives = ;
-            //bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
-            //if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
-            //    Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
-            
+            //config parsing. all settings are optional and must reverse to default values if missing
+            bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
+            if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
+                Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
+            if (int.TryParse(ConfigurationManager.AppSettings["CharLimit"], out int charLimit))
+                GdItem.namemaxlen = Math.Min(255, Math.Max(charLimit, 1));
+
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
             
@@ -429,10 +439,12 @@ namespace GDMENUCardManager
         {
             TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
 
-            var menuitem = (MenuItem)sender;
-            var item = (GdItem)menuitem.CommandParameter;
+            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
 
-            item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+            foreach (var item in items)
+            {
+                item.Name = textInfo.ToTitleCase(textInfo.ToLower(item.Name));
+            }
         }
 
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
@@ -598,6 +610,41 @@ namespace GDMENUCardManager
             dg1.SelectedItems.Clear();
             foreach (var item in selectedItems)
                 dg1.SelectedItems.Add(item);
+        }
+
+        private async void ButtonSearch_Click(object sender, RoutedEventArgs e)
+        {
+            if (Manager.ItemList.Count == 0 || string.IsNullOrWhiteSpace(Filter))
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await Manager.LoadIpAll();
+                IsBusy = false;
+            }
+            catch (ProgressWindowClosedException)
+            {
+
+            }
+
+            if (dg1.SelectedIndex == -1 || !searchInGrid(dg1.SelectedIndex))
+                searchInGrid(0);
+        }
+
+        private bool searchInGrid(int start)
+        {
+            for (int i = start; i < Manager.ItemList.Count; i++)
+            {
+                var item = Manager.ItemList[i];
+                if (dg1.SelectedItem != item && Manager.SearchInItem(item, Filter))
+                {
+                    dg1.SelectedItem = item;
+                    dg1.ScrollIntoView(item, null);
+                    return true;
+                }
+            }
+            return false;
         }
 
     }

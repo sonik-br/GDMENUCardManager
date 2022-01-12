@@ -19,7 +19,7 @@ namespace GDMENUCardManager.Core
         private readonly string currentAppPath = AppDomain.CurrentDomain.BaseDirectory;
 
         private readonly string gdishrinkPath;
-        private readonly string ipbinPath;
+        private string ipbinPath => Path.Combine(currentAppPath, "tools", "openMenu", "IP.BIN");
 
         public readonly bool EnableLazyLoading = true;
         public bool EnableGDIShrink;
@@ -40,7 +40,7 @@ namespace GDMENUCardManager.Core
         private Manager()
         {
             gdishrinkPath = Path.Combine(currentAppPath, "tools", "gdishrink.exe");
-            ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
+            //ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
         }
 
         public async Task LoadItemsFromCard()
@@ -515,8 +515,8 @@ namespace GDMENUCardManager.Core
             await Helper.CreateDirectoryAsync(cdiPath);
             var cdiFilePath = Path.Combine(cdiPath, "disc.gdi");
 
-            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "menu_data"), dataPath);
-            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "menu_gdi"), cdiPath);
+            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_data"), dataPath);
+            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_gdi"), cdiPath);
             /* Write to low density */
             await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
             await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "OPENMENU.INI"), openmenuListText);
@@ -594,7 +594,7 @@ namespace GDMENUCardManager.Core
             sb.AppendLine($"{strnumber}.date={ip.ReleaseDate}");
             if(is_openmenu)
             {
-                string productid = ip.ProductNumber.Replace("-", "").Split(' ')[0];
+                string productid = ip.ProductNumber?.Replace("-", "").Split(' ')[0];
                 sb.AppendLine($"{strnumber}.product={productid}");
             }
             sb.AppendLine();
@@ -965,6 +965,23 @@ namespace GDMENUCardManager.Core
                 }
             }
             return invalid;
+        }
+
+        public bool SearchInItem(GdItem item, string text)
+        {
+            if (item.Name?.IndexOf(text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+            {
+                return true;
+            }
+            else if (item.Ip != null)
+            {
+                if (item.Ip.Name?.IndexOf(text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+                    return true;
+                //if (item.Ip.ProductNumber?.IndexOf(text, 0, StringComparison.InvariantCultureIgnoreCase) != -1)
+                //    return true;
+            }
+
+            return false;
         }
 
     }

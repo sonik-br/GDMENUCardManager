@@ -12,7 +12,7 @@
             <RowDefinition Height="20"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ProgressBar Grid.Row="0" Minimum="0" Maximum="{Binding TotalItems}" Value="{Binding ProcessedItems}"/>
-        <Label Grid.Row="1" Content="{Binding TextContent}"/>
+        <ProgressBar Grid.Row="0" Minimum="0" Maximum="{Binding TotalItems, Mode=OneWay}" Value="{Binding ProcessedItems, Mode=OneWay}"/>
+        <Label Grid.Row="1" Content="{Binding TextContent, Mode=OneWay}"/>
     </Grid>
 </Window>

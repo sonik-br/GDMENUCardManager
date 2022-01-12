@@ -104,6 +104,9 @@
         
         <TextBlock FontWeight="Bold">GDmenu</TextBlock>
         <TextBlock Text=" - neuroacid; "></TextBlock>
+
+        <TextBlock FontWeight="Bold">openMenu</TextBlock>
+        <TextBlock Text=" - mrneo240; "></TextBlock>
         
         <!--<TextBlock FontWeight="Bold" Text="GdiShrink"/>
         <TextBlock Text=" - FamilyGuy; "/>-->
@@ -112,11 +115,11 @@
         
         <TextBlock FontWeight="Bold" Text="Aaru"/>
         <TextBlock Text=" - Natalia Portillo; "/>
-        
+      </WrapPanel>
+      <WrapPanel Orientation="Horizontal">        
         <TextBlock FontWeight="Bold" Text="PuyoTools"/>
         <TextBlock Text=" - Nick Woronekin; "/>
-      </WrapPanel>
-      <WrapPanel Orientation="Horizontal">
+
         <TextBlock FontWeight="Bold" Text="SharpCompress"/>
         <TextBlock Text=" - Adam Hathcock; "/>
       </WrapPanel>
