@@ -238,6 +238,13 @@ namespace GDMENUCardManager.Core
             if (await Helper.FileExistsAsync(itemNamePath))
                 item.Name = await Helper.ReadAllTextAsync(itemNamePath);
 
+            var itemSerialPath = Path.Combine(item.FullFolderPath, Constants.SerialTextFile);
+            if (await Helper.FileExistsAsync(itemSerialPath))
+                item.Ip.ProductNumber = await Helper.ReadAllTextAsync(itemSerialPath);
+
+            item.Name = item.Name.Trim();
+            item.Ip.ProductNumber = item.Ip.ProductNumber.Trim();
+
             if (item.FullFolderPath.StartsWith(Manager.sdPath, StringComparison.InvariantCultureIgnoreCase) && int.TryParse(Path.GetFileName(Path.GetDirectoryName(itemImageFile)), out int number))
                 item.SdNumber = number;
 
@@ -487,6 +494,13 @@ namespace GDMENUCardManager.Core
             var itemNamePath = Path.Combine(item.FullFolderPath, Constants.NameTextFile);
             if (await Helper.FileExistsAsync(itemNamePath))
                 item.Name = await Helper.ReadAllTextAsync(itemNamePath);
+
+            var itemSerialPath = Path.Combine(item.FullFolderPath, Constants.SerialTextFile);
+            if (await Helper.FileExistsAsync(itemSerialPath))
+                item.Ip.ProductNumber = await Helper.ReadAllTextAsync(itemSerialPath);
+
+            item.Name = item.Name.Trim();
+            item.Ip.ProductNumber = item.Ip.ProductNumber.Trim();
 
             if (item.FullFolderPath.StartsWith(Manager.sdPath, StringComparison.InvariantCultureIgnoreCase) && int.TryParse(new DirectoryInfo(item.FullFolderPath).Name, out int number))
                 item.SdNumber = number;

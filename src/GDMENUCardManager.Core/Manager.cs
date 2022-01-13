@@ -60,7 +60,7 @@ namespace GDMENUCardManager.Core
                 {
                     GdItem itemToAdd = null;
 
-                    if (EnableLazyLoading)//load item without reading ip.bin. only read name.txt. will be null if no name.txt or empty
+                    if (EnableLazyLoading)//load item without reading ip.bin. only read name.txt+serial.txt. will be null if no name.txt or empty
                         try
                         {
                             itemToAdd = await LazyLoadItemFromCard(item.Item1, item.Item2);
@@ -219,6 +219,17 @@ namespace GDMENUCardManager.Core
             if (string.IsNullOrWhiteSpace(nameFile))
                 return null;
 
+            var itemSerial = string.Empty;
+            var serialFile = files.FirstOrDefault(x => Path.GetFileName(x).Equals(Constants.SerialTextFile, StringComparison.OrdinalIgnoreCase));
+            if (serialFile != null)
+                itemSerial = await Helper.ReadAllTextAsync(serialFile);
+
+            itemName = itemName.Trim();
+            itemSerial = itemSerial.Trim();
+
+            var itemIP =new IpBin();
+            itemIP.ProductNumber = itemSerial;
+
             string itemImageFile = null;
 
             //is uncompressed?
@@ -241,6 +252,7 @@ namespace GDMENUCardManager.Core
                 FileFormat = FileFormat.Uncompressed,
                 SdNumber = sdNumber,
                 Name = itemName,
+                Ip = itemIP,
                 Length = ByteSizeLib.ByteSize.FromBytes(new DirectoryInfo(folderPath).GetFiles().Sum(x => x.Length)),
             };
 
@@ -424,6 +436,11 @@ namespace GDMENUCardManager.Core
                     var itemNamePath = Path.Combine(item.FullFolderPath, Constants.NameTextFile);
                     if (!await Helper.FileExistsAsync(itemNamePath) || (await Helper.ReadAllTextAsync(itemNamePath)).Trim() != item.Name)
                         await Helper.WriteTextFileAsync(itemNamePath, item.Name);
+
+                    //write serial number into folder
+                    var itemSerialPath = Path.Combine(item.FullFolderPath, Constants.SerialTextFile);
+                    if (!await Helper.FileExistsAsync(itemSerialPath) || (await Helper.ReadAllTextAsync(itemSerialPath)).Trim() != item.Ip.ProductNumber)
+                        await Helper.WriteTextFileAsync(itemSerialPath, item.Ip.ProductNumber.Trim());
 
                     //write info text into folder for cdi files
                     //var itemInfoPath = Path.Combine(item.FullFolderPath, infotextfile);
