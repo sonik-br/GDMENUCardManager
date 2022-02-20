@@ -507,14 +507,29 @@ namespace GDMENUCardManager
         //    item.Name = name;
         //}
 
-        private void GridOnKeyDown(object sender, KeyEventArgs e)
+        private async void GridOnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete && !(e.Source is TextBox))
             {
                 List<GdItem> toRemove = new List<GdItem>();
                 foreach (GdItem item in dg1.SelectedItems)
-                    if (!(item.SdNumber == 1 && item.Ip.Name == "GDMENU"))//dont let the user exclude GDMENU
+                {
+                    if (item.SdNumber == 1)
+                    {
+                        if (item.Ip == null)
+                        {
+                            IsBusy = true;
+                            await Manager.LoadIP(item);
+                            IsBusy = false;
+                        }
+                        if (item.Ip.Name != "GDMENU")//dont let the user exclude GDMENU
+                            toRemove.Add(item);
+                    }
+                    else
+                    {
                         toRemove.Add(item);
+                    }
+                }
 
                 foreach (var item in toRemove)
                     Manager.ItemList.Remove(item);
