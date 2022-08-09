@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using GDMENUCardManager.Core;
 using GongSolutions.Wpf.DragDrop;
 
@@ -137,6 +140,9 @@ namespace GDMENUCardManager
             //showAllDrives = true;
 
             DataContext = this;
+
+            if (Convert.ToBoolean(ConfigurationManager.AppSettings["PALVersion"]) == true)
+                this.Icon = BitmapFrame.Create(new Uri("./Assets/GDMENUCardManagerPAL.ico", UriKind.RelativeOrAbsolute));
         }
 
         private async void MainWindow_PropertyChanged(object sender, PropertyChangedEventArgs e)
