@@ -459,7 +459,7 @@ namespace GDMENUCardManager
             IsBusy = false;
         }
 
-        private void DataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        private async void DataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F2 && !(e.OriginalSource is TextBox))
             {
@@ -471,8 +471,23 @@ namespace GDMENUCardManager
                 var grid = (DataGrid)sender;
                 List<GdItem> toRemove = new List<GdItem>();
                 foreach (GdItem item in grid.SelectedItems)
-                    if (!(item.SdNumber == 1 && (item.Ip.Name == "GDMENU" || item.Ip.Name == "openMenu")))//dont let the user exclude GDMENU, openMenu
+                {
+                    if (item.SdNumber == 1)
+                    {
+                        if (item.Ip == null)
+                        {
+                            IsBusy = true;
+                            await Manager.LoadIP(item);
+                            IsBusy = false;
+                        }
+                        if (item.Ip.Name != "GDMENU" && item.Ip.Name != "openMenu")//dont let the user exclude GDMENU
+                            toRemove.Add(item);
+                    }
+                    else
+                    {
                         toRemove.Add(item);
+                    }
+                }
 
                 foreach (var item in toRemove)
                     Manager.ItemList.Remove(item);
