@@ -10,6 +10,7 @@ namespace GDMENUCardManager.Core
     public sealed class GdItem : INotifyPropertyChanged
     {
         public static int namemaxlen = 39;
+        public static int serialmaxlen = 10;
 
         public string Guid { get; set; }
 
@@ -34,6 +35,25 @@ namespace GDMENUCardManager.Core
                     if (_Name.Length > namemaxlen)
                         _Name = _Name.Substring(0, namemaxlen);
                     _Name = Helper.RemoveDiacritics(_Name).Replace("_", " ").Trim();
+                }
+
+                RaisePropertyChanged();
+            }
+        }
+        
+        private string _ProductNumber;
+        public string ProductNumber
+        {
+            get { return _ProductNumber; }
+            set
+            {
+                _ProductNumber = value;
+                if (_ProductNumber != null)
+                {
+                    if (_ProductNumber.Length > serialmaxlen)
+                        _ProductNumber = _ProductNumber.Substring(0, serialmaxlen);
+                    //todo check if this is needed
+                    //_ProductNumber = Helper.RemoveDiacritics(_ProductNumber).Replace("_", " ").Trim();
                 }
 
                 RaisePropertyChanged();

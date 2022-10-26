@@ -227,9 +227,6 @@ namespace GDMENUCardManager.Core
             itemName = itemName.Trim();
             itemSerial = itemSerial.Trim();
 
-            var itemIP =new IpBin();
-            itemIP.ProductNumber = itemSerial;
-
             string itemImageFile = null;
 
             //is uncompressed?
@@ -252,7 +249,7 @@ namespace GDMENUCardManager.Core
                 FileFormat = FileFormat.Uncompressed,
                 SdNumber = sdNumber,
                 Name = itemName,
-                Ip = itemIP,
+                ProductNumber = itemSerial,
                 Length = ByteSizeLib.ByteSize.FromBytes(new DirectoryInfo(folderPath).GetFiles().Sum(x => x.Length)),
             };
 
@@ -439,8 +436,8 @@ namespace GDMENUCardManager.Core
 
                     //write serial number into folder
                     var itemSerialPath = Path.Combine(item.FullFolderPath, Constants.SerialTextFile);
-                    if (!await Helper.FileExistsAsync(itemSerialPath) || (await Helper.ReadAllTextAsync(itemSerialPath)).Trim() != item.Ip.ProductNumber)
-                        await Helper.WriteTextFileAsync(itemSerialPath, item.Ip.ProductNumber.Trim());
+                    if (!await Helper.FileExistsAsync(itemSerialPath) || (await Helper.ReadAllTextAsync(itemSerialPath)).Trim() != item.ProductNumber)
+                        await Helper.WriteTextFileAsync(itemSerialPath, item.ProductNumber.Trim());
 
                     //write info text into folder for cdi files
                     //var itemInfoPath = Path.Combine(item.FullFolderPath, infotextfile);
@@ -927,6 +924,11 @@ namespace GDMENUCardManager.Core
             item.ImageFiles.AddRange(gdi.ImageFiles);
             item.Length = gdi.Length;
             item.Ip = gdi.Ip;
+
+            //compressed file by default will have its serial blank.
+            //if still blank, read from the now extracted ip info
+            if (string.IsNullOrWhiteSpace(item.ProductNumber))
+                item.ProductNumber = gdi.ProductNumber;
         }
 
         private async Task<bool> RunShrinkProcess(Process p, string inputFilePath, string outputFolderPath)

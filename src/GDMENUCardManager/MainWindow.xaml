@@ -182,7 +182,7 @@
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="Length" Width="Auto" IsReadOnly="True" Binding="{Binding Length, Mode=OneWay, Converter={StaticResource ByteSizeToString}}"/>
                         <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Name, Mode=TwoWay}"/>
-                        <DataGridTextColumn Header="Serial" Width="Auto" Binding="{Binding Ip.ProductNumber}"/>
+                        <DataGridTextColumn Header="Serial" Width="Auto" Binding="{Binding ProductNumber, Mode=TwoWay}"/>
                         <DataGridTextColumn Header="Disc" Width="Auto" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
                     </DataGrid.Columns>
                 </DataGrid>

@@ -83,7 +83,8 @@ namespace GDMENUCardManager.Core
                     ip = new IpBin
                     {
                         Name = itemName,
-                        Disc = "?/?"
+                        Disc = "?/?",
+                        ProductNumber = String.Empty
                     };
 
                     item.Length = ByteSizeLib.ByteSize.FromBytes(filesInsideArchive.Sum(x => x.Value));
@@ -233,6 +234,7 @@ namespace GDMENUCardManager.Core
 
             item.Ip = ip;
             item.Name = ip.Name;
+            item.ProductNumber = ip.ProductNumber;
 
             var itemNamePath = Path.Combine(item.FullFolderPath, Constants.NameTextFile);
             if (await Helper.FileExistsAsync(itemNamePath))
@@ -240,10 +242,10 @@ namespace GDMENUCardManager.Core
 
             var itemSerialPath = Path.Combine(item.FullFolderPath, Constants.SerialTextFile);
             if (await Helper.FileExistsAsync(itemSerialPath))
-                item.Ip.ProductNumber = await Helper.ReadAllTextAsync(itemSerialPath);
+                item.ProductNumber = await Helper.ReadAllTextAsync(itemSerialPath);
 
             item.Name = item.Name.Trim();
-            item.Ip.ProductNumber = item.Ip.ProductNumber.Trim();
+            item.ProductNumber = item.ProductNumber.Trim();
 
             if (item.FullFolderPath.StartsWith(Manager.sdPath, StringComparison.InvariantCultureIgnoreCase) && int.TryParse(Path.GetFileName(Path.GetDirectoryName(itemImageFile)), out int number))
                 item.SdNumber = number;
@@ -497,10 +499,10 @@ namespace GDMENUCardManager.Core
 
             var itemSerialPath = Path.Combine(item.FullFolderPath, Constants.SerialTextFile);
             if (await Helper.FileExistsAsync(itemSerialPath))
-                item.Ip.ProductNumber = await Helper.ReadAllTextAsync(itemSerialPath);
+                item.ProductNumber = await Helper.ReadAllTextAsync(itemSerialPath);
 
             item.Name = item.Name.Trim();
-            item.Ip.ProductNumber = item.Ip.ProductNumber.Trim();
+            item.ProductNumber = item.ProductNumber.Trim();
 
             if (item.FullFolderPath.StartsWith(Manager.sdPath, StringComparison.InvariantCultureIgnoreCase) && int.TryParse(new DirectoryInfo(item.FullFolderPath).Name, out int number))
                 item.SdNumber = number;
