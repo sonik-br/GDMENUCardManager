@@ -492,6 +492,7 @@ namespace GDMENUCardManager.Core
 
             item.Ip = ip;
             item.Name = ip.Name;
+            item.ProductNumber = ip.ProductNumber;
 
             var itemNamePath = Path.Combine(item.FullFolderPath, Constants.NameTextFile);
             if (await Helper.FileExistsAsync(itemNamePath))

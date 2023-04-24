@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:conv="clr-namespace:GDMENUCardManager.Converter"
+        xmlns:core="clr-namespace:GDMENUCardManager.Core;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="GDMENUCardManager.MainWindow"
         Title="GD MENU Card Manager" Height="700" Width="800" MinHeight="400" MinWidth="800"
@@ -12,6 +13,7 @@
   <Window.Resources>
     <ResourceDictionary>
       <conv:ByteSizeToStringConverter x:Key="ByteSizeToString"/>
+      <conv:EnumToBoolConverter x:Key="EnumToBool"/>
 
       <!--icons from materialdesignicons.com-->
       <Viewbox x:Key="ViewOpenFolder" Width="18" Height="18">
@@ -58,6 +60,7 @@
           <ColumnDefinition Width="1*"/>
           <ColumnDefinition Width="2*"/>
           <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -95,7 +98,16 @@
           </Grid>
         </Grid>
 
-        <Button Grid.Column="2" Width="30" Margin="40 0 0 0" ToolTip.Tip="About" Click="ButtonAbout_Click">
+        <Grid Grid.Column="2" Margin="20 0 5 0">
+          <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+          </Grid.RowDefinitions>
+          <RadioButton Grid.Row="0" GroupName="MenuKind" IsThreeState="False" IsChecked="{Binding MenuKindSelected, Mode=TwoWay, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static core:MenuKind.gdMenu}}" ToolTip.Tip="Use GDMENU">gdMenu</RadioButton>
+          <RadioButton Grid.Row="1" GroupName="MenuKind" IsThreeState="False" IsChecked="{Binding MenuKindSelected, Mode=TwoWay, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static core:MenuKind.openMenu}}" ToolTip.Tip="Use openMenu">openMenu</RadioButton>
+        </Grid>
+
+        <Button Grid.Column="3" Width="30" Margin="40 0 0 0" ToolTip.Tip="About" Click="ButtonAbout_Click">
           <Viewbox Width="18" Height="18">
             <Canvas Width="24" Height="24">
               <Path Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="{DynamicResource ThemeForegroundBrush}" />

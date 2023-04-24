@@ -96,6 +96,12 @@ namespace GDMENUCardManager
             set { Manager.EnableGDIShrinkBlackList = value; RaisePropertyChanged(); }
         }
 
+        public MenuKind MenuKindSelected
+        {
+            get { return Manager.MenuKindSelected; }
+            set { Manager.MenuKindSelected = value; RaisePropertyChanged(); }
+        }
+
         private string _Filter;
         public string Filter
         {
@@ -185,6 +191,7 @@ namespace GDMENUCardManager
             }
             finally
             {
+                RaisePropertyChanged(nameof(MenuKindSelected));
                 IsBusy = false;
             }
         }

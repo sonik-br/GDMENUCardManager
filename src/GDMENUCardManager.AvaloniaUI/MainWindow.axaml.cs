@@ -66,6 +66,12 @@ namespace GDMENUCardManager
             private set { _TotalFilesLength = value; RaisePropertyChanged(); }
         }
 
+        public MenuKind MenuKindSelected
+        {
+            get { return Manager.MenuKindSelected; }
+            set { Manager.MenuKindSelected = value; RaisePropertyChanged(); }
+        }
+
         private string _Filter;
         public string Filter
         {
@@ -175,6 +181,7 @@ namespace GDMENUCardManager
             }
             finally
             {
+                RaisePropertyChanged(nameof(MenuKindSelected));
                 IsBusy = false;
             }
         }
@@ -359,7 +366,8 @@ namespace GDMENUCardManager
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || (x.DriveType == DriveType.Removable && x.DriveFormat.StartsWith("FAT")))).ToArray();
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed)).ToArray();//todo need to test
+                //list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed)).ToArray();//todo need to test
+                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed || (x.DriveType == DriveType.Unknown && x.DriveFormat.Equals("lifs", StringComparison.InvariantCultureIgnoreCase)))).ToArray();//todo need to test
             else//linux
                 list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || ((x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed) && x.DriveFormat.Equals("msdos", StringComparison.InvariantCultureIgnoreCase) && (x.Name.StartsWith("/media/", StringComparison.InvariantCultureIgnoreCase) || x.Name.StartsWith("/run/media/", StringComparison.InvariantCultureIgnoreCase)) ))).ToArray();
             

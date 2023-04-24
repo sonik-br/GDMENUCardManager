@@ -15,11 +15,21 @@ namespace GDMENUCardManager.Core
         public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd" };
 
         public static string sdPath = null;
+        public static MenuKind MenuKindSelected { get; set; } = MenuKind.None;
 
         private readonly string currentAppPath = AppDomain.CurrentDomain.BaseDirectory;
 
         private readonly string gdishrinkPath;
-        private string ipbinPath => Path.Combine(currentAppPath, "tools", "openMenu", "IP.BIN");
+
+        private string ipbinPath
+        {
+            get
+            {
+                if (MenuKindSelected == MenuKind.None)
+                    throw new Exception("Menu not selected on Settings");
+                return Path.Combine(currentAppPath, "tools", MenuKindSelected.ToString(), "IP.BIN");
+            }
+        }
 
         public readonly bool EnableLazyLoading = true;
         public bool EnableGDIShrink;
@@ -46,6 +56,7 @@ namespace GDMENUCardManager.Core
         public async Task LoadItemsFromCard()
         {
             ItemList.Clear();
+            MenuKindSelected = MenuKind.None;
 
             var toAdd = new List<Tuple<int, string>>();
             var rootDirs = await Helper.GetDirectoriesAsync(sdPath);
@@ -76,6 +87,23 @@ namespace GDMENUCardManager.Core
 
             if (invalid.Any())
                 throw new Exception(string.Join(Environment.NewLine, invalid));
+
+            var firstItem = ItemList.FirstOrDefault();
+            if (firstItem != null)
+            {
+                //try to detec using name.txt info
+                MenuKindSelected = getMenuKindFromName(firstItem.Name);
+                
+                //not detected using name.txt. Try to load from ip.bin
+                if (MenuKindSelected == MenuKind.None)
+                {
+                    await LoadIP(firstItem);
+                    MenuKindSelected = getMenuKindFromName(firstItem.Ip.Name);
+                }
+            }
+
+            //todo implement menu fallback? to default or forced mode (in config)
+            //if (MenuKindSelected == MenuKind.None) { }
         }
 
         private async ValueTask loadIP(IEnumerable<GdItem> items)
@@ -265,6 +293,15 @@ namespace GDMENUCardManager.Core
 
             try
             {
+                if (MenuKindSelected == MenuKind.None)
+                {
+                    throw new Exception("Menu not selected on Settings");
+                }
+                else
+                {
+                    //todo validate menu files? check if folder exists?
+                }
+
                 if (ItemList.Count == 0 || await Helper.DependencyManager.ShowYesNoDialog("Save", $"Save changes to {sdPath} drive?") == false)
                     return false;
 
@@ -341,6 +378,17 @@ namespace GDMENUCardManager.Core
 
                             //delete sdcard menu folder 01
                             await Helper.DeleteDirectoryAsync(folder01);
+
+                            //if user changed between GDMENU <> openMenu
+                            //reload name and serial from ip.bin
+                            var menu = ItemList.OrderBy(x => x.SdNumber).First();
+                            if ((ip01.Ip.Name == "GDMENU" && MenuKindSelected != MenuKind.gdMenu) || ip01.Ip.Name == "openMenu" && MenuKindSelected != MenuKind.openMenu)
+                            {
+                                var menuIpBin = ImageHelper.GetIpData(File.ReadAllBytes(ipbinPath));
+                                menu.Name = menuIpBin.Name;
+                                menu.ProductNumber = menuIpBin.ProductNumber;
+                                menu.Ip = menuIpBin;
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -358,14 +406,14 @@ namespace GDMENUCardManager.Core
                     //foreach (var item in ItemList.Where(x => x.SdNumber > 0).ToArray())
                     //    item.SdNumber++;
 
-                    FillListText(sb, menuIpBin, menuIpBin.Name, 1);//insert menu in text list
-                    FillListText(sb_open, menuIpBin, menuIpBin.Name, 1, true);//insert menu in text list
+                    FillListText(sb, menuIpBin, menuIpBin.ProductNumber, menuIpBin.Name, 1);//insert menu in text list
+                    FillListText(sb_open, menuIpBin, menuIpBin.Name, menuIpBin.ProductNumber, 1, true);//insert menu in text list
                 }
 
                 for (int i = 0; i < ItemList.Count; i++)
                 {
-                    FillListText(sb, ItemList[i].Ip, ItemList[i].Name, i + ammountToIncrement);
-                    FillListText(sb_open, ItemList[i].Ip, ItemList[i].Name, i + ammountToIncrement, true);
+                    FillListText(sb, ItemList[i].Ip, ItemList[i].Name, ItemList[i].ProductNumber, i + ammountToIncrement);
+                    FillListText(sb_open, ItemList[i].Ip, ItemList[i].Name, ItemList[i].ProductNumber, i + ammountToIncrement, true);
                 }
 
                 //generate iso and save in temp
@@ -463,8 +511,8 @@ namespace GDMENUCardManager.Core
 
                     foreach (var item in orderedList)
                     {
-                        FillListText(sb, item.Ip, item.Name, item.SdNumber);
-                        FillListText(sb_open, item.Ip, item.Name, item.SdNumber, true);
+                        FillListText(sb, item.Ip, item.Name, item.ProductNumber, item.SdNumber);
+                        FillListText(sb_open, item.Ip, item.Name, item.ProductNumber, item.SdNumber, true);
                     }
 
                     //generate iso and save in temp
@@ -482,6 +530,9 @@ namespace GDMENUCardManager.Core
                     sb.Clear();
                     sb_open.Clear();
                 }
+
+                //update menu item length
+                UpdateItemLength(ItemList.OrderBy(x => x.SdNumber).First());
 
                 //write menu config to root of sdcard
                 var menuConfigPath = Path.Combine(sdPath, Constants.MenuConfigTextFile);
@@ -529,31 +580,49 @@ namespace GDMENUCardManager.Core
             await Helper.CreateDirectoryAsync(cdiPath);
             var cdiFilePath = Path.Combine(cdiPath, "disc.gdi");
 
-            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_data"), dataPath);
-            await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_gdi"), cdiPath);
-            /* Write to low density */
-            await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
-            await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "OPENMENU.INI"), openmenuListText);
-            /* Write to high density */
-            await Helper.WriteTextFileAsync(Path.Combine(dataPath, "LIST.INI"), listText);
-            await Helper.WriteTextFileAsync(Path.Combine(dataPath, "OPENMENU.INI"), openmenuListText);
-            /*@Debug*/
-            await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "LIST.INI"), listText);
-            await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "OPENMENU.INI"), openmenuListText);
+            if (MenuKindSelected == MenuKind.gdMenu)
+            {
+                await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_data"), dataPath);
+                await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_gdi"), cdiPath);
+                /* Write to low density */
+                await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
+                /* Write to high density */
+                await Helper.WriteTextFileAsync(Path.Combine(dataPath, "LIST.INI"), listText);
+                /*@Debug*/
+                await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "LIST.INI"), listText);
+            }
+            else if (MenuKindSelected == MenuKind.openMenu)
+            {
+                await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_data"), dataPath);
+                await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_gdi"), cdiPath);
+                /* Write to low density */
+                await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "OPENMENU.INI"), openmenuListText);
+                /* Write to high density */
+                await Helper.WriteTextFileAsync(Path.Combine(dataPath, "OPENMENU.INI"), openmenuListText);
+                /*@Debug*/
+                await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "OPENMENU.INI"), openmenuListText);
+            }
+            else
+            {
+                throw new Exception("Menu not selected on Settings");
+            }
+
 
             //generate menu gdi
             var builder = new DiscUtils.Gdrom.GDromBuilder()
             {
                 RawMode = false,
                 TruncateData = true,
-                VolumeIdentifier = "OPENMENU"
+                VolumeIdentifier = MenuKindSelected == MenuKind.gdMenu ? "GDMENU" : "OPENMENU"
             };
             //builder.ReportProgress += ProgressReport;
 
             //create low density track
             List<FileInfo> fileList = new List<FileInfo>();
-            fileList.Add(new FileInfo(Path.Combine(tempDirectory, "LIST.INI")));
-            fileList.Add(new FileInfo(Path.Combine(tempDirectory, "OPENMENU.INI")));
+            if (MenuKindSelected == MenuKind.gdMenu)
+                fileList.Add(new FileInfo(Path.Combine(tempDirectory, "LIST.INI")));
+            else if (MenuKindSelected == MenuKind.openMenu)
+                fileList.Add(new FileInfo(Path.Combine(tempDirectory, "OPENMENU.INI")));
 
             builder.CreateFirstTrack(Path.Combine(cdiPath, "track01.iso"), fileList);
 
@@ -593,7 +662,7 @@ namespace GDMENUCardManager.Core
             }
         }
 
-        private void FillListText(StringBuilder sb, IpBin ip, string name, int number, bool is_openmenu=false)
+        private void FillListText(StringBuilder sb, IpBin ip, string name, string serial, int number, bool is_openmenu=false)
         {
             string strnumber = FormatFolderNumber(number);
 
@@ -608,7 +677,7 @@ namespace GDMENUCardManager.Core
             sb.AppendLine($"{strnumber}.date={ip.ReleaseDate}");
             if(is_openmenu)
             {
-                string productid = ip.ProductNumber?.Replace("-", "").Split(' ')[0];
+                string productid = serial?.Replace("-", "").Split(' ')[0];
                 sb.AppendLine($"{strnumber}.product={productid}");
             }
             sb.AppendLine();
@@ -1001,6 +1070,16 @@ namespace GDMENUCardManager.Core
             }
 
             return false;
+        }
+
+        private MenuKind getMenuKindFromName(string name)
+        {
+            switch (name)
+            {
+                case "GDMENU": return MenuKind.gdMenu;
+                case "openMenu": return MenuKind.openMenu;
+                default: return MenuKind.None;
+            }
         }
 
     }
