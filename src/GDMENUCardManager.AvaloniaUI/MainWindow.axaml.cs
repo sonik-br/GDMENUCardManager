@@ -117,6 +117,9 @@ namespace GDMENUCardManager
             //showAllDrives = true;
 
             DataContext = this;
+
+            if (Convert.ToBoolean(ConfigurationManager.AppSettings["PALVersion"]) == true)
+                this.Icon = new Avalonia.Controls.WindowIcon(File.OpenRead("./Assets/GDMENUCardManagerPAL.ico"));
         }
 
         private void InitializeComponent()
