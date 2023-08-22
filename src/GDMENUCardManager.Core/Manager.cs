@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,7 @@ namespace GDMENUCardManager.Core
         public bool EnableGDIShrink;
         public bool EnableGDIShrinkCompressed = true;
         public bool EnableGDIShrinkBlackList = true;
+        public bool TruncateMenuGDI = true;
 
 
         public ObservableCollection<GdItem> ItemList { get; } = new ObservableCollection<GdItem>();
@@ -78,6 +80,7 @@ namespace GDMENUCardManager.Core
                         }
                         catch { }
 
+                    //not lazyloaded. force full reading
                     if (itemToAdd == null)
                         itemToAdd = await ImageHelper.CreateGdItemAsync(item.Item2);
                     
@@ -154,6 +157,11 @@ namespace GDMENUCardManager.Core
                 item.CanApplyGDIShrink = i.CanApplyGDIShrink;
                 item.ImageFiles.Clear();
                 item.ImageFiles.AddRange(i.ImageFiles);
+
+                //if current productnumber is empty, copy over from the now loaded ip.bin
+                //should not happen
+                //if (string.IsNullOrWhiteSpace(item.ProductNumber) && !string.IsNullOrWhiteSpace(i.ProductNumber))
+                //    item.ProductNumber = i.ProductNumber;
             }
             catch (Exception)
             {
@@ -244,6 +252,7 @@ namespace GDMENUCardManager.Core
             if (nameFile != null)
                 itemName = await Helper.ReadAllTextAsync(nameFile);
 
+            //cached "name.txt" file is required.
             if (string.IsNullOrWhiteSpace(nameFile))
                 return null;
 
@@ -251,6 +260,10 @@ namespace GDMENUCardManager.Core
             var serialFile = files.FirstOrDefault(x => Path.GetFileName(x).Equals(Constants.SerialTextFile, StringComparison.OrdinalIgnoreCase));
             if (serialFile != null)
                 itemSerial = await Helper.ReadAllTextAsync(serialFile);
+
+            //cached "serial.txt" file is required.
+            if (string.IsNullOrWhiteSpace(itemSerial))
+                return null;
 
             itemName = itemName.Trim();
             itemSerial = itemSerial.Trim();
@@ -561,6 +574,11 @@ namespace GDMENUCardManager.Core
 
         private async Task GenerateMenuImageAsync(string tempDirectory, string listText, string openmenuListText, bool isRebuilding = false)
         {
+            //create low density track
+            var lowdataPath = Path.Combine(tempDirectory, "lowdensity_data");
+            if (!await Helper.DirectoryExistsAsync(lowdataPath))
+                await Helper.CreateDirectoryAsync(lowdataPath);
+
             //create hi density track
             var dataPath = Path.Combine(tempDirectory, "data");
             if (!await Helper.DirectoryExistsAsync(dataPath))
@@ -584,23 +602,31 @@ namespace GDMENUCardManager.Core
             {
                 await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_data"), dataPath);
                 await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_gdi"), cdiPath);
+                /* Copy to low density */
+                if (await Helper.DirectoryExistsAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_low_data")))
+                    await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_low_data"), lowdataPath);
                 /* Write to low density */
                 await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
                 /* Write to high density */
                 await Helper.WriteTextFileAsync(Path.Combine(dataPath, "LIST.INI"), listText);
                 /*@Debug*/
-                await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "LIST.INI"), listText);
+                //todo add a global "debug" flag to enable the saving of this file
+                //await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "LIST.INI"), listText);
             }
             else if (MenuKindSelected == MenuKind.openMenu)
             {
                 await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_data"), dataPath);
                 await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_gdi"), cdiPath);
+                /* Copy to low density */
+                if (await Helper.DirectoryExistsAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_low_data")))
+                    await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "openMenu", "menu_low_data"), lowdataPath);
                 /* Write to low density */
-                await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "OPENMENU.INI"), openmenuListText);
+                await Helper.WriteTextFileAsync(Path.Combine(lowdataPath, "OPENMENU.INI"), openmenuListText);
                 /* Write to high density */
                 await Helper.WriteTextFileAsync(Path.Combine(dataPath, "OPENMENU.INI"), openmenuListText);
                 /*@Debug*/
-                await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "OPENMENU.INI"), openmenuListText);
+                //todo add a global "debug" flag to enable the saving of this file
+                //await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "OPENMENU.INI"), openmenuListText);
             }
             else
             {
@@ -612,7 +638,7 @@ namespace GDMENUCardManager.Core
             var builder = new DiscUtils.Gdrom.GDromBuilder()
             {
                 RawMode = false,
-                TruncateData = true,
+                TruncateData = TruncateMenuGDI,
                 VolumeIdentifier = MenuKindSelected == MenuKind.gdMenu ? "GDMENU" : "OPENMENU"
             };
             //builder.ReportProgress += ProgressReport;
@@ -620,7 +646,11 @@ namespace GDMENUCardManager.Core
             //create low density track
             List<FileInfo> fileList = new List<FileInfo>();
             if (MenuKindSelected == MenuKind.gdMenu)
+            {
                 fileList.Add(new FileInfo(Path.Combine(tempDirectory, "LIST.INI")));
+                //add additional files, like themes
+                fileList.AddRange(new DirectoryInfo(lowdataPath).GetFiles());
+            }
             else if (MenuKindSelected == MenuKind.openMenu)
                 fileList.Add(new FileInfo(Path.Combine(tempDirectory, "OPENMENU.INI")));
 
