@@ -1,7 +1,7 @@
 # GDMENU Card Manager
 Manage content on SD Card for Dreamcast's GDEmu/GDMenu
 
-For GDEMU to propperly work it's required to follow a pattern when putting files on the SD Card.<br/>
+For GDEMU to properly work it's required to follow a pattern when putting files on the SD Card.<br/>
 If not done correctly it will take a lot of time to boot and can even fail to.<br/>
 This program will save the files the proper way so you console will boot super fast!
 
@@ -23,14 +23,14 @@ This program will save the files the proper way so you console will boot super f
 * GDI Shrinking. Can reduce file size by removing dummy data without reducing the quality.
 
 ### GDI Shrinking
-Can reduce the size of the game but some games won't work propperly.
+Can reduce the size of the game but some games won't work properly.
 
 The program have a blacklist with some games known to have problems after shrinking.
 
-By default the blacklist will be used and those games will not be shrinked.
+By default the blacklist will be used and those games will not be shrunk.
 
-### Windows version requires the .Net 5 Desktop Runtime
-Donwload and install the [Desktop Runtime installer](https://dotnet.microsoft.com/download/dotnet/5.0/runtime) for your system.
+### Windows version requires the .Net 6 Desktop Runtime
+Download and install the [Desktop Runtime installer](https://dotnet.microsoft.com/download/dotnet/6.0/runtime) for your system.
 ![Dot Net Runtime](docs/dotnetruntime.png)
 
 ### Limitations
@@ -38,15 +38,27 @@ On Linux version it's not possible to use drag-and-drop.
 
 **If you can't run it on OSX please check issue #4 for a workaround**
 
+### Building
+- Linux x64 via CLI
+  - ensure dotnet sdk 6.0 is installed via  [Install .NET on Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux)
+  - clone repository
+  - Build & Publish
+    - Simple
+      - execute `dotnet publish GDMENUCardManager.AvaloniaUI/GDMENUCardManager.AvaloniaUI.csproj -c Release`
+    - Single File Self Contained (more portable, includes dotnet runtime bundled in)
+      - execute `dotnet publish GDMENUCardManager.AvaloniaUI/GDMENUCardManager.AvaloniaUI.csproj -c Release --self-contained true -r linux-x64  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`
+  - Execute `GDMENUCardManager` in `GDMENUCardManager/src/GDMENUCardManager.AvaloniaUI/bin/Release/net6.0/linux-x64/publish`
+    -via double click or by running `./GDMENUCardManager` or by `dotnet ./GDMENUCardManager`
+
 ### Credits
 This software is made possible by using third party tools:
 
 GDmenu by neuroacid<br />
-[GdiTools](https://sourceforge.net/projects/dcisotools/), 
-[GdiBuilder](https://github.com/Sappharad/GDIbuilder/), 
-[Aaru](https://github.com/aaru-dps/Aaru/), 
-[PuyoTools](https://github.com/nickworonekin/puyotools/), 
-[7-zip](https://www.7-zip.org/), 
+[GdiTools](https://sourceforge.net/projects/dcisotools/),
+[GdiBuilder](https://github.com/Sappharad/GDIbuilder/),
+[Aaru](https://github.com/aaru-dps/Aaru/),
+[PuyoTools](https://github.com/nickworonekin/puyotools/),
+[7-zip](https://www.7-zip.org/),
 [SevenZipSharp](https://github.com/squid-box/SevenZipSharp/)
 
 Special thanks to megavolt85 and everyone in the dreamcast scene
