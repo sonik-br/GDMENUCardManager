@@ -1,12 +1,15 @@
 ﻿using Aaru.CommonTypes;
 using Aaru.CommonTypes.Interfaces;
 using Aaru.Filesystems;
+using DiscUtils.Iso9660;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace GDMENUCardManager.Core
 {
@@ -155,14 +158,77 @@ namespace GDMENUCardManager.Core
                                     partition = opticalImage.Partitions.Where(x => x.Type != "Audio").Skip(1).First();
                                     ip = await GetIpData(opticalImage, partition);
                                 }
-                                else//try to find from last
+                                else
                                 {
-                                    for (int i = opticalImage.Partitions.Count - 1; i >= 0; i--)
+                                    //it's a ps1 disc?
+                                    if (opticalImage.Info.MediaType == MediaType.CDROMXA && opticalImage.Partitions.Any())
                                     {
-                                        partition = opticalImage.Partitions[i];
-                                        ip = await GetIpData(opticalImage, partition);
-                                        if (ip != null)
-                                            break;
+                                        partition = opticalImage.Partitions.First();
+
+                                        ISO9660.DecodedVolumeDescriptor? pvd;
+                                        if (ISO9660.GetDecodedPVD(opticalImage, partition, out pvd) == Aaru.CommonTypes.Structs.Errno.NoError && pvd.Value.ApplicationIdentifier == "PLAYSTATION" || pvd.Value.SystemIdentifier == "PLAYSTATION")
+                                        {
+                                            //it's a ps1 disc!
+
+                                            var systemcnf = ImageHelper.extractFileFromPartition(opticalImage, partition, "SYSTEM.CNF");
+                                            if (systemcnf == null) //could not open SYSTEM.CNF file
+                                                throw new Exception();
+
+                                            string serial;
+                                            using (var ms = new MemoryStream(systemcnf))
+                                            {
+                                                using (var sr = new StreamReader(ms))
+                                                {
+                                                    serial = sr.ReadLine();
+                                                }
+                                            }
+
+                                            serial = serial.Substring(serial.LastIndexOf('\\') + 1);
+                                            var lastIndex = serial.LastIndexOf(';');
+                                            if (lastIndex != -1)
+                                                serial = serial.Substring(0, lastIndex);
+
+                                            serial = serial.Replace('_', '-');
+                                            serial = serial.Replace(".", string.Empty);
+
+
+                                            //var serial = pvd.VolumeIdentifier.Replace('_', '-');
+                                            ip = new IpBin
+                                            {
+                                                ProductNumber = serial,
+                                                Region = "JUE",
+                                                CRC = string.Empty,
+                                                Version = string.Empty,
+                                                Vga = true,
+                                                Disc = "PS1",
+                                                SpecialDisc = SpecialDisc.BleemGame
+                                            };
+                                            
+                                            var psEntry = PlayStationDB.FindBySerial(serial);
+                                            if (psEntry == null)
+                                            {
+                                                ip.Name = serial;
+                                                ip.ReleaseDate = "19990909";
+                                            }
+                                            else
+                                            {
+                                                ip.Name = psEntry.name;
+                                                if (DateOnly.TryParse(psEntry.releaseDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateOnly releaseDate))
+                                                    ip.ReleaseDate = releaseDate.ToString("yyyyMMdd");
+                                                else
+                                                    ip.ReleaseDate = "19990909";
+                                            }
+                                        }
+                                    }
+                                    else//it's not a ps1 disc. try to read as dreamcast. start from from last partition
+                                    {
+                                        for (int i = opticalImage.Partitions.Count - 1; i >= 0; i--)
+                                        {
+                                            partition = opticalImage.Partitions[i];
+                                            ip = await GetIpData(opticalImage, partition);
+                                            if (ip != null)
+                                                break;
+                                        }
                                     }
                                 }
 

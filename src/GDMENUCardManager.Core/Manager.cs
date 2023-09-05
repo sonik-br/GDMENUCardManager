@@ -53,6 +53,7 @@ namespace GDMENUCardManager.Core
         {
             gdishrinkPath = Path.Combine(currentAppPath, "tools", "gdishrink.exe");
             //ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
+            PlayStationDB.LoadFrom(Constants.PS1GameDBFile);
         }
 
         public async Task LoadItemsFromCard()
@@ -606,7 +607,7 @@ namespace GDMENUCardManager.Core
                 if (await Helper.DirectoryExistsAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_low_data")))
                     await Helper.CopyDirectoryAsync(Path.Combine(currentAppPath, "tools", "gdMenu", "menu_low_data"), lowdataPath);
                 /* Write to low density */
-                await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "LIST.INI"), listText);
+                await Helper.WriteTextFileAsync(Path.Combine(lowdataPath, "LIST.INI"), listText);
                 /* Write to high density */
                 await Helper.WriteTextFileAsync(Path.Combine(dataPath, "LIST.INI"), listText);
                 /*@Debug*/
@@ -645,14 +646,8 @@ namespace GDMENUCardManager.Core
 
             //create low density track
             List<FileInfo> fileList = new List<FileInfo>();
-            if (MenuKindSelected == MenuKind.gdMenu)
-            {
-                fileList.Add(new FileInfo(Path.Combine(tempDirectory, "LIST.INI")));
-                //add additional files, like themes
-                fileList.AddRange(new DirectoryInfo(lowdataPath).GetFiles());
-            }
-            else if (MenuKindSelected == MenuKind.openMenu)
-                fileList.Add(new FileInfo(Path.Combine(tempDirectory, "OPENMENU.INI")));
+            //add additional files, like themes
+            fileList.AddRange(new DirectoryInfo(lowdataPath).GetFiles());
 
             builder.CreateFirstTrack(Path.Combine(cdiPath, "track01.iso"), fileList);
 

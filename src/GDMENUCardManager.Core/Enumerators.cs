@@ -16,7 +16,8 @@
     public enum SpecialDisc
     {
         None,
-        CodeBreaker
+        CodeBreaker,
+        BleemGame
     }
 
     public enum RenameBy
