@@ -16,7 +16,8 @@
     public enum SpecialDisc
     {
         None,
-        CodeBreaker
+        CodeBreaker,
+        BleemGame
     }
 
     public enum RenameBy
@@ -24,5 +25,12 @@
         Ip,
         Folder,
         File,
+    }
+
+    public enum MenuKind //folder name must match the enum name. case sensitive.
+    {
+        None,
+        gdMenu,
+        openMenu
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -24,6 +25,7 @@ namespace GDMENUCardManager
         public GDMENUCardManager.Core.Manager Manager { get { return _ManagerInstance; } }
 
         private readonly bool showAllDrives = false;
+        private readonly bool debugEnabled = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -62,6 +64,12 @@ namespace GDMENUCardManager
         {
             get { return _TotalFilesLength; }
             private set { _TotalFilesLength = value; RaisePropertyChanged(); }
+        }
+
+        public MenuKind MenuKindSelected
+        {
+            get { return Manager.MenuKindSelected; }
+            set { Manager.MenuKindSelected = value; RaisePropertyChanged(); }
         }
 
         private string _Filter;
@@ -106,10 +114,13 @@ namespace GDMENUCardManager
 
             //config parsing. all settings are optional and must reverse to default values if missing
             bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
+            bool.TryParse(ConfigurationManager.AppSettings["Debug"], out debugEnabled);
             if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
                 Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
             if (int.TryParse(ConfigurationManager.AppSettings["CharLimit"], out int charLimit))
                 GdItem.namemaxlen = Math.Min(255, Math.Max(charLimit, 1));
+            if (bool.TryParse(ConfigurationManager.AppSettings["TruncateMenuGDI"], out bool truncateMenuGDI))
+                Manager.TruncateMenuGDI = truncateMenuGDI;
 
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
@@ -172,6 +183,7 @@ namespace GDMENUCardManager
             }
             finally
             {
+                RaisePropertyChanged(nameof(MenuKindSelected));
                 IsBusy = false;
             }
         }
@@ -240,7 +252,15 @@ namespace GDMENUCardManager
         private async void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
             IsBusy = true;
-            await new AboutWindow().ShowDialog(this);
+            if (debugEnabled)
+            {
+                var list = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => $"{x.DriveType}; {x.DriveFormat}; {x.Name}").ToArray();
+                await MessageBoxManager.GetMessageBoxStandardWindow("Debug", string.Join(Environment.NewLine, list), icon: MessageBox.Avalonia.Enums.Icon.None).ShowDialog(this);
+            }
+            else
+            {
+                await new AboutWindow().ShowDialog(this);
+            }
             IsBusy = false;
         }
 
@@ -348,7 +368,8 @@ namespace GDMENUCardManager
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || (x.DriveType == DriveType.Removable && x.DriveFormat.StartsWith("FAT")))).ToArray();
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed)).ToArray();//todo need to test
+                //list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed)).ToArray();//todo need to test
+                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed || (x.DriveType == DriveType.Unknown && x.DriveFormat.Equals("lifs", StringComparison.InvariantCultureIgnoreCase)))).ToArray();//todo need to test
             else//linux
                 list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || ((x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed) && x.DriveFormat.Equals("msdos", StringComparison.InvariantCultureIgnoreCase) && (x.Name.StartsWith("/media/", StringComparison.InvariantCultureIgnoreCase) || x.Name.StartsWith("/run/media/", StringComparison.InvariantCultureIgnoreCase)) ))).ToArray();
             
@@ -432,6 +453,18 @@ namespace GDMENUCardManager
 
             if (result?.Button == "Ok" && !string.IsNullOrWhiteSpace(result.Message))
                 item.Name = result.Message.Trim();
+        }
+
+        private void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
+        {
+            TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+
+            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
+
+            foreach (var item in items)
+            {
+                item.Name = textInfo.ToTitleCase(textInfo.ToLower(item.Name));
+            }
         }
 
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
@@ -522,7 +555,7 @@ namespace GDMENUCardManager
                             await Manager.LoadIP(item);
                             IsBusy = false;
                         }
-                        if (item.Ip.Name != "GDMENU")//dont let the user exclude GDMENU
+                        if (item.Ip.Name != "GDMENU" && item.Ip.Name != "openMenu")//dont let the user exclude GDMENU, openMenu
                             toRemove.Add(item);
                     }
                     else

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace GDMENUCardManager
 
         public ObservableCollection<DriveInfo> DriveList { get; } = new ObservableCollection<DriveInfo>();
 
-        
+
 
 
         private bool _IsBusy;
@@ -95,6 +96,12 @@ namespace GDMENUCardManager
             set { Manager.EnableGDIShrinkBlackList = value; RaisePropertyChanged(); }
         }
 
+        public MenuKind MenuKindSelected
+        {
+            get { return Manager.MenuKindSelected; }
+            set { Manager.MenuKindSelected = value; RaisePropertyChanged(); }
+        }
+
         private string _Filter;
         public string Filter
         {
@@ -130,6 +137,8 @@ namespace GDMENUCardManager
                 Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
             if (int.TryParse(ConfigurationManager.AppSettings["CharLimit"], out int charLimit))
                 GdItem.namemaxlen = Math.Min(255, Math.Max(charLimit, 1));
+            if (bool.TryParse(ConfigurationManager.AppSettings["TruncateMenuGDI"], out bool truncateMenuGDI))
+                Manager.TruncateMenuGDI = truncateMenuGDI;
 
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
@@ -184,6 +193,7 @@ namespace GDMENUCardManager
             }
             finally
             {
+                RaisePropertyChanged(nameof(MenuKindSelected));
                 IsBusy = false;
             }
         }
@@ -418,6 +428,19 @@ namespace GDMENUCardManager
             dg1.BeginEdit();
         }
 
+        private void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
+        {
+            TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+
+            dg1.CurrentCell = new DataGridCellInfo(dg1.SelectedItem, dg1.Columns[4]);
+            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
+
+            foreach (var item in items)
+            {
+                item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+            }
+        }
+
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
         {
             await renameSelection(RenameBy.Ip);
@@ -466,7 +489,7 @@ namespace GDMENUCardManager
                             await Manager.LoadIP(item);
                             IsBusy = false;
                         }
-                        if (item.Ip.Name != "GDMENU")//dont let the user exclude GDMENU
+                        if (item.Ip.Name != "GDMENU" && item.Ip.Name != "openMenu")//dont let the user exclude GDMENU
                             toRemove.Add(item);
                     }
                     else

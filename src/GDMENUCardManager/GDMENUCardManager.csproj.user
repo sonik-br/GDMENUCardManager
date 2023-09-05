@@ -2,7 +2,7 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ShowAllFiles>false</ShowAllFiles>
-    <_LastSelectedProfileId>C:\Users\sonik\Source\Repos\sonik-br\GDMENUCardManager\src\GDMENUCardManager\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+    <_LastSelectedProfileId>C:\Users\sonik\Source\Repos\sonik-br\GDMENUCardManager\src\GDMENUCardManager\Properties\PublishProfiles\win-x64.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Update="App.xaml">

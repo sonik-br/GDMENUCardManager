@@ -197,10 +197,12 @@
                 <Paragraph>
                     <Bold>GDEMU</Bold> - Deunan;&#160;
                     <Bold>GDmenu</Bold> - neuroacid;&#160;
+                    <Bold>openMenu</Bold> - mrneo240;&#160;
+                    <LineBreak/>
                     <Bold>GdiShrink</Bold> - FamilyGuy;&#160;
                     <Bold>GdiBuilder</Bold> - Paul Kratt;&#160;
-                    <LineBreak/>
                     <Bold>Aaru</Bold> - Natalia Portillo;&#160;
+                    <LineBreak/>
                     <Bold>PuyoTools</Bold> - Nick Woronekin;&#160;
                     <Bold>7z</Bold> - Igor Pavlov;&#160;
                     <Bold>SevenZipSharp</Bold> - Joel Ahlgren;&#160;

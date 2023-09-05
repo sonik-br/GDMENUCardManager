@@ -38,7 +38,7 @@ namespace Aaru.Filesystems
 {
     public sealed partial class ISO9660
     {
-        struct DecodedVolumeDescriptor
+        public struct DecodedVolumeDescriptor
         {
             public string   SystemIdentifier;
             public string   VolumeIdentifier;

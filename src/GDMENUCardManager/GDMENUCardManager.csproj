@@ -1,29 +1,29 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <DefineConstants>TRACE;UNMANAGED</DefineConstants>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <ApplicationIcon>Assets\GDMENUCardManager.ico</ApplicationIcon>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>Current</OldToolsVersion>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="ByteSize" Version="2.0.0" />
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\GDMENUCardManager.Core\GDMENUCardManager.Core.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="7z.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -35,5 +35,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>

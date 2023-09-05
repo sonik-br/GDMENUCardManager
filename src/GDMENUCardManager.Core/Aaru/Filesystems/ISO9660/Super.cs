@@ -32,7 +32,9 @@
 // ****************************************************************************/
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using Aaru.CommonTypes;
 using Aaru.CommonTypes.Interfaces;
@@ -530,6 +532,71 @@ namespace Aaru.Filesystems
                 return Errno.AccessDenied;
 
             stat = _statfs.ShallowCopy();
+
+            return Errno.NoError;
+        }
+
+        static public Errno GetDecodedPVD(IMediaImage imagePlugin, Partition partition, out DecodedVolumeDescriptor? decodedVd)
+        {
+            decodedVd = null;
+            // ISO9660 is designed for 2048 bytes/sector devices
+            if (imagePlugin.Info.SectorSize < 2048)
+                return Errno.InvalidArgument;
+
+            // ISO9660 Primary Volume Descriptor starts at sector 16, so that's minimal size.
+            if (partition.End < 16)
+                return Errno.InvalidArgument;
+
+            ulong counter = 0;
+            byte[] vdSector = imagePlugin.ReadSector(16 + counter + partition.Start);
+            int xaOff = vdSector.Length == 2336 ? 8 : 0;
+            int hsOff = 0;
+
+            PrimaryVolumeDescriptor? pvd = null;
+
+            while (true)
+            {
+                // Seek to Volume Descriptor
+                byte[] vdSectorTmp = imagePlugin.ReadSector(16 + counter + partition.Start);
+                vdSector = new byte[vdSectorTmp.Length - xaOff];
+                Array.Copy(vdSectorTmp, xaOff, vdSector, 0, vdSector.Length);
+
+                byte vdType = vdSector[0 + hsOff]; // Volume Descriptor Type, should be 1 or 2.
+
+                if (vdType == 255) // Supposedly we are in the PVD.
+                {
+                    if (counter == 0)
+                        return Errno.InvalidArgument;
+
+                    break;
+                }
+
+                if (Encoding.ASCII.GetString(vdSector, 1, 5) != ISO_MAGIC) // Recognized, it is an ISO9660, now check for rest of data.
+                {
+                    if (counter == 0)
+                        return Errno.InvalidArgument;
+
+                    break;
+                }
+
+                switch (vdType)
+                {
+                    case 1:
+                        pvd = Marshal.ByteArrayToStructureLittleEndian<PrimaryVolumeDescriptor>(vdSector);
+                        break;
+                    case 0:
+                    case 2:
+                    case 3:
+                        break;
+                }
+
+                counter++;
+            }
+
+            if (!pvd.HasValue)
+                return Errno.NoData;
+
+            decodedVd = DecodeVolumeDescriptor(pvd.Value);
 
             return Errno.NoError;
         }
