@@ -17,7 +17,7 @@
   <Grid Margin="10">
     <StackPanel>
       <TextBlock FontWeight="Bold">GD MENU Card Manager - by Sonik</TextBlock>
-      <TextBlock>Tool to manage games on SD card - For use with GDEMU/GDMENU</TextBlock>
+      <TextBlock>Tool to manage games on SD card - For use with GDEMU/GDMENU/openMenu</TextBlock>
       <!--<Rectangle Fill="Black" Height="1"/>-->
       <TextBlock Text=" "/>
 
