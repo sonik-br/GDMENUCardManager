@@ -25,7 +25,6 @@ namespace GDMENUCardManager
         public GDMENUCardManager.Core.Manager Manager { get { return _ManagerInstance; } }
 
         private readonly bool showAllDrives = false;
-        private readonly bool debugEnabled = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -114,7 +113,7 @@ namespace GDMENUCardManager
 
             //config parsing. all settings are optional and must reverse to default values if missing
             bool.TryParse(ConfigurationManager.AppSettings["ShowAllDrives"], out showAllDrives);
-            bool.TryParse(ConfigurationManager.AppSettings["Debug"], out debugEnabled);
+            bool.TryParse(ConfigurationManager.AppSettings["Debug"], out Manager.debugEnabled);
             if (bool.TryParse(ConfigurationManager.AppSettings["UseBinaryString"], out bool useBinaryString))
                 Converter.ByteSizeToStringConverter.UseBinaryString = useBinaryString;
             if (int.TryParse(ConfigurationManager.AppSettings["CharLimit"], out int charLimit))
@@ -252,15 +251,12 @@ namespace GDMENUCardManager
         private async void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
             IsBusy = true;
-            if (debugEnabled)
+            if (Manager.debugEnabled)
             {
                 var list = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => $"{x.DriveType}; {x.DriveFormat}; {x.Name}").ToArray();
                 await MessageBoxManager.GetMessageBoxStandardWindow("Debug", string.Join(Environment.NewLine, list), icon: MessageBox.Avalonia.Enums.Icon.None).ShowDialog(this);
             }
-            else
-            {
-                await new AboutWindow().ShowDialog(this);
-            }
+            await new AboutWindow().ShowDialog(this);
             IsBusy = false;
         }
 

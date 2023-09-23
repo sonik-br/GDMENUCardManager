@@ -16,6 +16,7 @@ namespace GDMENUCardManager.Core
         public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd" };
 
         public static string sdPath = null;
+        public static bool debugEnabled = false;
         public static MenuKind MenuKindSelected { get; set; } = MenuKind.None;
 
         private readonly string currentAppPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -558,6 +559,13 @@ namespace GDMENUCardManager.Core
                     await Helper.WriteTextFileAsync(menuConfigPath, sb.ToString());
                     sb.Clear();
                 }
+
+                if (debugEnabled)
+                {
+                    var originFile = Path.Combine(tempDirectory, "MENU_DEBUG.TXT");
+                    if (File.Exists(originFile))
+                        File.Copy(originFile, Path.Combine(sdPath, "MENU_DEBUG.TXT"), true);
+                }
                 return true;
             }
             finally
@@ -611,7 +619,8 @@ namespace GDMENUCardManager.Core
                 /* Write to high density */
                 await Helper.WriteTextFileAsync(Path.Combine(dataPath, "LIST.INI"), listText);
                 /*@Debug*/
-                //todo add a global "debug" flag to enable the saving of this file
+                if(debugEnabled)
+                    await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "MENU_DEBUG.TXT"), listText);
                 //await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "LIST.INI"), listText);
             }
             else if (MenuKindSelected == MenuKind.openMenu)
@@ -626,7 +635,8 @@ namespace GDMENUCardManager.Core
                 /* Write to high density */
                 await Helper.WriteTextFileAsync(Path.Combine(dataPath, "OPENMENU.INI"), openmenuListText);
                 /*@Debug*/
-                //todo add a global "debug" flag to enable the saving of this file
+                if (debugEnabled)
+                    await Helper.WriteTextFileAsync(Path.Combine(tempDirectory, "MENU_DEBUG.TXT"), openmenuListText);
                 //await Helper.WriteTextFileAsync(Path.Combine(currentAppPath, "OPENMENU.INI"), openmenuListText);
             }
             else
