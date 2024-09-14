@@ -57,6 +57,25 @@ On Linux version it's not possible to use drag-and-drop.
   - Execute `GDMENUCardManager` in `GDMENUCardManager/src/GDMENUCardManager.AvaloniaUI/bin/Release/net6.0/linux-x64/publish`
     -via double click or by running `./GDMENUCardManager` or by `dotnet ./GDMENUCardManager`
 
+### Building for MacOS
+  #### Install dependencies
+  ##### Runtime is required to run the application and dotnet is required to build the application.
+
+  - install .NET Runtime 6.0 from [here](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
+  - `brew install dotnet`
+  #### Build
+  ##### Navigate to the `src` folder and build the project using dotnet publish.
+  ```bash
+  $ cd src/
+  $ dotnet publish GDMENUCardManager.AvaloniaUI/GDMENUCardManager.AvaloniaUI.csproj -c Release
+  ```
+  #### Run
+  ##### Navigate to the publish folder and run the application.
+  ```bash
+  $ cd GDMENUCardManager.AvaloniaUI/bin/Release/net6.0/publish/
+  $ ./GDMENUCardManager
+  ```
+
 ### Credits
 This software is made possible by using third party tools:
 
