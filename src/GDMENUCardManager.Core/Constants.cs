@@ -9,6 +9,6 @@
         public const string GdiShrinkBlacklistFile = "gdishrink_blacklist.txt";
         public const string PS1GameDBFile = "gamedb.json";
         public const string DefaultImageFileName = "disc";
-        public const string Version = "v2.0.0";
+        public const string Version = "v2.0.1";
     }
 }

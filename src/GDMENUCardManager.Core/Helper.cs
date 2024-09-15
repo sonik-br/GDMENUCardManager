@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,8 @@ namespace GDMENUCardManager.Core
 
         public static Task<string[]> GetFilesAsync(string path)
         {
-            return Task.Run(() => Directory.GetFiles(path));
+            //skip hidden files on OSX
+            return Task.Run(() => Directory.GetFiles(path).Where(x => !Path.GetFileName(x).StartsWith(".")).ToArray());
         }
 
         public static Task MoveDirectoryAsync(string from, string to)
