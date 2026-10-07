@@ -27,6 +27,13 @@
         File,
     }
 
+    public enum LetterCasing
+    {
+        Lower,
+        Upper,
+        Title,
+    }
+
     public enum MenuKind //folder name must match the enum name. case sensitive.
     {
         None,

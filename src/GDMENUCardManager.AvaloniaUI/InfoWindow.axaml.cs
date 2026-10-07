@@ -1,22 +1,23 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using GDMENUCardManager.Core;
+using GDMENUCardManager.Core.Resources;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using GDMENUCardManager.Core;
 
 namespace GDMENUCardManager
 {
-    public class InfoWindow : Window, INotifyPropertyChanged
+    public partial class InfoWindow : Window, INotifyPropertyChanged
     {
         public string FileInfo { get; }
         public string IpInfo { get; }
 
-        private string _LabelText = "Loading...";
+        private string _LabelText = AppStrings.Loading;
         public string LabelText
         {
             get { return _LabelText; }
@@ -50,10 +51,10 @@ namespace GDMENUCardManager
             string vga = item.Ip.Vga ? "   VGA" : null;
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Folder:");
+            sb.AppendLine($"{AppStrings.Folder}:");
             sb.AppendLine(Path.GetFileName(item.FullFolderPath));
             sb.AppendLine();
-            sb.AppendLine("File:");
+            sb.AppendLine($"{AppStrings.File}:");
             sb.AppendLine(Path.GetFileName(item.ImageFile));
 
             FileInfo = sb.ToString();
@@ -69,22 +70,30 @@ namespace GDMENUCardManager
                 if (item.Ip.SpecialDisc != SpecialDisc.None)
                 {
                     sb.AppendLine();
-                    sb.AppendLine("Detected as: " + item.Ip.SpecialDisc);
+                    sb.AppendLine($"{AppStrings.DetectedAs}: {item.Ip.SpecialDisc}");
                 }
                 IpInfo = sb.ToString();
             }
             else
             {
-                IpInfo = "Compressed file";
+                IpInfo = AppStrings.CompressedFile;
             }
 
             this.KeyUp += (ss, ee) => { if (ee.Key == Avalonia.Input.Key.Escape) Close(); };
             DataContext = this;
         }
 
-        private void InitializeComponent()
+        //private void InitializeComponent()
+        //{
+        //    AvaloniaXamlLoader.Load(this);
+        //}
+
+        protected override void OnClosed(EventArgs e)
         {
-            AvaloniaXamlLoader.Load(this);
+            base.OnClosed(e);
+
+            GdTexture?.Dispose();
+            GdTexture = null;
         }
 
         private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
@@ -98,7 +107,7 @@ namespace GDMENUCardManager
             try
             {
                 if (item.FileFormat == FileFormat.SevenZip)
-                    throw new Exception("Can't load from compressed files.");
+                    throw new Exception(AppStrings.CantLoadFromCompressedFiles);
 
                 var filePath = Path.Combine(item.FullFolderPath, item.ImageFile);
 
@@ -106,7 +115,7 @@ namespace GDMENUCardManager
 
                 if (gdtexture == null)
                 {
-                    throw new Exception("File not found");
+                    throw new Exception(AppStrings.FileNotFound);
                 }
                 else
                 {
@@ -120,7 +129,7 @@ namespace GDMENUCardManager
                             using (var l = writeableBitmap.Lock())
                                 System.Runtime.InteropServices.Marshal.Copy(data, 0, l.Address, data.Length);
 
-                            writeableBitmap.Save(memory);
+                            writeableBitmap.Save(memory, Avalonia.Media.Imaging.PngBitmapEncoderOptions.Default);
                             memory.Position = 0;
                             GdTexture = new Avalonia.Media.Imaging.Bitmap(memory);
                             LabelText = null;

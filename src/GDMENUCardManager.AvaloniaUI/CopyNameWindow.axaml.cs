@@ -12,7 +12,7 @@ using Avalonia.Interactivity;
 
 namespace GDMENUCardManager
 {
-    public class CopyNameWindow : Window, INotifyPropertyChanged
+    public partial class CopyNameWindow : Window, INotifyPropertyChanged
     {
         public bool OnCard { get; set; }
         public bool NotOnCard { get; set; } = true;
@@ -25,10 +25,10 @@ namespace GDMENUCardManager
             DataContext = this;
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        //private void InitializeComponent()
+        //{
+        //    AvaloniaXamlLoader.Load(this);
+        //}
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

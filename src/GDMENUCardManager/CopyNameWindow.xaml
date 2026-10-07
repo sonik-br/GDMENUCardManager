@@ -4,25 +4,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDMENUCardManager"
+        xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d"
-        Title="Batch Rename" Height="270" Width="350"
+        Title="{x:Static coreres:AppStrings.BatchRename}" Height="270" Width="350"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <StackPanel>
-        <GroupBox Header="Rename all games located on" Margin="5">
+        <GroupBox Header="{x:Static coreres:AppStrings.RenameAllGamesLocatedOn}" Margin="5">
             <StackPanel>
-                <CheckBox IsChecked="{Binding OnCard, Mode=TwoWay}">SD Card</CheckBox>
-                <CheckBox IsChecked="{Binding NotOnCard, Mode=TwoWay}">Other</CheckBox>
+                <CheckBox Content="{x:Static coreres:AppStrings.SdCard}" IsChecked="{Binding OnCard, Mode=TwoWay}"/>
+                <CheckBox Content="{x:Static coreres:AppStrings.Other}" IsChecked="{Binding NotOnCard, Mode=TwoWay}"/>
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Copy name from" Margin="5">
+        <GroupBox Header="{x:Static coreres:AppStrings.CopyNameFrom}" Margin="5">
             <StackPanel>
-                <RadioButton IsChecked="{Binding FolderName, Mode=TwoWay}">Folder</RadioButton>
-                <RadioButton>File</RadioButton>
+                <RadioButton Content="{x:Static coreres:AppStrings.Folder}" IsChecked="{Binding FolderName, Mode=TwoWay}"/>
+                <RadioButton Content="{x:Static coreres:AppStrings.File}"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Special parsing" Margin="5">
-            <CheckBox IsChecked="{Binding ParseTosec, Mode=TwoWay}">Read TOSEC naming</CheckBox>
+        <GroupBox Header="{x:Static coreres:AppStrings.SpecialParsing}" Margin="5">
+            <CheckBox Content="{x:Static coreres:AppStrings.ReadTosecNaming}" IsChecked="{Binding ParseTosec, Mode=TwoWay}"/>
         </GroupBox>
 
         <Button Click="Button_Click" IsDefault="True" Margin="5" Padding="20 10">Ok</Button>

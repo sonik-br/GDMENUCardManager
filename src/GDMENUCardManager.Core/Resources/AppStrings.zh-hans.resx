@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="SdDrive" xml:space="preserve">
+    <value>SD 驱动器</value>
+  </data>
+  <data name="RefreshDriveList" xml:space="preserve">
+    <value>刷新驱动器列表</value>
+  </data>
+  <data name="TemporaryFolder" xml:space="preserve">
+    <value>临时文件夹</value>
+  </data>
+  <data name="SelectFolder" xml:space="preserve">
+    <value>选择文件夹</value>
+  </data>
+  <data name="OpenLink" xml:space="preserve">
+    <value>打开链接</value>
+  </data>
+  <data name="UseGDMENU" xml:space="preserve">
+    <value>使用 GDMENU</value>
+  </data>
+  <data name="UseOpenMenu" xml:space="preserve">
+    <value>使用 openMenu</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="AddGame" xml:space="preserve">
+    <value>添加游戏</value>
+  </data>
+  <data name="RemoveSelectedGames" xml:space="preserve">
+    <value>移除所选游戏</value>
+  </data>
+  <data name="ViewFileInfo" xml:space="preserve">
+    <value>查看文件信息</value>
+  </data>
+  <data name="GamesList" xml:space="preserve">
+    <value>游戏列表</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="SentenceCase" xml:space="preserve">
+    <value>句子大小写</value>
+  </data>
+  <data name="UpperCase" xml:space="preserve">
+    <value>大写</value>
+  </data>
+  <data name="LowerCase" xml:space="preserve">
+    <value>小写</value>
+  </data>
+  <data name="AutomaticallyRename" xml:space="preserve">
+    <value>自动重命名</value>
+  </data>
+  <data name="UsingIPBIN" xml:space="preserve">
+    <value>使用 IP.BIN 信息</value>
+  </data>
+  <data name="UsingFolderName" xml:space="preserve">
+    <value>使用文件夹名称</value>
+  </data>
+  <data name="UsingFileName" xml:space="preserve">
+    <value>使用文件名称</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="SdNumber" xml:space="preserve">
+    <value>SD 编号</value>
+  </data>
+  <data name="SdNumberTooltip" xml:space="preserve">
+    <value>SD 卡上当前项目的文件夹</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="Serial" xml:space="preserve">
+    <value>序列号</value>
+  </data>
+  <data name="Disc" xml:space="preserve">
+    <value>光盘</value>
+  </data>
+  <data name="GdiShrink" xml:space="preserve">
+    <value>GDI 压缩</value>
+  </data>
+  <data name="GdiShrinkLine1" xml:space="preserve">
+    <value>为新游戏启用 GDI 压缩</value>
+  </data>
+  <data name="GdiShrinkUseBlackListLine1" xml:space="preserve">
+    <value>使用黑名单</value>
+  </data>
+  <data name="GdiShrinkUseBlackListLine2" xml:space="preserve">
+    <value>跳过不兼容的游戏</value>
+  </data>
+  <data name="GdiShrinkLine2" xml:space="preserve">
+    <value>游戏可在 SD 卡上占用更少空间</value>
+  </data>
+  <data name="GdiShrinkCompressedLine1" xml:space="preserve">
+    <value>同时压缩已压缩的游戏</value>
+  </data>
+  <data name="GdiShrinkCompressedLine2" xml:space="preserve">
+    <value>压缩前将游戏解压至临时文件夹</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>保存更改</value>
+  </data>
+  <data name="Preload" xml:space="preserve">
+    <value>预加载</value>
+  </data>
+  <data name="PreloadTooltip" xml:space="preserve">
+    <value>从已在 SD 卡上的文件加载信息</value>
+  </data>
+  <data name="SortList" xml:space="preserve">
+    <value>排序列表</value>
+  </data>
+  <data name="BatchRename" xml:space="preserve">
+    <value>批量重命名</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="SupportMyWork" xml:space="preserve">
+    <value>支持我的工作</value>
+  </data>
+  <data name="MadeInBrazil" xml:space="preserve">
+    <value>巴西制造</value>
+  </data>
+  <data name="InfoWinTitle" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="FileInfo" xml:space="preserve">
+    <value>文件信息</value>
+  </data>
+  <data name="IpBinInfo" xml:space="preserve">
+    <value>IP.BIN 信息</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>加载中...</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="CompressedFile" xml:space="preserve">
+    <value>压缩文件</value>
+  </data>
+  <data name="CantLoadFromCompressedFiles" xml:space="preserve">
+    <value>无法从压缩文件加载。</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>文件未找到</value>
+  </data>
+  <data name="DetectedAs" xml:space="preserve">
+    <value>检测为</value>
+  </data>
+  <data name="SdCard" xml:space="preserve">
+    <value>SD 卡</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="CheckOnline" xml:space="preserve">
+    <value>在线检查</value>
+  </data>
+  <data name="Current" xml:space="preserve">
+    <value>当前</value>
+  </data>
+  <data name="Latest" xml:space="preserve">
+    <value>最新</value>
+  </data>
+  <data name="Checking" xml:space="preserve">
+    <value>检查中</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="RenameAllGamesLocatedOn" xml:space="preserve">
+    <value>重命名位于以下位置的所有游戏</value>
+  </data>
+  <data name="CopyNameFrom" xml:space="preserve">
+    <value>从以下位置复制名称</value>
+  </data>
+  <data name="SpecialParsing" xml:space="preserve">
+    <value>特殊解析</value>
+  </data>
+  <data name="ReadTosecNaming" xml:space="preserve">
+    <value>使用 TOSEC 命名规则</value>
+  </data>
+  <data name="LoadingFileInfo" xml:space="preserve">
+    <value>加载文件信息</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>进度</value>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>消息</value>
+  </data>
+  <data name="ErrorLoadingData" xml:space="preserve">
+    <value>加载数据时出错</value>
+  </data>
+  <data name="InvalidFolders" xml:space="preserve">
+    <value>无效文件夹</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="ItemsRenamed" xml:space="preserve">
+    <value>已重命名 {0} 个项目</value>
+  </data>
+  <data name="IgnoredFoldersFiles" xml:space="preserve">
+    <value>已忽略的文件夹/文件</value>
+  </data>
+  <data name="ProblemLoadingFollowingFolders" xml:space="preserve">
+    <value>加载以下文件夹时出现问题</value>
+  </data>
+  <data name="SelectGamesApplyGdiShrink" xml:space="preserve">
+    <value>选择要应用 GDI 压缩的游戏</value>
+  </data>
+  <data name="Shrink" xml:space="preserve">
+    <value>压缩</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="DeselectAll" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
+  <data name="Copying" xml:space="preserve">
+    <value>正在复制</value>
+  </data>
+  <data name="Shrinking" xml:space="preserve">
+    <value>正在压缩</value>
+  </data>
+  <data name="Uncompressing" xml:space="preserve">
+    <value>正在解压</value>
+  </data>
+  <data name="ErrorDuringGdiShrink" xml:space="preserve">
+    <value>GDI 压缩时出错</value>
+  </data>
+  <data name="MenuNotSelectedSettings" xml:space="preserve">
+    <value>未在设置中选择菜单</value>
+  </data>
+  <data name="ErrorLoadingFile" xml:space="preserve">
+    <value>加载文件 {0} 时出错</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SaveChangesToDrive" xml:space="preserve">
+    <value>将更改保存到驱动器 {0}？</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>确认</value>
+  </data>
+  <data name="TheFollowingFoldersNeedDeleted" xml:space="preserve">
+    <value>以下文件夹需要被删除。</value>
+  </data>
+  <data name="ConfirmDeletion" xml:space="preserve">
+    <value>确认删除？</value>
+  </data>
+  <data name="AndMoreFolders" xml:space="preserve">
+    <value>[还有 {0} 个文件夹]</value>
+  </data>
+  <data name="OperationCanceled" xml:space="preserve">
+    <value>操作已取消。</value>
+  </data>
+  <data name="ThereMightBeUnusedFoldersFilesSdCard" xml:space="preserve">
+    <value>SD 卡上可能存在未使用的文件夹/文件。</value>
+  </data>
+  <data name="MoveSelectedGameUp" xml:space="preserve">
+    <value>将所选游戏上移</value>
+  </data>
+  <data name="MoveSelectedGameDown" xml:space="preserve">
+    <value>将所选游戏下移</value>
+  </data>
+  <data name="LetterCasing" xml:space="preserve">
+    <value>字母大小写</value>
+  </data>
+  <data name="ImageFormats" xml:space="preserve">
+    <value>镜像格式</value>
+  </data>
+  <data name="CompressedFormats" xml:space="preserve">
+    <value>压缩格式</value>
+  </data>
+  <data name="ToolManageGamesOn" xml:space="preserve">
+    <value>用于管理以下设备上游戏的工具</value>
+  </data>
+  <data name="ForUseWith" xml:space="preserve">
+    <value>适用于</value>
+  </data>
+  <data name="Credits" xml:space="preserve">
+    <value>致谢</value>
+  </data>
+</root>

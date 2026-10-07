@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ByteSizeLib;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -99,7 +100,7 @@ namespace GDMENUCardManager.Core
 
         public string Location
         {
-            get { return SdNumber == 0 ? "Other" : "SD Card"; }
+            get { return SdNumber == 0 ? AppStrings.Other : AppStrings.SdCard; }
         }
 
         public bool CanApplyGDIShrink { get; set; }

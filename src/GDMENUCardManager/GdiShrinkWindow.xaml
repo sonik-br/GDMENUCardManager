@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDMENUCardManager"
         xmlns:conv="clr-namespace:GDMENUCardManager.Converter"
+        xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d"
-        Title="Select games to apply GDI Shrink" Height="400" Width="600" MinHeight="308" MinWidth="600"
+        Title="{x:Static coreres:AppStrings.SelectGamesApplyGdiShrink}" Height="400" Width="600" MinHeight="308" MinWidth="600"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <conv:ByteSizeToStringConverter x:Key="ByteSizeToString"/>
@@ -19,7 +20,7 @@
         <DataGrid ItemsSource="{Binding List, Mode=OneTime}" IsReadOnly="False" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" Margin="8">
             <DataGrid.Columns>
 
-                <DataGridTemplateColumn Width="Auto" Header="Shrink">
+                <DataGridTemplateColumn Width="Auto" Header="{x:Static coreres:AppStrings.Shrink}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" CommandParameter="{Binding Path=., Mode=OneTime}"/>
@@ -27,17 +28,17 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTextColumn Header="Length" Width="Auto" Binding="{Binding Key.Length, Mode=OneTime, Converter={StaticResource ByteSizeToString}}"/>
-                <DataGridTextColumn Header="Title" Width="1*" Binding="{Binding Key.Name, Mode=OneTime}"/>
-                <DataGridTextColumn Header="Disc" Width="Auto" Binding="{Binding Key.Ip.Disc, Mode=OneTime}"/>
+                <DataGridTextColumn Header="{x:Static coreres:AppStrings.Size}" Width="Auto" Binding="{Binding Key.Length, Mode=OneTime, Converter={StaticResource ByteSizeToString}}"/>
+                <DataGridTextColumn Header="{x:Static coreres:AppStrings.Title}" Width="1*" Binding="{Binding Key.Name, Mode=OneTime}"/>
+                <DataGridTextColumn Header="{x:Static coreres:AppStrings.Disc}" Width="Auto" Binding="{Binding Key.Ip.Disc, Mode=OneTime}"/>
             </DataGrid.Columns>
 
         </DataGrid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 0 0 10">
             <Button Margin="10 0" Padding="10 10" FontWeight="Bold" IsDefault="True" Click="ButtonShrink_Click">Ok</Button>
-            <Button Margin="10 0" Padding="20 10" Click="ButtonAll_Click">Select All</Button>
-            <Button Margin="10 0" Padding="20 10" Click="ButtonNone_Click">Select None</Button>
+            <Button Content="{x:Static coreres:AppStrings.SelectAll}" Margin="10 0" Padding="20 10" Click="ButtonAll_Click"/>
+            <Button Content="{x:Static coreres:AppStrings.DeselectAll}" Margin="10 0" Padding="20 10" Click="ButtonNone_Click"/>
         </StackPanel>
 
     </Grid>

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GDMENUCardManager.Core
@@ -118,5 +119,24 @@ namespace GDMENUCardManager.Core
         }
 
         internal static System.Func<string, bool> CompressedFileExpression;// = new System.Func<string, bool>(x => x.EndsWith(".7z", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".rar", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase));
+
+
+        public static CultureInfo GetCulture(string cultureFromConfig)
+        {
+            var culture = Thread.CurrentThread.CurrentCulture; //current from OS
+
+            if (!string.IsNullOrWhiteSpace(cultureFromConfig) && Constants.SupportedLanguages.Any(x => x.Equals(cultureFromConfig, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                try
+                {
+                    var c = new CultureInfo(cultureFromConfig);
+                    culture = c;
+                }
+                catch (Exception)
+                {
+                }
+            }
+            return culture;
+        }
     }
 }

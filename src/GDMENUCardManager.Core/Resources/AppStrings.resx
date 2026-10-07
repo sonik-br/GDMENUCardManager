@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SdDrive" xml:space="preserve">
+    <value>SD Drive</value>
+  </data>
+  <data name="RefreshDriveList" xml:space="preserve">
+    <value>Refresh Drive List</value>
+    <comment>Refresh Button tooltip</comment>
+  </data>
+  <data name="TemporaryFolder" xml:space="preserve">
+    <value>Temporary folder</value>
+  </data>
+  <data name="SelectFolder" xml:space="preserve">
+    <value>Select Folder</value>
+    <comment>Folder button tooltip</comment>
+  </data>
+  <data name="OpenLink" xml:space="preserve">
+    <value>Open Link</value>
+    <comment>Link button tooltip</comment>
+  </data>
+  <data name="UseGDMENU" xml:space="preserve">
+    <value>Use GDMENU</value>
+    <comment>Menu type tooltip</comment>
+  </data>
+  <data name="UseOpenMenu" xml:space="preserve">
+    <value>Use openMenu</value>
+    <comment>Menu type tooltip</comment>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+    <comment>About button tooltip</comment>
+  </data>
+  <data name="AddGame" xml:space="preserve">
+    <value>Add game(s)</value>
+    <comment>Add game button tooltip</comment>
+  </data>
+  <data name="RemoveSelectedGames" xml:space="preserve">
+    <value>Remove selected game(s)</value>
+    <comment>Add game button tooltip</comment>
+  </data>
+  <data name="ViewFileInfo" xml:space="preserve">
+    <value>View File Info</value>
+    <comment>File info button tooltip</comment>
+  </data>
+  <data name="GamesList" xml:space="preserve">
+    <value>Games List</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="SentenceCase" xml:space="preserve">
+    <value>Sentence Case</value>
+  </data>
+  <data name="UpperCase" xml:space="preserve">
+    <value>Upper Case</value>
+  </data>
+  <data name="LowerCase" xml:space="preserve">
+    <value>Lower Case</value>
+  </data>
+  <data name="AutomaticallyRename" xml:space="preserve">
+    <value>Automatically Rename</value>
+  </data>
+  <data name="UsingIPBIN" xml:space="preserve">
+    <value>Using IP.BIN _info</value>
+    <comment>Rename</comment>
+  </data>
+  <data name="UsingFolderName" xml:space="preserve">
+    <value>Using Folder name</value>
+    <comment>Rename</comment>
+  </data>
+  <data name="UsingFileName" xml:space="preserve">
+    <value>Using File name</value>
+    <comment>Rename</comment>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="SdNumber" xml:space="preserve">
+    <value>Sd Number</value>
+  </data>
+  <data name="SdNumberTooltip" xml:space="preserve">
+    <value>Current item folder on SD Card</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Serial" xml:space="preserve">
+    <value>Serial</value>
+  </data>
+  <data name="Disc" xml:space="preserve">
+    <value>Disc</value>
+  </data>
+  <data name="GdiShrink" xml:space="preserve">
+    <value>GDI Shrink</value>
+  </data>
+  <data name="GdiShrinkLine1" xml:space="preserve">
+    <value>Enable GDI Shrink for new games</value>
+  </data>
+  <data name="GdiShrinkUseBlackListLine1" xml:space="preserve">
+    <value>Use Blacklist</value>
+  </data>
+  <data name="GdiShrinkUseBlackListLine2" xml:space="preserve">
+    <value>Skips incompatible games</value>
+  </data>
+  <data name="GdiShrinkLine2" xml:space="preserve">
+    <value>Games can use less space on SD Card</value>
+  </data>
+  <data name="GdiShrinkCompressedLine1" xml:space="preserve">
+    <value>Also shrink compressed games</value>
+  </data>
+  <data name="GdiShrinkCompressedLine2" xml:space="preserve">
+    <value>Games will be extracted to temp folder prior to shrinking</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="Preload" xml:space="preserve">
+    <value>Preload</value>
+  </data>
+  <data name="PreloadTooltip" xml:space="preserve">
+    <value>Load info from files that are already on SD Card</value>
+  </data>
+  <data name="SortList" xml:space="preserve">
+    <value>Sort List</value>
+  </data>
+  <data name="BatchRename" xml:space="preserve">
+    <value>Batch Rename</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>By</value>
+    <comment>As in made by</comment>
+  </data>
+  <data name="SupportMyWork" xml:space="preserve">
+    <value>Support my work</value>
+  </data>
+  <data name="MadeInBrazil" xml:space="preserve">
+    <value>Made in Brazil</value>
+    <comment>BR flag tooltip</comment>
+  </data>
+  <data name="InfoWinTitle" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="FileInfo" xml:space="preserve">
+    <value>File Info</value>
+  </data>
+  <data name="IpBinInfo" xml:space="preserve">
+    <value>IP.BIN Info</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="CompressedFile" xml:space="preserve">
+    <value>Compressed file</value>
+  </data>
+  <data name="CantLoadFromCompressedFiles" xml:space="preserve">
+    <value>Can't load from compressed file.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="DetectedAs" xml:space="preserve">
+    <value>Detected as</value>
+  </data>
+  <data name="SdCard" xml:space="preserve">
+    <value>SD Card</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="CheckOnline" xml:space="preserve">
+    <value>Check Online</value>
+  </data>
+  <data name="Current" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="Latest" xml:space="preserve">
+    <value>Latest</value>
+  </data>
+  <data name="Checking" xml:space="preserve">
+    <value>Checking</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="RenameAllGamesLocatedOn" xml:space="preserve">
+    <value>Rename all games located on</value>
+  </data>
+  <data name="CopyNameFrom" xml:space="preserve">
+    <value>Copy name from</value>
+  </data>
+  <data name="SpecialParsing" xml:space="preserve">
+    <value>Special parsing</value>
+  </data>
+  <data name="ReadTosecNaming" xml:space="preserve">
+    <value>Read TOSEC naming</value>
+  </data>
+  <data name="LoadingFileInfo" xml:space="preserve">
+    <value>Loading file info</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="ErrorLoadingData" xml:space="preserve">
+    <value>Error Loading data</value>
+  </data>
+  <data name="InvalidFolders" xml:space="preserve">
+    <value>Invalid Folders</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="ItemsRenamed" xml:space="preserve">
+    <value>{0} item(s) renamed</value>
+  </data>
+  <data name="IgnoredFoldersFiles" xml:space="preserve">
+    <value>Ignored folders/files</value>
+  </data>
+  <data name="ProblemLoadingFollowingFolders" xml:space="preserve">
+    <value>Problem loading the following folder(s)</value>
+  </data>
+  <data name="SelectGamesApplyGdiShrink" xml:space="preserve">
+    <value>Select games to apply GDI Shrink</value>
+  </data>
+  <data name="Shrink" xml:space="preserve">
+    <value>Shrink</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="DeselectAll" xml:space="preserve">
+    <value>Deselect all</value>
+  </data>
+  <data name="Copying" xml:space="preserve">
+    <value>Copying</value>
+  </data>
+  <data name="Shrinking" xml:space="preserve">
+    <value>Shrinking</value>
+  </data>
+  <data name="Uncompressing" xml:space="preserve">
+    <value>Uncompressing</value>
+  </data>
+  <data name="ErrorDuringGdiShrink" xml:space="preserve">
+    <value>Error during GDIShrink</value>
+  </data>
+  <data name="MenuNotSelectedSettings" xml:space="preserve">
+    <value>Menu not selected on Settings</value>
+  </data>
+  <data name="ErrorLoadingFile" xml:space="preserve">
+    <value>Error loading file {0}</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveChangesToDrive" xml:space="preserve">
+    <value>Save changes to {0} drive?</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="TheFollowingFoldersNeedDeleted" xml:space="preserve">
+    <value>The following folders need to be deleted.</value>
+  </data>
+  <data name="ConfirmDeletion" xml:space="preserve">
+    <value>Confirm deletion?</value>
+  </data>
+  <data name="AndMoreFolders" xml:space="preserve">
+    <value>[and more {0} folders]</value>
+  </data>
+  <data name="OperationCanceled" xml:space="preserve">
+    <value>Operation canceled.</value>
+  </data>
+  <data name="ThereMightBeUnusedFoldersFilesSdCard" xml:space="preserve">
+    <value>There might be unused folders/files on the SD Card.</value>
+  </data>
+  <data name="MoveSelectedGameUp" xml:space="preserve">
+    <value>Move selected game(s) up</value>
+  </data>
+  <data name="MoveSelectedGameDown" xml:space="preserve">
+    <value>Move selected game(s) down</value>
+  </data>
+  <data name="LetterCasing" xml:space="preserve">
+    <value>Letter Casing</value>
+  </data>
+  <data name="ImageFormats" xml:space="preserve">
+    <value>Image Formats</value>
+  </data>
+  <data name="CompressedFormats" xml:space="preserve">
+    <value>Compressed Formats</value>
+  </data>
+  <data name="ToolManageGamesOn" xml:space="preserve">
+    <value>Tool to manage games on</value>
+    <comment>On Sd Card</comment>
+  </data>
+  <data name="ForUseWith" xml:space="preserve">
+    <value>For use with</value>
+  </data>
+  <data name="Credits" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+</root>

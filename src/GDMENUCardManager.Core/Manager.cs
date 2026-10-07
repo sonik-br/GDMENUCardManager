@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GDMENUCardManager.Core.Interface;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
-    public class Manager
+    public sealed class Manager
     {
         public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd" };
 
@@ -28,7 +29,7 @@ namespace GDMENUCardManager.Core
             get
             {
                 if (MenuKindSelected == MenuKind.None)
-                    throw new Exception("Menu not selected on Settings");
+                    throw new Exception(AppStrings.MenuNotSelectedSettings);
                 return Path.Combine(currentAppPath, "tools", MenuKindSelected.ToString(), "IP.BIN");
             }
         }
@@ -96,15 +97,33 @@ namespace GDMENUCardManager.Core
             var firstItem = ItemList.FirstOrDefault();
             if (firstItem != null)
             {
-                //try to detec using name.txt info
-                MenuKindSelected = getMenuKindFromName(firstItem.Name);
-                
-                //not detected using name.txt. Try to load from ip.bin
-                if (MenuKindSelected == MenuKind.None)
+
+                ////try to detect using name.txt info
+                //MenuKindSelected = getMenuKindFromName(firstItem.Name);
+
+                ////not detected using name.txt. Try to load from ip.bin
+                //if (MenuKindSelected == MenuKind.None)
+                //{
+                //    await LoadIP(firstItem);
+                //    MenuKindSelected = getMenuKindFromName(firstItem.Ip.Name);
+                //}
+
+
+
+                //For menu, try to skip lazy loading and force read
+                try
                 {
                     await LoadIP(firstItem);
-                    MenuKindSelected = getMenuKindFromName(firstItem.Ip.Name);
                 }
+                catch
+                {
+                }
+
+                if (firstItem.Ip != null) // IP was loaded, use it
+                    MenuKindSelected = getMenuKindFromName(firstItem.Ip.Name);
+                else //try to detect using name.txt info
+                    MenuKindSelected = getMenuKindFromName(firstItem.Name);
+
             }
 
             //todo implement menu fallback? to default or forced mode (in config)
@@ -119,7 +138,7 @@ namespace GDMENUCardManager.Core
 
             var progress = Helper.DependencyManager.CreateAndShowProgressWindow();
             progress.TotalItems = items.Count();
-            progress.TextContent = "Loading file info...";
+            progress.TextContent = $"{AppStrings.Loading}...";
 
             do { await Task.Delay(50); } while (!progress.IsInitialized);
 
@@ -167,7 +186,40 @@ namespace GDMENUCardManager.Core
             }
             catch (Exception)
             {
-                throw new Exception("Error loading file " + filePath);
+                throw new Exception(string.Format(AppStrings.ErrorLoadingFile, filePath));
+            }
+        }
+
+        public async Task LetterCasingItems(IEnumerable<GdItem> items, LetterCasing casing)
+        {
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+            foreach (var item in items)
+            {
+                if (item.SdNumber == 1)
+                {
+                    if (item.Ip == null)
+                        await LoadIP(item);
+
+                    if (item.Ip.Name == "GDMENU" || (item.Ip?.Name == "openMenu"))
+                    continue;
+                }
+
+
+                switch (casing)
+                {
+                    case LetterCasing.Lower:
+                        item.Name = textInfo.ToLower(item.Name);
+                        break;
+                    case LetterCasing.Upper:
+                        item.Name = textInfo.ToUpper(item.Name);
+                        break;
+                    case LetterCasing.Title:
+                        item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -188,6 +240,15 @@ namespace GDMENUCardManager.Core
 
             foreach (var item in items)
             {
+                if (item.SdNumber == 1)
+                {
+                    if (item.Ip == null)
+                        await LoadIP(item);
+
+                    if (item.Ip.Name == "GDMENU" || (item.Ip?.Name == "openMenu"))
+                        continue;
+                }
+
                 if (renameBy == RenameBy.Ip)
                 {
                     name = item.Ip.Name;
@@ -255,7 +316,7 @@ namespace GDMENUCardManager.Core
                 itemName = await Helper.ReadAllTextAsync(nameFile);
 
             //cached "name.txt" file is required.
-            if (string.IsNullOrWhiteSpace(nameFile))
+            if (string.IsNullOrWhiteSpace(itemName))
                 return null;
 
             var itemSerial = string.Empty;
@@ -301,6 +362,14 @@ namespace GDMENUCardManager.Core
             return item;
         }
 
+        public sealed class MenuNotSelectedException : Exception
+        {
+            public MenuNotSelectedException() : base(AppStrings.MenuNotSelectedSettings)
+            {
+            }
+        }
+
+
         public async Task<bool> Save(string tempFolderRoot)
         {
             string tempDirectory = null;
@@ -310,14 +379,14 @@ namespace GDMENUCardManager.Core
             {
                 if (MenuKindSelected == MenuKind.None)
                 {
-                    throw new Exception("Menu not selected on Settings");
+                    throw new MenuNotSelectedException();
                 }
                 else
                 {
                     //todo validate menu files? check if folder exists?
                 }
 
-                if (ItemList.Count == 0 || await Helper.DependencyManager.ShowYesNoDialog("Save", $"Save changes to {sdPath} drive?") == false)
+                if (ItemList.Count == 0 || await Helper.DependencyManager.ShowYesNoDialog(AppStrings.Save, string.Format(AppStrings.SaveChangesToDrive, sdPath)) == false)
                     return false;
 
                 //load ipbin from lazy loaded items
@@ -350,9 +419,9 @@ namespace GDMENUCardManager.Core
                     sb.AppendLine(string.Join(Environment.NewLine, foldersToDelete.Take(max)));
                     var more = foldersToDelete.Count - max;
                     if (more > 0)
-                        sb.AppendLine($"[and more {more} folders]");
+                        sb.AppendLine(string.Format(AppStrings.AndMoreFolders, more));
 
-                    if (await Helper.DependencyManager.ShowYesNoDialog("Confirm", $"The following folders need to be deleted.\nConfirm deletion?\n\n{sb.ToString()}") == false)
+                    if (await Helper.DependencyManager.ShowYesNoDialog(AppStrings.Confirm, $"{AppStrings.TheFollowingFoldersNeedDeleted}\n{AppStrings.ConfirmDeletion}\n\n{sb.ToString()}") == false)
                         return false;
 
                     foreach (var item in foldersToDelete)
@@ -396,9 +465,9 @@ namespace GDMENUCardManager.Core
 
                             //if user changed between GDMENU <> openMenu
                             //reload name and serial from ip.bin
-                            var menu = ItemList.OrderBy(x => x.SdNumber).First();
                             if ((ip01.Ip.Name == "GDMENU" && MenuKindSelected != MenuKind.gdMenu) || ip01.Ip.Name == "openMenu" && MenuKindSelected != MenuKind.openMenu)
                             {
+                                var menu = ItemList.First();//.OrderBy(x => x.SdNumber).First();
                                 var menuIpBin = ImageHelper.GetIpData(File.ReadAllBytes(ipbinPath));
                                 menu.Name = menuIpBin.Name;
                                 menu.ProductNumber = menuIpBin.ProductNumber;
@@ -641,7 +710,7 @@ namespace GDMENUCardManager.Core
             }
             else
             {
-                throw new Exception("Menu not selected on Settings");
+                throw new Exception(AppStrings.MenuNotSelectedSettings);
             }
 
 
@@ -755,7 +824,7 @@ namespace GDMENUCardManager.Core
                 {
                     using (var p = CreateProcess(gdishrinkPath))
                         if (!await RunShrinkProcess(p, Path.Combine(item.FullFolderPath, item.ImageFile), newPath))
-                            throw new Exception("Error during GDIShrink");
+                            throw new Exception(AppStrings.ErrorDuringGdiShrink);
                 }
                 else
                 {
@@ -843,9 +912,9 @@ namespace GDMENUCardManager.Core
 
                 var shrinkableItems = ItemList.Where(x =>
                     x.Work == WorkMode.New && x.Ip.Name != "GDMENU" && x.Ip.Name != "openMenu" && x.CanApplyGDIShrink
-                        && (x.FileFormat == FileFormat.Uncompressed || (EnableGDIShrinkCompressed)
+                        && (x.FileFormat == FileFormat.Uncompressed || EnableGDIShrinkCompressed)
                         && !ignoreShrinkList.Contains(x.Ip.ProductNumber, StringComparer.OrdinalIgnoreCase)
-                    )).OrderBy(x => x.Name).ThenBy(x => x.Ip.Disc).ToArray();
+                    ).OrderBy(x => x.Name).ThenBy(x => x.Ip.Disc).ToArray();
                 if (shrinkableItems.Any())
                 {
                     var result = Helper.DependencyManager.GdiShrinkWindowShowDialog(shrinkableItems);
@@ -872,12 +941,12 @@ namespace GDMENUCardManager.Core
                         {
                             if (EnableGDIShrink && itemsToShrink.Contains(item))
                             {
-                                progress.TextContent = $"Copying/Shrinking {item.Name} ...";
+                                progress.TextContent = $"{AppStrings.Copying}/{AppStrings.Shrinking} {item.Name} ...";
                                 shrink = true;
                             }
                             else
                             {
-                                progress.TextContent = $"Copying {item.Name} ...";
+                                progress.TextContent = $"{AppStrings.Copying} {item.Name} ...";
                                 shrink = false;
                             }
 
@@ -887,7 +956,7 @@ namespace GDMENUCardManager.Core
                         {
                             if (EnableGDIShrink && EnableGDIShrinkCompressed && itemsToShrink.Contains(item))
                             {
-                                progress.TextContent = $"Uncompressing {item.Name} ...";
+                                progress.TextContent = $"{AppStrings.Uncompressing} {item.Name} ...";
 
                                 shrink = true;
 
@@ -911,18 +980,18 @@ namespace GDMENUCardManager.Core
                                 
                                 if (shrink)
                                 {
-                                    progress.TextContent = $"Shrinking {item.Name} ...";
+                                    progress.TextContent = $"{AppStrings.Shrinking} {item.Name} ...";
 
                                     using (var p = CreateProcess(gdishrinkPath))
                                         if (!await RunShrinkProcess(p, Path.Combine(tempExtractDir, gdi.ImageFile), newPath))
-                                            throw new Exception("Error during GDIShrink");
+                                            throw new Exception(AppStrings.ErrorDuringGdiShrink);
 
                                     //get the new filenames
                                     gdi = await ImageHelper.CreateGdItemAsync(newPath);
                                 }
                                 else
                                 {
-                                    progress.TextContent = $"Copying {item.Name} ...";
+                                    progress.TextContent = $"{AppStrings.Copying} {item.Name} ...";
                                     await Helper.CopyDirectoryAsync(tempExtractDir, newPath);
                                 }
 
@@ -945,7 +1014,7 @@ namespace GDMENUCardManager.Core
                             }
                             else// if not shrinking, can extract directly to card
                             {
-                                progress.TextContent = $"Uncompressing {item.Name} ...";
+                                progress.TextContent = $"{AppStrings.Uncompressing} {item.Name} ...";
                                 await Uncompress(item, i + 1);//+ ammountToIncrement
                             }
 
@@ -964,7 +1033,7 @@ namespace GDMENUCardManager.Core
             }
             catch (Exception ex)
             {
-                progress.TextContent = $"{progress.TextContent}\nERROR: {ex.Message}";
+                progress.TextContent = $"{progress.TextContent}\n{AppStrings.Error.ToUpper()}: {ex.Message}";
                 throw;
             }
             finally
@@ -974,7 +1043,7 @@ namespace GDMENUCardManager.Core
                 progress.Close();
 
                 if (progress.ProcessedItems != total)
-                    throw new Exception("Operation canceled.\nThere might be unused folders/files on the SD Card.");
+                    throw new Exception($"{AppStrings.OperationCanceled}\n{AppStrings.ThereMightBeUnusedFoldersFilesSdCard}");
             }
         }
 
@@ -1119,7 +1188,7 @@ namespace GDMENUCardManager.Core
 
     }
 
-    public class ProgressWindowClosedException : Exception
+    public sealed class ProgressWindowClosedException : Exception
     {
     }
 

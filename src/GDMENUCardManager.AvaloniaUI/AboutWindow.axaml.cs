@@ -1,10 +1,13 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
-using MessageBox.Avalonia.Models;
+using Avalonia.Media;
+using Avalonia.Platform;
+using GDMENUCardManager.Core;
+using GDMENUCardManager.Core.Interface;
+using GDMENUCardManager.Core.Resources;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,24 +15,19 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using GDMENUCardManager.Core.Interface;
-using GDMENUCardManager.Core;
-using System.Threading;
-using System.Net.Http;
 using System.Net;
-using System.Text.Json;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Avalonia.Input;
-using Avalonia.Platform;
-using Avalonia.Media;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GDMENUCardManager
 {
-    public class AboutWindow : Window, INotifyPropertyChanged
+    public partial class AboutWindow : Window, INotifyPropertyChanged
     {
         public string CurrentVersion => Constants.Version;
 
@@ -73,10 +71,10 @@ namespace GDMENUCardManager
             DataContext = this;
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        //private void InitializeComponent()
+        //{
+        //    AvaloniaXamlLoader.Load(this);
+        //}
 
         private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
         {
@@ -106,7 +104,7 @@ namespace GDMENUCardManager
 
         private void ButtonLink_Click(object sender, RoutedEventArgs e)
         {
-            var url = @"https://github.com/sonik-br/GDMENUCardManager/";
+            var url = ((Button)sender).CommandParameter.ToString();
             try
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -124,23 +122,26 @@ namespace GDMENUCardManager
             var btn = (Button)sender;
             var oldContent = btn.Content;
             btn.IsEnabled = false;
-            btn.Content = "Checking...";
+            btn.Content = $"{AppStrings.Checking}...";
             try
             {
-                var token = new CancellationTokenSource(10000).Token;//for time out
-                using (var response = await Client.GetAsync("https://api.github.com/repos/sonik-br/GDMENUCardManager/releases/latest", token))
+                using (var cts = new CancellationTokenSource(10000))
                 {
-                    response.EnsureSuccessStatusCode();
-                    using (var stream = await response.Content.ReadAsStreamAsync())
+                    var token = cts.Token;//for time out
+                    using (var response = await Client.GetAsync("https://api.github.com/repos/sonik-br/GDMENUCardManager/releases/latest", token))
                     {
-                        var obj = await JsonDocument.ParseAsync(stream, cancellationToken: token);
-                        LatestVersion = obj.RootElement.GetProperty("tag_name").GetString();
+                        response.EnsureSuccessStatusCode();
+                        using (var stream = await response.Content.ReadAsStreamAsync())
+                        {
+                            var obj = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+                            LatestVersion = obj.RootElement.GetProperty("tag_name").GetString();
+                        }
                     }
                 }
             }
             catch
             {
-                LatestVersion = "Error";
+                LatestVersion = AppStrings.Error;
             }
             finally
             {

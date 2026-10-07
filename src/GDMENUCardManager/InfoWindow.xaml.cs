@@ -1,4 +1,5 @@
 ﻿using GDMENUCardManager.Core;
+using GDMENUCardManager.Core.Resources;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -20,7 +21,7 @@ namespace GDMENUCardManager
         public string FileInfo { get; }
         public string IpInfo { get; }
 
-        private string _LabelText = "Loading...";
+        private string _LabelText = AppStrings.Loading;
         public string LabelText
         {
             get { return _LabelText; }
@@ -49,10 +50,10 @@ namespace GDMENUCardManager
             string vga = item.Ip.Vga ? "   VGA" : null;
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Folder:");
+            sb.AppendLine($"{AppStrings.Folder}:");
             sb.AppendLine(Path.GetFileName(item.FullFolderPath));
             sb.AppendLine();
-            sb.AppendLine("File:");
+            sb.AppendLine($"{AppStrings.File}:");
             sb.AppendLine(Path.GetFileName(item.ImageFile));
 
             FileInfo = sb.ToString();
@@ -68,13 +69,13 @@ namespace GDMENUCardManager
                 if (item.Ip.SpecialDisc != SpecialDisc.None)
                 {
                     sb.AppendLine();
-                    sb.AppendLine("Detected as: " + item.Ip.SpecialDisc);
+                    sb.AppendLine($"{AppStrings.DetectedAs}: {item.Ip.SpecialDisc}");
                 }
                 IpInfo = sb.ToString();
             }
             else
             {
-                IpInfo = "Compressed file";
+                IpInfo = AppStrings.CompressedFile;
             }
 
             this.KeyUp += (ss, ee) => { if (ee.Key == Key.Escape) Close(); };
@@ -87,13 +88,13 @@ namespace GDMENUCardManager
             try
             {
                 if (item.FileFormat == FileFormat.SevenZip)
-                    throw new Exception("Can't load from compressed files.");
+                    throw new Exception(AppStrings.CantLoadFromCompressedFiles);
 
                 var filePath = Path.Combine(item.FullFolderPath, item.ImageFile);
                 var gdtexture = await Task.Run(() => ImageHelper.GetGdText(filePath));
                 if (gdtexture == null)
                 {
-                    throw new Exception("File not found");
+                    throw new Exception(AppStrings.FileNotFound);
                 }
                 else
                 {

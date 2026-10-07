@@ -1,27 +1,41 @@
-﻿using Avalonia.Controls;
+﻿using Aaru.Decoders.Sega;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.Models;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Avalonia.Xaml.Interactions.DragAndDrop;
+using Avalonia.Xaml.Interactivity;
+using GDMENUCardManager.Core;
+using GDMENUCardManager.Core.Resources;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
+using System.Configuration;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using GDMENUCardManager.Core;
-using System.Configuration;
+using static GDMENUCardManager.Core.Manager;
+using static System.Net.WebRequestMethods;
 
 namespace GDMENUCardManager
 {
-    public class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private GDMENUCardManager.Core.Manager _ManagerInstance;
+        private readonly GDMENUCardManager.Core.Manager _ManagerInstance;
         public GDMENUCardManager.Core.Manager Manager { get { return _ManagerInstance; } }
 
         private readonly bool showAllDrives = false;
@@ -78,30 +92,44 @@ namespace GDMENUCardManager
             set { _Filter = value; RaisePropertyChanged(); }
         }
 
-        private readonly List<FileDialogFilter> fileFilterList;
+        private readonly List<FilePickerFileType> fileFilterList;
 
 
         #region window controls
-        DataGrid dg1;
+        //DataGrid dg1; // todo check
         #endregion
 
         public MainWindow()
         {
             InitializeComponent();
+            this.AddHandler(DragDrop.DropEvent, WindowDrop);
 #if DEBUG
             //this.AttachDevTools();
             //this.OpenDevTools();
 #endif
+            //some languages requires wider window
+            if (string.Equals(CultureInfo.CurrentUICulture.Name, "ru-RU", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(CultureInfo.CurrentUICulture.Name, "fr-FR", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(CultureInfo.CurrentUICulture.Name, "de-DE", StringComparison.OrdinalIgnoreCase))
+            {
+                this.Width = 1070;
+                this.MinWidth = 920;
+            }
 
             var compressedFileFormats = new string[] { ".7z", ".rar", ".zip" };
             _ManagerInstance = GDMENUCardManager.Core.Manager.CreateInstance(new DependencyManager(), compressedFileFormats);
             var fullList = Manager.supportedImageFormats.Concat(compressedFileFormats).ToArray();
-            fileFilterList = new List<FileDialogFilter>
+
+            fileFilterList = new List<FilePickerFileType>
             {
-                new FileDialogFilter
+                //FilePickerFileTypes.All,// todo use this on MAC?)
+
+                //Name = $"Dreamcast Game ({string.Join("; ", fullList.Select(x => $"*{x}"))})",
+                //Extensions = fullList.Select(x => x.Substring(1)).ToList()
+                new FilePickerFileType("Dreamcast Game")
                 {
-                    Name = $"Dreamcast Game ({string.Join("; ", fullList.Select(x => $"*{x}"))})",
-                    Extensions = fullList.Select(x => x.Substring(1)).ToList()
+                    //Patterns = fullList.Select(x => x.Substring(1)).ToList()
+                    Patterns = fullList.Select(x => $"*{x}").ToList()
                 }
             };
 
@@ -129,12 +157,12 @@ namespace GDMENUCardManager
             DataContext = this;
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-            this.AddHandler(DragDrop.DropEvent, WindowDrop);
-            dg1 = this.FindControl<DataGrid>("dg1");
-        }
+        //private void InitializeComponent()
+        //{
+        //    AvaloniaXamlLoader.Load(this);
+        //    this.AddHandler(DragDrop.DropEvent, WindowDrop);
+        //    dg1 = this.FindControl<DataGrid>("dg1");
+        //}
 
 
         private async void MainWindow_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -178,7 +206,7 @@ namespace GDMENUCardManager
             }
             catch (Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Invalid Folders", $"Problem loading the following folder(s):\n\n{ex.Message}", icon: MessageBox.Avalonia.Enums.Icon.Warning).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.InvalidFolders, $"{AppStrings.ProblemLoadingFollowingFolders}:\n\n{ex.Message}", icon: MsBox.Avalonia.Enums.Icon.Warning).ShowWindowDialogAsync(this);
             }
             finally
             {
@@ -190,19 +218,29 @@ namespace GDMENUCardManager
         private async Task Save()
         {
             IsBusy = true;
+            bool unhandled_error = false;
             try
             {
                 if (await Manager.Save(TempFolder))
-                    await MessageBoxManager.GetMessageBoxStandardWindow("Message", "Done!").ShowDialog(this);
+                    await MessageBoxManager.GetMessageBoxStandard(AppStrings.Message, AppStrings.Done).ShowWindowDialogAsync(this);
             }
             catch (Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Error", ex.Message, icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowWindowDialogAsync(this);
+                if (ex is MenuNotSelectedException == false)
+                    unhandled_error = true;
             }
             finally
             {
                 IsBusy = false;
                 updateTotalSize();
+            }
+
+            if (unhandled_error)
+            {
+                Close();
+                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                    desktop.Shutdown();
             }
         }
 
@@ -211,27 +249,31 @@ namespace GDMENUCardManager
             if (Manager.sdPath == null)
                 return;
 
-            if (e.Data.Contains(DataFormats.FileNames))
+            if (e.DataTransfer.Contains(DataFormat.File))
             {
                 IsBusy = true;
                 var invalid = new List<string>();
 
                 try
                 {
-                    foreach (var o in e.Data.GetFileNames())
+                    foreach (var o in e.DataTransfer.TryGetFiles() ?? [])
                     {
-                        try
+                        var path = o.TryGetLocalPath();
+                        if (path != null)
                         {
-                            Manager.ItemList.Add(await ImageHelper.CreateGdItemAsync(o));
-                        }
-                        catch
-                        {
-                            invalid.Add(o);
+                            try
+                            {
+                                Manager.ItemList.Add(await ImageHelper.CreateGdItemAsync(path));
+                            }
+                            catch
+                            {
+                                invalid.Add(path);
+                            }
                         }
                     }
 
                     if (invalid.Any())
-                        await MessageBoxManager.GetMessageBoxStandardWindow("Ignored folders/files", string.Join(Environment.NewLine, invalid), icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                        await MessageBoxManager.GetMessageBoxStandard(AppStrings.IgnoredFoldersFiles, string.Join(Environment.NewLine, invalid), icon: MsBox.Avalonia.Enums.Icon.Error).ShowWindowDialogAsync(this);
                 }
                 catch (Exception)
                 {
@@ -254,7 +296,7 @@ namespace GDMENUCardManager
             if (Manager.debugEnabled)
             {
                 var list = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => $"{x.DriveType}; {x.DriveFormat}; {x.Name}").ToArray();
-                await MessageBoxManager.GetMessageBoxStandardWindow("Debug", string.Join(Environment.NewLine, list), icon: MessageBox.Avalonia.Enums.Icon.None).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard("Debug", string.Join(Environment.NewLine, list), icon: MsBox.Avalonia.Enums.Icon.None).ShowWindowDialogAsync(this);
             }
             await new AboutWindow().ShowDialog(this);
             IsBusy = false;
@@ -262,14 +304,18 @@ namespace GDMENUCardManager
 
         private async void ButtonFolder_Click(object sender, RoutedEventArgs e)
         {
-            var folderDialog = new OpenFolderDialog { Title = "Select Temporary Folder" };
+            var folderDialogOptions = new FolderPickerOpenOptions
+            {
+                Title = AppStrings.TemporaryFolder,
+                AllowMultiple = false,
+            };
 
             if (!string.IsNullOrEmpty(TempFolder))
-                folderDialog.Directory = TempFolder;
+                folderDialogOptions.SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(TempFolder);
 
-            var selectedFolder = await folderDialog.ShowAsync(this);
-            if (!string.IsNullOrEmpty(selectedFolder))
-                TempFolder = selectedFolder;
+            var selectedFolder = (await StorageProvider.OpenFolderPickerAsync(folderDialogOptions)).FirstOrDefault();
+            if (selectedFolder != null)
+                TempFolder = selectedFolder.TryGetLocalPath();
         }
 
         private async void ButtonInfo_Click(object sender, RoutedEventArgs e)
@@ -287,7 +333,7 @@ namespace GDMENUCardManager
             }
             catch(Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Error", ex.Message, icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowWindowDialogAsync(this);
             }
             IsBusy = false;
         }
@@ -301,7 +347,7 @@ namespace GDMENUCardManager
             }
             catch (Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Error", ex.Message, icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowWindowDialogAsync(this);
             }
             IsBusy = false;
         }
@@ -320,11 +366,11 @@ namespace GDMENUCardManager
 
                 var count = await Manager.BatchRenameItems(w.NotOnCard, w.OnCard, w.FolderName, w.ParseTosec);
 
-                await MessageBoxManager.GetMessageBoxStandardWindow("Done", $"{count} item(s) renamed").ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Done, string.Format(AppStrings.ItemsRenamed, count)).ShowAsPopupAsync(this);
             }
             catch (Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Error", ex.Message, icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowAsPopupAsync(this);
             }
             finally
             {
@@ -345,7 +391,7 @@ namespace GDMENUCardManager
             catch (ProgressWindowClosedException) { }
             catch (Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Error", ex.Message, icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowAsPopupAsync(this);
             }
             finally
             {
@@ -384,7 +430,7 @@ namespace GDMENUCardManager
                 try
                 {
                     DriveList.Add(drive);
-                    if (SelectedDrive == null && File.Exists(Path.Combine(drive.RootDirectory.FullName, Constants.MenuConfigTextFile)))
+                    if (SelectedDrive == null && System.IO.File.Exists(Path.Combine(drive.RootDirectory.FullName, Constants.MenuConfigTextFile)))
                         SelectedDrive = drive;
                 }
                 catch { }
@@ -436,31 +482,51 @@ namespace GDMENUCardManager
             var menuitem = (MenuItem)sender;
             var item = (GdItem)menuitem.CommandParameter;
 
-            var result = await MessageBoxManager.GetMessageBoxInputWindow(new MessageBox.Avalonia.DTO.MessageBoxInputParams
+            var w = MessageBoxManager.GetMessageBoxCustom(new MessageBoxCustomParams
             {
-                ContentTitle = "Rename",
-                ContentHeader = "inform new name",
-                ContentMessage = "Name",
-                WatermarkText = item.Name,
+                ContentTitle = AppStrings.Rename,
+                ContentHeader = "Inform new name",//todo localize
                 ShowInCenter = true,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                ButtonDefinitions = new ButtonDefinition[] { new ButtonDefinition { Name = "Ok" }, new ButtonDefinition { Name = "Cancel" } },
-            }).ShowDialog(this);
+                CloseOnClickAway = true,
+                InputParams = new InputParams
+                {
+                    DefaultValue = item.Name,
+                    Multiline = false,
+                },
+                ButtonDefinitions = new ButtonDefinition[] { new ButtonDefinition { Name = "Ok", IsDefault = true }, new ButtonDefinition { Name = "Cancel", IsCancel = true } }
+            });
+            var result = await w.ShowAsPopupAsync(this);
 
-            if (result?.Button == "Ok" && !string.IsNullOrWhiteSpace(result.Message))
-                item.Name = result.Message.Trim();
+            if (!string.IsNullOrEmpty(result) && result == "Ok" && !string.IsNullOrWhiteSpace(w.InputValue))
+                item.Name = w.InputValue.Trim();
         }
 
-        private void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
+        private async void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
         {
-            TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+            await casingSelection(LetterCasing.Title);
+        }
+        private async void MenuItemRenameLowercase_Click(object sender, RoutedEventArgs e)
+        {
+            await casingSelection(LetterCasing.Lower);
+        }
+        private async void MenuItemRenameUppercase_Click(object sender, RoutedEventArgs e)
+        {
+            await casingSelection(LetterCasing.Upper);
+        }
 
-            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
-
-            foreach (var item in items)
+        private async Task casingSelection(LetterCasing casing)
+        {
+            IsBusy = true;
+            try
             {
-                item.Name = textInfo.ToTitleCase(textInfo.ToLower(item.Name));
+                await Manager.LetterCasingItems(dg1.SelectedItems.Cast<GdItem>(), casing);
             }
+            catch (Exception ex)
+            {
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowAsPopupAsync(this);
+            }
+            IsBusy = false;
         }
 
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
@@ -486,7 +552,7 @@ namespace GDMENUCardManager
             }
             catch (Exception ex)
             {
-                await MessageBoxManager.GetMessageBoxStandardWindow("Error", ex.Message, icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowAsPopupAsync(this);
             }
             IsBusy = false;
         }
@@ -548,8 +614,18 @@ namespace GDMENUCardManager
                         if (item.Ip == null)
                         {
                             IsBusy = true;
-                            await Manager.LoadIP(item);
-                            IsBusy = false;
+                            try
+                            {
+                                await Manager.LoadIP(item);
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+                            finally
+                            {
+                                IsBusy = false;
+                            }
                         }
                         if (item.Ip.Name != "GDMENU" && item.Ip.Name != "openMenu")//dont let the user exclude GDMENU, openMenu
                             toRemove.Add(item);
@@ -569,35 +645,62 @@ namespace GDMENUCardManager
 
         private async void ButtonAddGames_Click(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new OpenFileDialog
+
+            var fileDialogOptions = new FilePickerOpenOptions
             {
-                Title = "Select File(s)",
+                Title = "Select File(s)", //todo localize
                 AllowMultiple = true,
-                Filters = fileFilterList
+                FileTypeFilter = fileFilterList
             };
 
-            var files = await fileDialog.ShowAsync(this);
+            var files = await StorageProvider.OpenFilePickerAsync(fileDialogOptions);
             if (files != null && files.Any())
             {
                 IsBusy = true;
-                
-                var invalid = await Manager.AddGames(files);
-                
+
+                var invalid = await Manager.AddGames(files.Select(x => x.TryGetLocalPath()).ToArray());
+
                 if (invalid.Any())
-                    await MessageBoxManager.GetMessageBoxStandardWindow("Ignored folders/files", string.Join(Environment.NewLine, invalid), icon: MessageBox.Avalonia.Enums.Icon.Error).ShowDialog(this);
+                    await MessageBoxManager.GetMessageBoxStandard(AppStrings.IgnoredFoldersFiles, string.Join(Environment.NewLine, invalid), icon: MsBox.Avalonia.Enums.Icon.Error).ShowAsPopupAsync(this);
 
                 IsBusy = false;
             }
         }
 
-        private void ButtonRemoveGame_Click(object sender, RoutedEventArgs e)
+        private async void ButtonRemoveGame_Click(object sender, RoutedEventArgs e)
         {
             //todo prevent not remove gdmenu!
             foreach (var item in dg1.SelectedItems.Cast<GdItem>().ToArray())
+            {
+                if (item.SdNumber == 1)
+                {
+                    if (item.Ip == null)
+                    {
+                        IsBusy = true;
+                        try
+                        {
+                            await Manager.LoadIP(item);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                        finally
+                        {
+                            IsBusy = false;
+                        }
+                    }
+                    if (item.Ip.Name == "GDMENU" || item.Ip.Name == "openMenu") //dont let the user exclude GDMENU
+                    {
+                        continue;
+                    }
+                }
+
                 Manager.ItemList.Remove(item);
+            }
         }
 
-        private void ButtonMoveUp_Click(object sender, RoutedEventArgs e)
+        private async void ButtonMoveUp_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = dg1.SelectedItems.Cast<GdItem>().ToArray();
 
@@ -608,6 +711,29 @@ namespace GDMENUCardManager
 
             if (moveTo < 0)
                 return;
+
+            if (moveTo == 0)
+            {
+                var firstItem = Manager.ItemList.First();
+                if (firstItem.Ip == null)
+                {
+                    IsBusy = true;
+                    try
+                    {
+                        await Manager.LoadIP(firstItem);
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        IsBusy = false;
+                    }
+                }
+
+                if (firstItem.Ip?.Name == "GDMENU" || firstItem.Ip?.Name == "openMenu")
+                    return;
+            }
             
             foreach (var item in selectedItems)
                 Manager.ItemList.Remove(item);
@@ -620,12 +746,37 @@ namespace GDMENUCardManager
                 dg1.SelectedItems.Add(item);
         }
 
-        private void ButtonMoveDown_Click(object sender, RoutedEventArgs e)
+        private async void ButtonMoveDown_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = dg1.SelectedItems.Cast<GdItem>().ToArray();
 
             if (!selectedItems.Any())
                 return;
+
+            var firstItem = Manager.ItemList.First();
+            var firstSelectedItem = selectedItems.First();
+
+            if (firstItem == firstSelectedItem)
+            {
+                if (firstItem.Ip == null)
+                {
+                    IsBusy = true;
+                    try
+                    {
+                        await Manager.LoadIP(firstItem);
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        IsBusy = false;
+                    }
+                }
+                if (firstItem.Ip?.Name == "GDMENU" || firstItem.Ip?.Name == "openMenu")
+                    return;
+            }
+
 
             int moveTo = Manager.ItemList.IndexOf(selectedItems.Last()) - selectedItems.Length + 2;
 
@@ -678,5 +829,333 @@ namespace GDMENUCardManager
             return false;
         }
 
+        private void ButtonLink_Click(object sender, RoutedEventArgs e)
+        {
+            var url = @"https://ko-fi.com/sonik_br/";
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    Process.Start("xdg-open", url);
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    Process.Start("open", url);
+            }
+            catch { }
+        }
+
     }
+
+
+
+
+
+    //todo move to mainwindow class, remove generic.
+    //drag and drop based on https://github.com/AvaloniaUI/Avalonia/discussions/10877#discussion-5036074
+    //also to ckeck... https://github.com/AvaloniaUI/Avalonia.Xaml.Behaviors/pull/174/files
+    public class DataGridDnd : DropHandlerBase
+    {
+        private enum DragDirection
+        {
+            Up,
+            Down
+        }
+
+        private struct DndData
+        {
+            public DndData() { }
+            public DataGrid? SrcDataGrid = null;
+            public DataGrid DestDataGrid = null!;
+            public IList<GdItem> SrcList = null!;
+            public IList<GdItem> DestList = null!;
+            public int SrcIndex = -1;
+
+            public int DestIndex = -1;
+            public DragDirection Direction;
+        }
+
+        private const string DraggingUpClassName = "dragging-up";
+        private const string DraggingDownClassName = "dragging-down";
+
+        private DndData _dnd = new();
+
+        private bool Validate(object? sender, DragEventArgs e, object? sourceContext)
+        {
+
+            if (sourceContext == null)
+            {
+                if (_dnd.SrcDataGrid is not { } srcDg ||
+                    sender is not DataGrid destDg ||
+                    srcDg.ItemsSource is not IList<GdItem> srcList ||
+                    destDg.ItemsSource is not IList<GdItem> destList
+                    //destDg.GetVisualAt(e.GetPosition(destDg),
+                    //  v => v.FindDescendantOfType<DataGridCell>() is not null) is not Control
+                    //  {
+                    //      DataContext: T dest
+                    //  } visual
+                      )
+                {
+                    return false;
+                }
+
+
+                if (destDg.GetVisualAt(e.GetPosition(destDg),
+                      v => v.FindDescendantOfType<DataGridCell>() is not null) is not Control
+                      {
+                          DataContext: GdItem dest
+                      } visual)
+                {
+
+                    if (destList.Any())
+                    {
+                        _dnd.SrcDataGrid = srcDg;
+                        _dnd.DestDataGrid = destDg;
+                        _dnd.SrcList = srcList;
+                        _dnd.DestList = destList;
+                        _dnd.Direction = DragDirection.Down;//cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
+                        _dnd.SrcIndex = destList.Count;// destList.IndexOf(dest);// srcList.IndexOf(src);
+                        _dnd.DestIndex = destList.Count;// destList.IndexOf(dest);
+                        return true;
+                    }
+                    else
+                    {
+                        _dnd.SrcDataGrid = srcDg;
+                        _dnd.DestDataGrid = destDg;
+                        _dnd.SrcList = srcList;
+                        _dnd.DestList = destList;
+                        _dnd.Direction = DragDirection.Down;//cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
+                        _dnd.SrcIndex = 0;// destList.IndexOf(dest);// srcList.IndexOf(src);
+                        _dnd.DestIndex = 0;// destList.IndexOf(dest);
+                        return true;
+                    }
+                    var cell = destDg.FindDescendantOfType<DataGridCell>();
+                    //Debug.WriteLine(cell.DataContext);
+                    //foreach (var item in c)
+                    //{
+                    //    Debug.WriteLine(item);
+                    //}
+
+                    _dnd.SrcDataGrid = srcDg;
+                    _dnd.DestDataGrid = destDg;
+                    _dnd.SrcList = srcList;
+                    _dnd.DestList = destList;
+                    _dnd.Direction = DragDirection.Down;//cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
+                    _dnd.SrcIndex = destList.Count;// destList.IndexOf(dest);// srcList.IndexOf(src);
+                    _dnd.DestIndex = destList.Count;// destList.IndexOf(dest);
+
+                    return true;
+                }
+
+
+                if (false)
+                {
+                    return false;
+                }
+                else
+                {
+                    //nao existe (nulo) quando em cima de um objeto existente.
+                    //existe quando em espaco branco
+
+                    //visual no branco é border
+
+
+                    DataGridCell cell = visual.FindDescendantOfType<DataGridCell>()!;
+                    if (cell == null)
+                    {
+                        Debug.WriteLine("FALSE");
+                        return false;
+                    }
+                    
+                    var pos = e.GetPosition(cell);
+
+                    //Debug.WriteLine(visual.DataContext);
+                    //return false;
+
+
+                    _dnd.SrcDataGrid = srcDg;
+                    _dnd.DestDataGrid = destDg;
+                    _dnd.SrcList = srcList;
+                    _dnd.DestList = destList;
+                    _dnd.Direction = cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
+                    _dnd.SrcIndex = destList.IndexOf(dest);// srcList.IndexOf(src);
+                    _dnd.DestIndex = destList.IndexOf(dest);
+                    return true;
+
+                }
+
+                //DataGridCell cell = visual.FindDescendantOfType<DataGridCell>()!;
+                //var pos = e.GetPosition(cell);
+
+                //_dnd.SrcDataGrid = srcDg;
+                //_dnd.DestDataGrid = destDg;
+                //_dnd.SrcList = srcList;
+                //_dnd.DestList = destList;
+                //_dnd.Direction = cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
+                //_dnd.SrcIndex = srcList.IndexOf(src);
+                //_dnd.DestIndex = destList.IndexOf(dest);
+
+                return false;
+            }
+            else
+            {
+                if (_dnd.SrcDataGrid is not { } srcDg ||
+                    sender is not DataGrid destDg ||
+                    sourceContext is not GdItem src ||
+                    srcDg.ItemsSource is not IList<GdItem> srcList ||
+                    destDg.ItemsSource is not IList<GdItem> destList ||
+                    destDg.GetVisualAt(e.GetPosition(destDg),
+                      v => v.FindDescendantOfType<DataGridCell>() is not null) is not Control
+                      {
+                          DataContext: GdItem dest
+                      } visual)
+                    return false;
+
+                DataGridCell cell = visual.FindDescendantOfType<DataGridCell>()!;
+                var pos = e.GetPosition(cell);
+
+                _dnd.SrcDataGrid = srcDg;
+                _dnd.DestDataGrid = destDg;
+                _dnd.SrcList = srcList;
+                _dnd.DestList = destList;
+                _dnd.Direction = cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
+                _dnd.SrcIndex = srcList.IndexOf(src);
+                _dnd.DestIndex = destList.IndexOf(dest);
+            }
+
+            return true;
+        }
+
+        public override bool Validate(object? sender, DragEventArgs e, object? sourceContext,
+                                      object? targetContext, object? state)
+        {
+            return Validate(sender, e, sourceContext);
+        }
+
+        public override bool Execute(object? sender, DragEventArgs e, object? sourceContext,
+                                     object? targetContext, object? state)
+        {
+            if (!Validate(sender, e, sourceContext))
+                return false;
+
+            if (e.DataTransfer.Contains(DataFormat.File))
+            {
+                //MoveItem(_dnd.SrcList, _dnd.DestList, _dnd.SrcIndex, _dnd.DestIndex);
+
+                if (_dnd.Direction == DragDirection.Up && _dnd.DestIndex > 0)
+                    _dnd.DestIndex--;
+                else if (_dnd.Direction == DragDirection.Down && _dnd.DestIndex < _dnd.DestList.Count)
+                    _dnd.DestIndex++;
+
+                var insertIndex = _dnd.DestIndex;// dropInfo.UnfilteredInsertIndex;
+                Debug.WriteLine(insertIndex);
+
+                foreach (var item in e.DataTransfer.Items)
+                {
+                    var aaa = item.TryGetFile();
+                    if (aaa != null)
+                    {
+                        var o = aaa.TryGetLocalPath();
+                        if (o != null)
+                        {
+                            //var destinationList = dropInfo.TargetCollection.TryGetList();
+
+                            Dispatcher.UIThread.Invoke(async () =>
+                            {
+                                //todo try
+                                
+                                var toInsert = await ImageHelper.CreateGdItemAsync(o);
+                                InsertItem((IList<GdItem>)_dnd.DestList, toInsert, insertIndex++);
+                            });
+                        }
+                    }
+                }
+                return true;
+            }
+
+            if (_dnd.SrcDataGrid != _dnd.DestDataGrid && _dnd.Direction == DragDirection.Down)
+                _dnd.DestIndex++;
+            else if (_dnd.SrcIndex > _dnd.DestIndex && _dnd.Direction == DragDirection.Down)
+                _dnd.DestIndex++;
+            else if (_dnd.SrcIndex < _dnd.DestIndex && _dnd.Direction == DragDirection.Up)
+                _dnd.DestIndex--;
+
+            MoveItem(_dnd.SrcList, _dnd.DestList, _dnd.SrcIndex, _dnd.DestIndex);
+            _dnd.DestDataGrid.SelectedIndex = _dnd.DestIndex;
+            _dnd.DestDataGrid.ScrollIntoView(_dnd.DestList[_dnd.DestIndex], null);
+            _dnd.SrcDataGrid = null;
+            return true;
+        }
+
+        public override void Enter(object? sender, DragEventArgs e, object? sourceContext,
+                                   object? targetContext)
+        {
+            _dnd.SrcDataGrid ??= sender as DataGrid;
+            if (!Validate(sender, e, sourceContext))
+            {
+                e.DragEffects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            string className = _dnd.Direction switch
+            {
+                DragDirection.Down => DraggingDownClassName,
+                DragDirection.Up => DraggingUpClassName,
+                _ => throw new UnreachableException($"Invalid drag direction: {_dnd.Direction}")
+            };
+            _dnd.DestDataGrid.Classes.Add(className);
+
+            e.DragEffects |= DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link;
+            e.Handled = true;
+        }
+
+        public override void Over(object? sender, DragEventArgs e, object? sourceContext,
+                                  object? targetContext)
+        {
+            if (!Validate(sender, e, sourceContext))
+            {
+                e.DragEffects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            e.DragEffects |= DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link;
+            e.Handled = true;
+
+            (string toAdd, string toRemove) classUpdate = _dnd.Direction switch
+            {
+                DragDirection.Down => (DraggingDownClassName, DraggingUpClassName),
+                DragDirection.Up => (DraggingUpClassName, DraggingDownClassName),
+                _ => throw new UnreachableException($"Invalid drag direction: {_dnd.Direction}")
+            };
+            if (_dnd.DestDataGrid.Classes.Contains(classUpdate.toAdd))
+                return;
+
+            _dnd.DestDataGrid.Classes.Remove(classUpdate.toRemove);
+            _dnd.DestDataGrid.Classes.Add(classUpdate.toAdd);
+        }
+
+        public override void Leave(object? sender, RoutedEventArgs e)
+        {
+            base.Leave(sender, e);
+            RemoveDraggingClass(sender as DataGrid);
+        }
+
+        public override void Drop(object? sender, DragEventArgs e, object? sourceContext,
+                                  object? targetContext)
+        {
+            RemoveDraggingClass(sender as DataGrid);
+            base.Drop(sender, e, sourceContext, targetContext);
+            _dnd.SrcDataGrid = null;
+        }
+
+        private static void RemoveDraggingClass(DataGrid? dg)
+        {
+            if (dg is not null && !dg.Classes.Remove(DraggingUpClassName))
+                dg.Classes.Remove(DraggingDownClassName);
+        }
+    }
+
+
+
 }

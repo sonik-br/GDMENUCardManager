@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDMENUCardManager"
+        xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d"
-        Title="Progress" Height="100" Width="600" MinHeight="100" MinWidth="600"
+        Title="{x:Static coreres:AppStrings.Progress}" Height="100" Width="600" MinHeight="100" MinWidth="600"
         WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>

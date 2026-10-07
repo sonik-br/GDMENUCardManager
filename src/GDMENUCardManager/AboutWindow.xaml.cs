@@ -1,4 +1,5 @@
 ﻿using GDMENUCardManager.Core;
+using GDMENUCardManager.Core.Resources;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -90,7 +91,7 @@ namespace GDMENUCardManager
             var btn = (Button)sender;
             var oldContent = btn.Content;
             btn.IsEnabled = false;
-            btn.Content = "Checking...";
+            btn.Content = $"{AppStrings.Checking}...";
             try
             {
                 var token = new CancellationTokenSource(10000).Token;//for time out
@@ -106,7 +107,7 @@ namespace GDMENUCardManager
             }
             catch(System.Exception ex)
             {
-                LatestVersion = "Error";
+                LatestVersion = AppStrings.Error;
             }
             finally
             {

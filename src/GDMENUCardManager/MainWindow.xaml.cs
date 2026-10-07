@@ -1,18 +1,23 @@
-﻿using System;
+﻿using GDMENUCardManager.Core;
+using GDMENUCardManager.Core.Resources;
+using GongSolutions.Wpf.DragDrop;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
-using System.IO;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using GDMENUCardManager.Core;
-using GongSolutions.Wpf.DragDrop;
+using static GDMENUCardManager.Core.Manager;
 
 namespace GDMENUCardManager
 {
@@ -21,7 +26,7 @@ namespace GDMENUCardManager
     /// </summary>
     public partial class MainWindow : Window, IDropTarget, INotifyPropertyChanged
     {
-        private Core.Manager _ManagerInstance;
+        private readonly Core.Manager _ManagerInstance;
         public Core.Manager Manager { get { return _ManagerInstance; } }
 
         private readonly bool showAllDrives = false;
@@ -118,7 +123,7 @@ namespace GDMENUCardManager
             var compressedFileFormats = new string[] { ".7z", ".rar", ".zip" };
             _ManagerInstance = Core.Manager.CreateInstance(new DependencyManager(), compressedFileFormats);
             var fullList = Manager.supportedImageFormats.Concat(compressedFileFormats).Select(x => $"*{x}").ToArray();
-            fileFilterList = $"Dreamcast Game ({string.Join("; ", fullList)})|{string.Join(';', fullList)}";
+            fileFilterList = $"Dreamcast ({string.Join("; ", fullList)})|{string.Join(';', fullList)}";
 
             this.Loaded += (ss, ee) =>
             {
@@ -190,7 +195,7 @@ namespace GDMENUCardManager
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Problem loading the following folder(s):\n\n{ex.Message}", "Invalid Folders", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"{AppStrings.ProblemLoadingFollowingFolders}:\n\n{ex.Message}", AppStrings.InvalidFolders, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             finally
             {
@@ -202,19 +207,30 @@ namespace GDMENUCardManager
         private async Task Save()
         {
             IsBusy = true;
+            bool unhandled_error = false;
             try
             {
+                PowerManager.PreventSleep();
                 if (await Manager.Save(TempFolder))
-                    MessageBox.Show(this, "Done!", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(this, $"{AppStrings.Done}!", AppStrings.Message, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, ex.Message, AppStrings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                if (ex is MenuNotSelectedException == false)
+                    unhandled_error = true;
             }
             finally
             {
                 IsBusy = false;
                 updateTotalSize();
+                PowerManager.AllowSleep();
+            }
+
+            if (unhandled_error)
+            {
+                Close();
+                App.Current.Shutdown();
             }
         }
 
@@ -239,7 +255,7 @@ namespace GDMENUCardManager
             }
             catch (InvalidDropException ex)
             {
-                var w = new TextWindow("Ignored folders/files", ex.Message);
+                var w = new TextWindow(AppStrings.IgnoredFoldersFiles, ex.Message);
                 w.Owner = this;
                 w.ShowDialog();
             }
@@ -269,16 +285,18 @@ namespace GDMENUCardManager
 
         private void ButtonFolder_Click(object sender, RoutedEventArgs e)
         {
-            var btn = (Button)sender;
+            //var btn = (Button)sender;
 
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            var dialog = new OpenFolderDialog
             {
-                if ((string)btn.CommandParameter == nameof(TempFolder) && !string.IsNullOrEmpty(TempFolder))
-                    dialog.SelectedPath = TempFolder;
+                AddToRecent = false,
+            };
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    TempFolder = dialog.SelectedPath;
-            }
+            if (!string.IsNullOrEmpty(TempFolder))
+                dialog.InitialDirectory = TempFolder;
+
+            if (dialog.ShowDialog(this) == true)
+                TempFolder = dialog.FolderName;
         }
 
         //private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -311,7 +329,7 @@ namespace GDMENUCardManager
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error Loading data", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, AppStrings.ErrorLoadingData, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             IsBusy = false;
         }
@@ -321,12 +339,14 @@ namespace GDMENUCardManager
             IsBusy = true;
             try
             {
+                PowerManager.PreventSleep();
                 await Manager.SortList();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error Loading data", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, AppStrings.ErrorLoadingData, MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            PowerManager.AllowSleep();
             IsBusy = false;
         }
 
@@ -336,6 +356,7 @@ namespace GDMENUCardManager
                 return;
 
             IsBusy = true;
+            PowerManager.PreventSleep();
             try
             {
                 var w = new CopyNameWindow();
@@ -346,15 +367,16 @@ namespace GDMENUCardManager
 
                 var count = await Manager.BatchRenameItems(w.NotOnCard, w.OnCard, w.FolderName, w.ParseTosec);
 
-                MessageBox.Show($"{count} item(s) renamed", "Done", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(string.Format(AppStrings.ItemsRenamed, count), AppStrings.Done, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, AppStrings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 IsBusy = false;
+                PowerManager.AllowSleep();
             }
         }
 
@@ -366,16 +388,18 @@ namespace GDMENUCardManager
             IsBusy = true;
             try
             {
+                PowerManager.PreventSleep();
                 await Manager.LoadIpAll();
             }
             catch (ProgressWindowClosedException) { }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, AppStrings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 IsBusy = false;
+                PowerManager.AllowSleep();
             }
         }
 
@@ -429,17 +453,31 @@ namespace GDMENUCardManager
             dg1.BeginEdit();
         }
 
-        private void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
+        private async void MenuItemRenameSentence_Click(object sender, RoutedEventArgs e)
         {
-            TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+            await casingSelection(LetterCasing.Title);
+        }
+        private async void MenuItemRenameLowercase_Click(object sender, RoutedEventArgs e)
+        {
+            await casingSelection(LetterCasing.Lower);
+        }
+        private async void MenuItemRenameUppercase_Click(object sender, RoutedEventArgs e)
+        {
+            await casingSelection(LetterCasing.Upper);
+        }
 
-            dg1.CurrentCell = new DataGridCellInfo(dg1.SelectedItem, dg1.Columns[4]);
-            IEnumerable<GdItem> items = dg1.SelectedItems.Cast<GdItem>();
-
-            foreach (var item in items)
+        private async Task casingSelection(LetterCasing casing)
+        {
+            IsBusy = true;
+            try
             {
-                item.Name = textInfo.ToTitleCase( textInfo.ToLower( item.Name) );
+                await Manager.LetterCasingItems(dg1.SelectedItems.Cast<GdItem>(), casing);
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, AppStrings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            IsBusy = false;
         }
 
         private async void MenuItemRenameIP_Click(object sender, RoutedEventArgs e)
@@ -464,7 +502,7 @@ namespace GDMENUCardManager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, AppStrings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             IsBusy = false;
         }
@@ -487,10 +525,20 @@ namespace GDMENUCardManager
                         if (item.Ip == null)
                         {
                             IsBusy = true;
-                            await Manager.LoadIP(item);
-                            IsBusy = false;
+                            try
+                            {
+                                await Manager.LoadIP(item);
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+                            finally
+                            {
+                                IsBusy = false;
+                            }
                         }
-                        if (item.Ip.Name != "GDMENU" && item.Ip.Name != "openMenu")//dont let the user exclude GDMENU
+                        if (item.Ip.Name != "GDMENU" && item.Ip.Name != "openMenu")//dont let the user exclude GDMENU, openMenu
                             toRemove.Add(item);
                     }
                     else
@@ -508,32 +556,60 @@ namespace GDMENUCardManager
 
         private async void ButtonAddGames_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
+            var dialog = new OpenFileDialog();
+            dialog.AddToRecent = false;
+            dialog.Filter = fileFilterList;
+            dialog.Multiselect = true;
+            dialog.CheckFileExists = true;
+            if (dialog.ShowDialog(this) == true)
             {
-                dialog.Filter = fileFilterList;
-                dialog.Multiselect = true;
-                dialog.CheckFileExists = true;
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                IsBusy = true;
+
+                var invalid = await Manager.AddGames(dialog.FileNames);
+
+                if (invalid.Any())
                 {
-                    IsBusy = true;
-
-                    var invalid = await Manager.AddGames(dialog.FileNames);
-
-                    if (invalid.Any())
-                    {
-                        var w = new TextWindow("Ignored folders/files", string.Join(Environment.NewLine, invalid));
-                        w.Owner = this;
-                        w.ShowDialog();
-                    }
-                    IsBusy = false;
+                    var w = new TextWindow(AppStrings.IgnoredFoldersFiles, string.Join(Environment.NewLine, invalid));
+                    w.Owner = this;
+                    w.ShowDialog();
                 }
+                IsBusy = false;
             }
         }
 
-        private void ButtonRemoveGame_Click(object sender, RoutedEventArgs e)
+        private async void ButtonRemoveGame_Click(object sender, RoutedEventArgs e)
         {
             while (dg1.SelectedItems.Count > 0)
-                Manager.ItemList.Remove((GdItem)dg1.SelectedItems[0]);
+            {
+                var item = (GdItem)dg1.SelectedItems[0];
+                if (item.SdNumber == 1)
+                {
+                    if (item.Ip == null)
+                    {
+                        IsBusy = true;
+                        try
+                        {
+                            await Manager.LoadIP(item);
+                        }
+                        catch
+                        {
+                            dg1.SelectedItems.Remove(item);
+                            continue;
+                        }
+                        finally
+                        {
+                            IsBusy = false;
+                        }
+                    }
+                    if (item.Ip.Name == "GDMENU" || item.Ip.Name == "openMenu") //dont let the user exclude GDMENU
+                    {
+                        dg1.SelectedItems.Remove(item);
+                        continue;
+                    }
+                }
+                Manager.ItemList.Remove(item);
+            }
+                
         }
 
         private async void ButtonSearch_Click(object sender, RoutedEventArgs e)
@@ -544,12 +620,17 @@ namespace GDMENUCardManager
             try
             {
                 IsBusy = true;
+                PowerManager.PreventSleep();
                 await Manager.LoadIpAll();
-                IsBusy = false;
             }
             catch (ProgressWindowClosedException)
             {
 
+            }
+            finally
+            {
+                IsBusy = false;
+                PowerManager.AllowSleep();
             }
 
             if (dg1.SelectedIndex == -1 || !searchInGrid(dg1.SelectedIndex))
@@ -569,6 +650,11 @@ namespace GDMENUCardManager
                 }
             }
             return false;
+        }
+
+        private void ButtonLink_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start https://ko-fi.com/sonik_br/") { CreateNoWindow = true });
         }
 
     }

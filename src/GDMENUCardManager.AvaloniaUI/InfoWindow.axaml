@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="400"
         x:Class="GDMENUCardManager.InfoWindow"
-        Title="Info" Height="400" Width="650" CanResize="False"
+        Title="{x:Static coreres:AppStrings.InfoWinTitle}" Height="360" Width="650" CanResize="False"
         WindowStartupLocation="CenterOwner">
   <Grid>
     <Grid.RowDefinitions>
@@ -17,11 +18,11 @@
       <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
 
-    <HeaderedContentControl Grid.Row="0" Grid.ColumnSpan="2" Header="File Info" Margin="5">
+    <HeaderedContentControl Grid.Row="0" Grid.ColumnSpan="2" Header="{x:Static coreres:AppStrings.FileInfo}" Margin="5">
       <TextBlock Text="{Binding FileInfo, Mode=OneTime}" TextWrapping="Wrap"/>
     </HeaderedContentControl>
 
-    <HeaderedContentControl Grid.Row="1" Grid.Column="0" Header="IP.BIN Info" Margin="5">
+    <HeaderedContentControl Grid.Row="1" Grid.Column="0" Header="{x:Static coreres:AppStrings.IpBinInfo}" Margin="5">
       <TextBlock Text="{Binding IpInfo, Mode=OneTime}" TextWrapping="Wrap"/>
     </HeaderedContentControl>
 

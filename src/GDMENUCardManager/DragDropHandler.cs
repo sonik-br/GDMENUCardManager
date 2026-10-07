@@ -11,16 +11,35 @@ namespace GDMENUCardManager
 {
     internal static class DragDropHandler
     {
+        private static bool IsMenu(object o) {
+            return o is GdItem g &&
+            (g.Name == "GDMENU" || g.Name == "openMenu" ||
+            g.Ip?.Name == "GDMENU" || g.Ip?.Name == "openMenu");
+        }
+
         public static void DragOver(IDropInfo dropInfo)
         {
+            var list = dropInfo.TargetCollection.TryGetList();
+            bool menuAtTop = list != null && list.Count > 0 && IsMenu(list[0]);
+
+            // only reserve index 0 when a menu actually occupies it
+            if (menuAtTop && dropInfo.UnfilteredInsertIndex == 0)
+                return;
+
             if (dropInfo.DragInfo == null)
             {
                 if (dropInfo.Data is DataObject data && data.ContainsFileDropList())
                     dropInfo.Effects = DragDropEffects.Copy;
             }
-            else if (DefaultDropHandler.CanAcceptData(dropInfo))
+            else
             {
-                dropInfo.Effects = DragDropEffects.Move;
+                // cant drag the menu itself
+                var dragged = DefaultDropHandler.ExtractData(dropInfo.Data).OfType<object>();
+                if (menuAtTop && dragged.Any(IsMenu))
+                    return;
+
+                if (DefaultDropHandler.CanAcceptData(dropInfo))
+                    dropInfo.Effects = DragDropEffects.Move;
             }
 
             if (dropInfo.Effects != DragDropEffects.None)
@@ -34,6 +53,10 @@ namespace GDMENUCardManager
             var insertIndex = dropInfo.UnfilteredInsertIndex;
             var destinationList = dropInfo.TargetCollection.TryGetList();
 
+            bool menuAtTop = destinationList != null && destinationList.Count > 0 && IsMenu(destinationList[0]);
+            if (menuAtTop && insertIndex == 0)
+                insertIndex = 1; // never above the menu
+
             if (dropInfo.DragInfo == null)
             {
                 if (!(dropInfo.Data is DataObject data) || !data.ContainsFileDropList())
@@ -43,6 +66,9 @@ namespace GDMENUCardManager
                 {
                     try
                     {
+                        if (menuAtTop && IsMenu(o))
+                            continue;
+
                         var toInsert = await ImageHelper.CreateGdItemAsync(o);
                         destinationList.Insert(insertIndex++, toInsert);
                     }
@@ -61,6 +87,9 @@ namespace GDMENUCardManager
                 {
                     foreach (var o in data)
                     {
+                        if (menuAtTop && IsMenu(o))
+                            continue;
+
                         var index = sourceList.IndexOf(o);
                         if (index != -1)
                         {

@@ -4,196 +4,58 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDMENUCardManager"
+        xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d"
-        Title="About" Height="690" Width="760" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="{x:Static coreres:AppStrings.About}" Height="380" Width="700" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
         <FlowDocumentScrollViewer VerticalScrollBarVisibility="Disabled">
             <FlowDocument>
                 <Paragraph>
                     <Bold>
-                        GD MENU Card Manager - by Sonik
+                        <TextBlock>
+                            <Run Text="GD MENU Card Manager"/>
+                            <Run Text="-"/>
+                            <Run Text="{x:Static coreres:AppStrings.By}"/>
+                            <Run Text="Matheus Fraguas (Sonik-br)"/>
+                        </TextBlock>
                     </Bold>
+                </Paragraph>
+                <Paragraph>
+                    <TextBlock>
+                        <Run Text="{x:Static coreres:AppStrings.ToolManageGamesOn}"/>
+                        <Run Text="{x:Static coreres:AppStrings.SdCard}"/>
+                    </TextBlock>
                     <LineBreak/>
-                    Tool to manage games on SD card - For use with GDEMU/GDMENU/openMenu
+                    <TextBlock>
+                        <Run Text="{x:Static coreres:AppStrings.ForUseWith}"/>
+                        <Run Text="GDEMU/GDMENU/openMenu."/>
+                    </TextBlock> 
                 </Paragraph>
 
                 <Paragraph>
                     <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/sonik-br/GDMENUCardManager/">https://github.com/sonik-br/GDMENUCardManager/</Hyperlink>
+                    <LineBreak/>
+                    <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://ko-fi.com/sonik_br/">https://ko-fi.com/sonik_br/</Hyperlink>
                 </Paragraph>
 
                 <Paragraph>
-                    <TextBlock Width="350">Image formats: GDI, CDI, CCD, MDS</TextBlock>
-                    <TextBlock>Compressed formats: 7Z, RAR, ZIP</TextBlock>
+                    <TextBlock>
+                        <Run Text="{x:Static coreres:AppStrings.ImageFormats}"/>
+                        <Run Text=": GDI, CDI, CCD, MDS."/>
+                    </TextBlock>
+                    <LineBreak/>
+                    <TextBlock>
+                        <Run Text="{x:Static coreres:AppStrings.CompressedFormats}"/>
+                        <Run Text=": 7Z, RAR, ZIP."/>
+                    </TextBlock>
                 </Paragraph>
 
-
-                <Table>
-                    <Table.Columns>
-                        <TableColumn Width="200" />
-                        <TableColumn />
-                    </Table.Columns>
-                    <TableRowGroup>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 1 0 1">
-                                <Paragraph FontWeight="Bold">Add items to list</Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 1 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>Click on [+] button and select supported files</Paragraph>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Paragraph>
-                                            Or drag/drop supported files into "Games List"
-                                            <!--<LineBreak/>
-                                            Only one game per compressed file-->
-                                        </Paragraph>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Paragraph>
-                                            Or drag/drop folders with games into "Games List"
-                                            <LineBreak/>
-                                            Only one game per folder will be added
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">Remove items from list</Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>Select items and click on [-] button</Paragraph>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Paragraph>
-                                            Or select items and press Delete key
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">Change list order</Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Select items and drag/drop to reorder
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">Sort list alphabetically</Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Click on [Sort List] button
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">Rename a single item</Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Double click on item name
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Or right mouse button on item and select "Rename"
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Or select item and press F2 key
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">Automatically
-                                    <LineBreak/> rename item(s)
-                                </Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Select item(s) and right mouse button click then select "Automatically Rename"
-                                        </Paragraph>
-                                    </ListItem>
-                                    <!--<ListItem>
-                                    <Paragraph>
-                                        Or click on [Batch Rename] to rename all items with more options
-                                    </Paragraph>
-                                </ListItem>-->
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">GDI Shrink</Paragraph>
-                                <!--<Paragraph/>-->
-                                <Paragraph Foreground="Red" Margin="0 5 0 0">
-                                    Use with caution!
-                                    <LineBreak/>
-                                    Some games may not work properly after shrinking
-                                </Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>Check "Enable GDI Shrink"</Paragraph>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Paragraph>Optionally check "Also shrink compressed games</Paragraph>
-                                    </ListItem>
-                                    <ListItem>
-                                        <Paragraph>It's recommended check "Use Blacklist"</Paragraph>
-                                        <Paragraph>This will not shrink games known to not work</Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <Paragraph FontWeight="Bold">Commit changes</Paragraph>
-                            </TableCell>
-                            <TableCell BorderBrush="Gray" BorderThickness="0 0 0 1">
-                                <List Margin="0 4">
-                                    <ListItem>
-                                        <Paragraph>
-                                            Click on [Save Changes] button
-                                        </Paragraph>
-                                    </ListItem>
-                                </List>
-                            </TableCell>
-                        </TableRow>
-                    </TableRowGroup>
-                </Table>
+                <Paragraph>
+                    <Bold>
+                        <Run Text="{x:Static coreres:AppStrings.Credits}"/>
+                    </Bold>
+                </Paragraph>
+                
                 <Paragraph>
                     <Bold>GDEMU</Bold> - Deunan;&#160;
                     <Bold>GDmenu</Bold> - neuroacid;&#160;
@@ -210,11 +72,21 @@
 
             </FlowDocument>
         </FlowDocumentScrollViewer>
-        <GroupBox Header="Version" Width="100" Height="80" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 10 0">
+        <GroupBox Header="{x:Static coreres:AppStrings.Version}" Width="145" Height="80" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 10 0">
             <StackPanel>
-                <TextBlock Text="{Binding CurrentVersion, Mode=OneTime, StringFormat='Current: {0}'}"/>
-                <TextBlock Text="{Binding LatestVersion, Mode=OneWay, StringFormat='Latest: {0}'}"/>
-                <Button Click="ButtonVersion_Click">Check Online</Button>
+                <!--<TextBlock Text="{Binding CurrentVersion, Mode=OneTime, StringFormat='Current: {0}'}"/>-->
+                <!--<TextBlock Text="{Binding LatestVersion, Mode=OneWay, StringFormat='Latest: {0}'}"/>-->
+                <TextBlock>
+                    <Run Text="{x:Static coreres:AppStrings.Current}"/>
+                    <Run Text=": "/>
+                    <Run Text="{Binding CurrentVersion, Mode=OneTime}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="{x:Static coreres:AppStrings.Latest}"/>
+                    <Run Text=": "/>
+                    <Run Text="{Binding LatestVersion, Mode=OneWay}"/>
+                </TextBlock>
+                <Button Content="{x:Static coreres:AppStrings.CheckOnline}" Click="ButtonVersion_Click"/>
             </StackPanel>
         </GroupBox>
     </Grid>

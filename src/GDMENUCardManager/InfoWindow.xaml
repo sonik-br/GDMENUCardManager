@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDMENUCardManager"
+        xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d"
-        Title="Info" Height="460" Width="650" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="{x:Static coreres:AppStrings.InfoWinTitle}" Height="460" Width="650" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -17,11 +18,11 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <GroupBox Grid.Row="0" Grid.ColumnSpan="2" Header="File Info" Margin="5">
+        <GroupBox Grid.Row="0" Grid.ColumnSpan="2" Header="{x:Static coreres:AppStrings.FileInfo}" Margin="5">
             <TextBlock Text="{Binding FileInfo, Mode=OneTime}" TextWrapping="Wrap"/>
         </GroupBox>
-        
-        <GroupBox Grid.Row="1" Grid.Column="0" Header="IP.BIN Info" Margin="5">
+
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="{x:Static coreres:AppStrings.IpBinInfo}" Margin="5">
             <TextBlock Text="{Binding IpInfo, Mode=OneTime}" TextWrapping="Wrap"/>
         </GroupBox>
 
