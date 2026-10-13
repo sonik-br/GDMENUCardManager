@@ -106,6 +106,15 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to BIN file not found: {0}.
+        /// </summary>
+        public static string BinFileNotFound {
+            get {
+                return ResourceManager.GetString("BinFileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to By.
         /// </summary>
         public static string By {
@@ -120,6 +129,114 @@ namespace GDMENUCardManager.Core.Resources {
         public static string CantLoadFromCompressedFiles {
             get {
                 return ResourceManager.GetString("CantLoadFromCompressedFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t load game file.
+        /// </summary>
+        public static string CantLoadGameFile {
+            get {
+                return ResourceManager.GetString("CantLoadGameFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t read data from file.
+        /// </summary>
+        public static string CantReadDataFromFile {
+            get {
+                return ResourceManager.GetString("CantReadDataFromFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This CHD contains a CD-ROM image, which is not supported. Only GD-ROM CHD files are supported. Please use the original CDI or CUE/BIN files instead..
+        /// </summary>
+        public static string ChdCdRomNotSupported {
+            get {
+                return ResourceManager.GetString("ChdCdRomNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to read CHD header.
+        /// </summary>
+        public static string ChdHeaderReadFailed {
+            get {
+                return ResourceManager.GetString("ChdHeaderReadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to read CHD hunk {0}: {1}.
+        /// </summary>
+        public static string ChdHunkReadFailed {
+            get {
+                return ResourceManager.GetString("ChdHunkReadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid CHD: hunkbytes is 0.
+        /// </summary>
+        public static string ChdInvalidHunkBytes {
+            get {
+                return ResourceManager.GetString("ChdInvalidHunkBytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot read Dreamcast IP.BIN from CHD image.
+        /// </summary>
+        public static string ChdIpBinNotReadable {
+            get {
+                return ResourceManager.GetString("ChdIpBinNotReadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This CHD is not a GD-ROM image. Use ConvertToCueBin for CD-ROM CHDs..
+        /// </summary>
+        public static string ChdNotGdRomImage {
+            get {
+                return ResourceManager.GetString("ChdNotGdRomImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No track metadata found in CHD file. This may not be a disc image..
+        /// </summary>
+        public static string ChdNoTrackMetadata {
+            get {
+                return ResourceManager.GetString("ChdNoTrackMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to open CHD file: {0} ({1}).
+        /// </summary>
+        public static string ChdOpenFailed {
+            get {
+                return ResourceManager.GetString("ChdOpenFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This CHD file requires a parent CHD. Delta/diff CHDs are not supported. Please use a standalone (merged) CHD file..
+        /// </summary>
+        public static string ChdRequiresParent {
+            get {
+                return ResourceManager.GetString("ChdRequiresParent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported CHD version: {0}.
+        /// </summary>
+        public static string ChdUnsupportedVersion {
+            get {
+                return ResourceManager.GetString("ChdUnsupportedVersion", resourceCulture);
             }
         }
         
@@ -178,6 +295,33 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Converting {0}....
+        /// </summary>
+        public static string ConvertingItem {
+            get {
+                return ResourceManager.GetString("ConvertingItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Converting {0} to {1}....
+        /// </summary>
+        public static string ConvertingItemTo {
+            get {
+                return ResourceManager.GetString("ConvertingItemTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Converting/Shrinking {0}....
+        /// </summary>
+        public static string ConvertingShrinkingItem {
+            get {
+                return ResourceManager.GetString("ConvertingShrinkingItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copying.
         /// </summary>
         public static string Copying {
@@ -201,6 +345,15 @@ namespace GDMENUCardManager.Core.Resources {
         public static string Credits {
             get {
                 return ResourceManager.GetString("Credits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is not a GD-ROM CUE/BIN. Use redump2cdi for CD-ROM images..
+        /// </summary>
+        public static string CueNotGdRom {
+            get {
+                return ResourceManager.GetString("CueNotGdRom", resourceCulture);
             }
         }
         
@@ -286,6 +439,15 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to convert {0} to {1}: {2}.
+        /// </summary>
+        public static string FailedToConvertTo {
+            get {
+                return ResourceManager.GetString("FailedToConvertTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File.
         /// </summary>
         public static string File {
@@ -313,6 +475,24 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} file not found after extraction.
+        /// </summary>
+        public static string FileNotFoundAfterExtraction {
+            get {
+                return ResourceManager.GetString("FileNotFoundAfterExtraction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} file not found in image files list.
+        /// </summary>
+        public static string FileNotInImageFiles {
+            get {
+                return ResourceManager.GetString("FileNotInImageFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Folder.
         /// </summary>
         public static string Folder {
@@ -336,6 +516,51 @@ namespace GDMENUCardManager.Core.Resources {
         public static string GamesList {
             get {
                 return ResourceManager.GetString("GamesList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not a valid GDI: fewer than three tracks..
+        /// </summary>
+        public static string GdiFewerThanThreeTracks {
+            get {
+                return ResourceManager.GetString("GdiFewerThanThreeTracks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not a valid GDI: malformed track line {0}..
+        /// </summary>
+        public static string GdiMalformedTrackLine {
+            get {
+                return ResourceManager.GetString("GdiMalformedTrackLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No primary volume descriptor was found..
+        /// </summary>
+        public static string GdiNoPrimaryVolumeDescriptor {
+            get {
+                return ResourceManager.GetString("GdiNoPrimaryVolumeDescriptor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The volume descriptor has no root directory record..
+        /// </summary>
+        public static string GdiNoRootDirectoryRecord {
+            get {
+                return ResourceManager.GetString("GdiNoRootDirectoryRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No track starts at LBA 45000..
+        /// </summary>
+        public static string GdiNoTrackAt45000 {
+            get {
+                return ResourceManager.GetString("GdiNoTrackAt45000", resourceCulture);
             }
         }
         
@@ -385,6 +610,33 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No file starts inside the game data track..
+        /// </summary>
+        public static string GdiShrinkNoFileInDataTrack {
+            get {
+                return ResourceManager.GetString("GdiShrinkNoFileInDataTrack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The disc has no files to preserve..
+        /// </summary>
+        public static string GdiShrinkNoFilesToPreserve {
+            get {
+                return ResourceManager.GetString("GdiShrinkNoFilesToPreserve", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The output folder must differ from the source folder..
+        /// </summary>
+        public static string GdiShrinkOutputFolderMustDiffer {
+            get {
+                return ResourceManager.GetString("GdiShrinkOutputFolderMustDiffer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Use Blacklist.
         /// </summary>
         public static string GdiShrinkUseBlackListLine1 {
@@ -403,11 +655,47 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The shrunk disc did not read back correctly and may be incomplete..
+        /// </summary>
+        public static string GdiShrinkVerifyFailed {
+            get {
+                return ResourceManager.GetString("GdiShrinkVerifyFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not a valid GDI: track 3 must start at LBA 45000..
+        /// </summary>
+        public static string GdiTrack3NotAt45000 {
+            get {
+                return ResourceManager.GetString("GdiTrack3NotAt45000", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Track {0} uses an unsupported sector size of {1}..
+        /// </summary>
+        public static string GdiUnsupportedSectorSize {
+            get {
+                return ResourceManager.GetString("GdiUnsupportedSectorSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ignored folders/files.
         /// </summary>
         public static string IgnoredFoldersFiles {
             get {
                 return ResourceManager.GetString("IgnoredFoldersFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image files list is empty for {0} item.
+        /// </summary>
+        public static string ImageFilesListEmpty {
+            get {
+                return ResourceManager.GetString("ImageFilesListEmpty", resourceCulture);
             }
         }
         
@@ -462,6 +750,15 @@ namespace GDMENUCardManager.Core.Resources {
         public static string Latest {
             get {
                 return ResourceManager.GetString("Latest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Redump&apos;s old, short-lived GDI format is not supported..
+        /// </summary>
+        public static string LegacyRedumpGdiNotSupported {
+            get {
+                return ResourceManager.GetString("LegacyRedumpGdiNotSupported", resourceCulture);
             }
         }
         
@@ -538,6 +835,15 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing file: {0}.
+        /// </summary>
+        public static string MissingFile {
+            get {
+                return ResourceManager.GetString("MissingFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Move selected game(s) down.
         /// </summary>
         public static string MoveSelectedGameDown {
@@ -552,6 +858,24 @@ namespace GDMENUCardManager.Core.Resources {
         public static string MoveSelectedGameUp {
             get {
                 return ResourceManager.GetString("MoveSelectedGameUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No data track found in {0} file.
+        /// </summary>
+        public static string NoDataTrackFound {
+            get {
+                return ResourceManager.GetString("NoDataTrackFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No valid image found on folder.
+        /// </summary>
+        public static string NoValidImageFoundOnFolder {
+            get {
+                return ResourceManager.GetString("NoValidImageFoundOnFolder", resourceCulture);
             }
         }
         
@@ -624,6 +948,60 @@ namespace GDMENUCardManager.Core.Resources {
         public static string ReadTosecNaming {
             get {
                 return ResourceManager.GetString("ReadTosecNaming", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conversion failed: {0}.
+        /// </summary>
+        public static string Redump2CdiConversionFailed {
+            get {
+                return ResourceManager.GetString("Redump2CdiConversionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input CUE file not found: {0}.
+        /// </summary>
+        public static string Redump2CdiInputCueNotFound {
+            get {
+                return ResourceManager.GetString("Redump2CdiInputCueNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conversion appeared successful but output file not found.
+        /// </summary>
+        public static string Redump2CdiOutputNotFound {
+            get {
+                return ResourceManager.GetString("Redump2CdiOutputNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error running redump2cdi: {0}.
+        /// </summary>
+        public static string Redump2CdiRunError {
+            get {
+                return ResourceManager.GetString("Redump2CdiRunError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conversion timed out after {0} minutes.
+        /// </summary>
+        public static string Redump2CdiTimedOut {
+            get {
+                return ResourceManager.GetString("Redump2CdiTimedOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to redump2cdi tool not found at: {0}.
+        /// </summary>
+        public static string Redump2CdiToolNotFound {
+            get {
+                return ResourceManager.GetString("Redump2CdiToolNotFound", resourceCulture);
             }
         }
         
@@ -826,6 +1204,15 @@ namespace GDMENUCardManager.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Source directory does not exist or could not be found: {0}.
+        /// </summary>
+        public static string SourceDirectoryNotFound {
+            get {
+                return ResourceManager.GetString("SourceDirectoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Special parsing.
         /// </summary>
         public static string SpecialParsing {
@@ -885,6 +1272,15 @@ namespace GDMENUCardManager.Core.Resources {
         public static string ToolManageGamesOn {
             get {
                 return ResourceManager.GetString("ToolManageGamesOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to open image format.
+        /// </summary>
+        public static string UnableToOpenImageFormat {
+            get {
+                return ResourceManager.GetString("UnableToOpenImageFormat", resourceCulture);
             }
         }
         

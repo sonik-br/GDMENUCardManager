@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -58,7 +59,7 @@ namespace GDMENUCardManager.Core
             }
 
             if (tocTrack == null)
-                throw new InvalidDataException("No track starts at LBA 45000.");
+                throw new InvalidDataException(AppStrings.GdiNoTrackAt45000);
 
             _toc = new TrackStream(tocTrack);
             _tocStart = TocLba * SectorSize;
@@ -204,7 +205,7 @@ namespace GDMENUCardManager.Core
                     2336 => 8,
                     2352 => 16,
                     _ => throw new InvalidDataException(
-                        $"Track {track.Number} uses an unsupported sector size of {track.SectorSize}."),
+                        string.Format(AppStrings.GdiUnsupportedSectorSize, track.Number, track.SectorSize)),
                 };
 
                 _file = new FileStream(track.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16);
@@ -277,14 +278,14 @@ namespace GDMENUCardManager.Core
             }
 
             if (rows.Count < 4)
-                throw new InvalidDataException("Not a valid GDI: fewer than three tracks.");
+                throw new InvalidDataException(AppStrings.GdiFewerThanThreeTracks);
 
             var tracks = new List<GdiTrack>();
             for (int i = 1; i < rows.Count; i++)
             {
                 string[] row = rows[i];
                 if (row.Length < 5)
-                    throw new InvalidDataException($"Not a valid GDI: malformed track line {i}.");
+                    throw new InvalidDataException(string.Format(AppStrings.GdiMalformedTrackLine, i));
 
                 tracks.Add(new GdiTrack
                 {
@@ -297,7 +298,7 @@ namespace GDMENUCardManager.Core
             }
 
             if (tracks[2].Lba != GdRomImage.TocLba)
-                throw new InvalidDataException("Not a valid GDI: track 3 must start at LBA 45000.");
+                throw new InvalidDataException(AppStrings.GdiTrack3NotAt45000);
 
             return tracks;
         }

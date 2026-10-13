@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -28,7 +29,7 @@ namespace GDMENUCardManager.Core
                 using var chd = new ChdReader(chdPath);
 
                 if (!chd.IsGdRom)
-                    return (false, "This CHD is not a GD-ROM image. Use ConvertToCueBin for CD-ROM CHDs.");
+                    return (false, AppStrings.ChdNotGdRomImage);
 
                 if (!Directory.Exists(outputDirectory))
                     Directory.CreateDirectory(outputDirectory);

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -117,7 +118,7 @@ namespace GDMENUCardManager.Core
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
 
             if (!dir.Exists)
-                throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + sourceDirName);
+                throw new DirectoryNotFoundException(string.Format(AppStrings.SourceDirectoryNotFound, sourceDirName));
 
             // If the destination directory doesn't exist, create it.
             if (!Directory.Exists(destDirName))

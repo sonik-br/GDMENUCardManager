@@ -420,4 +420,136 @@
   <data name="Credits" xml:space="preserve">
     <value>Mitwirkende</value>
   </data>
+  <data name="ChdCdRomNotSupported" xml:space="preserve">
+    <value>Diese CHD-Datei enthält ein CD-ROM-Abbild, das nicht unterstützt wird. Nur GD-ROM-CHD-Dateien werden unterstützt. Bitte stattdessen die originalen CDI- oder CUE/BIN-Dateien verwenden.</value>
+  </data>
+  <data name="ChdIpBinNotReadable" xml:space="preserve">
+    <value>IP.BIN konnte nicht aus dem CHD-Abbild gelesen werden</value>
+  </data>
+  <data name="ConvertingItem" xml:space="preserve">
+    <value>{0} wird konvertiert...</value>
+  </data>
+  <data name="ConvertingShrinkingItem" xml:space="preserve">
+    <value>{0} wird konvertiert/komprimiert...</value>
+  </data>
+  <data name="ChdNotGdRomImage" xml:space="preserve">
+    <value>Diese CHD-Datei ist kein GD-ROM-Abbild. Für CD-ROM-CHDs ConvertToCueBin verwenden.</value>
+  </data>
+  <data name="ChdRequiresParent" xml:space="preserve">
+    <value>Diese CHD-Datei benötigt eine übergeordnete CHD (Parent). Delta/Diff-CHDs werden nicht unterstützt. Bitte eine eigenständige (zusammengeführte) CHD-Datei verwenden.</value>
+  </data>
+  <data name="ChdOpenFailed" xml:space="preserve">
+    <value>CHD-Datei konnte nicht geöffnet werden: {0} ({1})</value>
+  </data>
+  <data name="ChdHeaderReadFailed" xml:space="preserve">
+    <value>CHD-Header konnte nicht gelesen werden</value>
+  </data>
+  <data name="ChdUnsupportedVersion" xml:space="preserve">
+    <value>Nicht unterstützte CHD-Version: {0}</value>
+  </data>
+  <data name="ChdInvalidHunkBytes" xml:space="preserve">
+    <value>Ungültige CHD: hunkbytes ist 0</value>
+  </data>
+  <data name="ChdNoTrackMetadata" xml:space="preserve">
+    <value>Keine Track-Metadaten in der CHD-Datei gefunden. Möglicherweise ist es kein Disc-Abbild.</value>
+  </data>
+  <data name="ChdHunkReadFailed" xml:space="preserve">
+    <value>CHD-Block {0} konnte nicht gelesen werden: {1}</value>
+  </data>
+  <data name="GdiNoTrackAt45000" xml:space="preserve">
+    <value>Kein Track beginnt bei LBA 45000.</value>
+  </data>
+  <data name="GdiUnsupportedSectorSize" xml:space="preserve">
+    <value>Track {0} verwendet eine nicht unterstützte Sektorgröße von {1}.</value>
+  </data>
+  <data name="GdiFewerThanThreeTracks" xml:space="preserve">
+    <value>Ungültige GDI: weniger als drei Tracks.</value>
+  </data>
+  <data name="GdiMalformedTrackLine" xml:space="preserve">
+    <value>Ungültige GDI: fehlerhafte Track-Zeile {0}.</value>
+  </data>
+  <data name="GdiTrack3NotAt45000" xml:space="preserve">
+    <value>Ungültige GDI: Track 3 muss bei LBA 45000 beginnen.</value>
+  </data>
+  <data name="GdiNoRootDirectoryRecord" xml:space="preserve">
+    <value>Der Volume-Deskriptor enthält keinen Stammverzeichniseintrag.</value>
+  </data>
+  <data name="GdiNoPrimaryVolumeDescriptor" xml:space="preserve">
+    <value>Kein primärer Volume-Deskriptor gefunden.</value>
+  </data>
+  <data name="CueNotGdRom" xml:space="preserve">
+    <value>Dies ist kein GD-ROM-CUE/BIN. Für CD-ROM-Abbilder redump2cdi verwenden.</value>
+  </data>
+  <data name="BinFileNotFound" xml:space="preserve">
+    <value>BIN-Datei nicht gefunden: {0}</value>
+  </data>
+  <data name="GdiShrinkOutputFolderMustDiffer" xml:space="preserve">
+    <value>Der Ausgabeordner muss sich vom Quellordner unterscheiden.</value>
+  </data>
+  <data name="GdiShrinkNoFilesToPreserve" xml:space="preserve">
+    <value>Die Disc enthält keine Dateien, die erhalten werden müssen.</value>
+  </data>
+  <data name="GdiShrinkNoFileInDataTrack" xml:space="preserve">
+    <value>Keine Datei beginnt innerhalb des Spieldaten-Tracks.</value>
+  </data>
+  <data name="GdiShrinkVerifyFailed" xml:space="preserve">
+    <value>Die komprimierte Disc konnte nicht korrekt zurückgelesen werden und ist möglicherweise unvollständig.</value>
+  </data>
+  <data name="LegacyRedumpGdiNotSupported" xml:space="preserve">
+    <value>Das alte, kurzlebige GDI-Format von Redump wird nicht unterstützt.</value>
+  </data>
+  <data name="Redump2CdiToolNotFound" xml:space="preserve">
+    <value>redump2cdi-Tool nicht gefunden unter: {0}</value>
+  </data>
+  <data name="Redump2CdiInputCueNotFound" xml:space="preserve">
+    <value>Eingabe-CUE-Datei nicht gefunden: {0}</value>
+  </data>
+  <data name="Redump2CdiOutputNotFound" xml:space="preserve">
+    <value>Die Konvertierung schien erfolgreich, aber die Ausgabedatei wurde nicht gefunden</value>
+  </data>
+  <data name="Redump2CdiConversionFailed" xml:space="preserve">
+    <value>Konvertierung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Redump2CdiRunError" xml:space="preserve">
+    <value>Fehler beim Ausführen von redump2cdi: {0}</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>Das Quellverzeichnis existiert nicht oder wurde nicht gefunden: {0}</value>
+  </data>
+  <data name="CantReadDataFromFile" xml:space="preserve">
+    <value>Daten konnten nicht aus der Datei gelesen werden</value>
+  </data>
+  <data name="UnableToOpenImageFormat" xml:space="preserve">
+    <value>Abbildformat kann nicht geöffnet werden</value>
+  </data>
+  <data name="CantLoadGameFile" xml:space="preserve">
+    <value>Spieldatei kann nicht geladen werden</value>
+  </data>
+  <data name="MissingFile" xml:space="preserve">
+    <value>Datei fehlt: {0}</value>
+  </data>
+  <data name="NoValidImageFoundOnFolder" xml:space="preserve">
+    <value>Kein gültiges Abbild im Ordner gefunden</value>
+  </data>
+  <data name="ConvertingItemTo" xml:space="preserve">
+    <value>{0} wird in {1} konvertiert...</value>
+  </data>
+  <data name="FailedToConvertTo" xml:space="preserve">
+    <value>{0} konnte nicht in {1} konvertiert werden: {2}</value>
+  </data>
+  <data name="NoDataTrackFound" xml:space="preserve">
+    <value>Kein Datentrack in der {0}-Datei gefunden</value>
+  </data>
+  <data name="FileNotInImageFiles" xml:space="preserve">
+    <value>{0}-Datei nicht in der Liste der Abbilddateien gefunden</value>
+  </data>
+  <data name="FileNotFoundAfterExtraction" xml:space="preserve">
+    <value>{0}-Datei nach dem Entpacken nicht gefunden</value>
+  </data>
+  <data name="Redump2CdiTimedOut" xml:space="preserve">
+    <value>Zeitüberschreitung der Konvertierung nach {0} Minuten</value>
+  </data>
+  <data name="ImageFilesListEmpty" xml:space="preserve">
+    <value>Die Liste der Abbilddateien für das {0}-Element ist leer</value>
+  </data>
 </root>

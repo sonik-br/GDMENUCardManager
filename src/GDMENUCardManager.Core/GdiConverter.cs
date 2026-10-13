@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -47,13 +48,13 @@ namespace GDMENUCardManager.Core
 
                 if (cueData.Tracks.Count == 0)
                 {
-                    return (false, "No tracks found in CUE file");
+                    return (false, string.Format(AppStrings.NoDataTrackFound, "CUE"));
                 }
 
                 bool isGdRom = cueData.Tracks.Any(t => t.Comments.Contains("HIGH-DENSITY AREA"));
                 if (!isGdRom)
                 {
-                    return (false, "This is not a GD-ROM CUE/BIN. Use redump2cdi for CD-ROM images.");
+                    return (false, AppStrings.CueNotGdRom);
                 }
 
                 if (!Directory.Exists(outputDirectory))
@@ -90,7 +91,7 @@ namespace GDMENUCardManager.Core
                     string sourceBinPath = Path.Combine(cueData.Directory, track.DataFilename);
                     if (!File.Exists(sourceBinPath))
                     {
-                        return (false, $"BIN file not found: {track.DataFilename}");
+                        return (false, string.Format(AppStrings.BinFileNotFound, track.DataFilename));
                     }
 
                     // The original's format string "track0{0}.{1}" puts a literal 0 before the

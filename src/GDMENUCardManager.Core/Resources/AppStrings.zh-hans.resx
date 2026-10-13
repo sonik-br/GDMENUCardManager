@@ -420,4 +420,136 @@
   <data name="Credits" xml:space="preserve">
     <value>致谢</value>
   </data>
+  <data name="ChdCdRomNotSupported" xml:space="preserve">
+    <value>此 CHD 包含 CD-ROM 镜像，不受支持。仅支持 GD-ROM 的 CHD 文件。请改用原始的 CDI 或 CUE/BIN 文件。</value>
+  </data>
+  <data name="ChdIpBinNotReadable" xml:space="preserve">
+    <value>无法从 CHD 镜像读取 Dreamcast IP.BIN</value>
+  </data>
+  <data name="ConvertingItem" xml:space="preserve">
+    <value>正在转换 {0}...</value>
+  </data>
+  <data name="ConvertingShrinkingItem" xml:space="preserve">
+    <value>正在转换/压缩 {0}...</value>
+  </data>
+  <data name="ChdNotGdRomImage" xml:space="preserve">
+    <value>此 CHD 不是 GD-ROM 镜像。对于 CD-ROM 的 CHD，请使用 ConvertToCueBin。</value>
+  </data>
+  <data name="ChdRequiresParent" xml:space="preserve">
+    <value>此 CHD 文件需要父 CHD。不支持增量/差异 (delta/diff) CHD。请使用独立（合并的）CHD 文件。</value>
+  </data>
+  <data name="ChdOpenFailed" xml:space="preserve">
+    <value>无法打开 CHD 文件：{0} ({1})</value>
+  </data>
+  <data name="ChdHeaderReadFailed" xml:space="preserve">
+    <value>无法读取 CHD 文件头</value>
+  </data>
+  <data name="ChdUnsupportedVersion" xml:space="preserve">
+    <value>不支持的 CHD 版本：{0}</value>
+  </data>
+  <data name="ChdInvalidHunkBytes" xml:space="preserve">
+    <value>无效的 CHD：hunkbytes 为 0</value>
+  </data>
+  <data name="ChdNoTrackMetadata" xml:space="preserve">
+    <value>在 CHD 文件中未找到轨道元数据。它可能不是光盘镜像。</value>
+  </data>
+  <data name="ChdHunkReadFailed" xml:space="preserve">
+    <value>无法读取 CHD 块 {0}：{1}</value>
+  </data>
+  <data name="GdiNoTrackAt45000" xml:space="preserve">
+    <value>没有从 LBA 45000 开始的轨道。</value>
+  </data>
+  <data name="GdiUnsupportedSectorSize" xml:space="preserve">
+    <value>轨道 {0} 使用了不支持的扇区大小 {1}。</value>
+  </data>
+  <data name="GdiFewerThanThreeTracks" xml:space="preserve">
+    <value>无效的 GDI：轨道少于三条。</value>
+  </data>
+  <data name="GdiMalformedTrackLine" xml:space="preserve">
+    <value>无效的 GDI：第 {0} 行轨道格式错误。</value>
+  </data>
+  <data name="GdiTrack3NotAt45000" xml:space="preserve">
+    <value>无效的 GDI：轨道 3 必须从 LBA 45000 开始。</value>
+  </data>
+  <data name="GdiNoRootDirectoryRecord" xml:space="preserve">
+    <value>卷描述符中没有根目录记录。</value>
+  </data>
+  <data name="GdiNoPrimaryVolumeDescriptor" xml:space="preserve">
+    <value>未找到主卷描述符。</value>
+  </data>
+  <data name="CueNotGdRom" xml:space="preserve">
+    <value>这不是 GD-ROM 的 CUE/BIN。对于 CD-ROM 镜像，请使用 redump2cdi。</value>
+  </data>
+  <data name="BinFileNotFound" xml:space="preserve">
+    <value>未找到 BIN 文件：{0}</value>
+  </data>
+  <data name="GdiShrinkOutputFolderMustDiffer" xml:space="preserve">
+    <value>输出文件夹必须与源文件夹不同。</value>
+  </data>
+  <data name="GdiShrinkNoFilesToPreserve" xml:space="preserve">
+    <value>光盘中没有需要保留的文件。</value>
+  </data>
+  <data name="GdiShrinkNoFileInDataTrack" xml:space="preserve">
+    <value>没有文件从游戏数据轨道内开始。</value>
+  </data>
+  <data name="GdiShrinkVerifyFailed" xml:space="preserve">
+    <value>压缩后的光盘无法正确读回，可能不完整。</value>
+  </data>
+  <data name="LegacyRedumpGdiNotSupported" xml:space="preserve">
+    <value>不支持 Redump 旧的、短暂使用过的 GDI 格式。</value>
+  </data>
+  <data name="Redump2CdiToolNotFound" xml:space="preserve">
+    <value>未找到 redump2cdi 工具：{0}</value>
+  </data>
+  <data name="Redump2CdiInputCueNotFound" xml:space="preserve">
+    <value>未找到输入的 CUE 文件：{0}</value>
+  </data>
+  <data name="Redump2CdiOutputNotFound" xml:space="preserve">
+    <value>转换似乎成功，但未找到输出文件</value>
+  </data>
+  <data name="Redump2CdiConversionFailed" xml:space="preserve">
+    <value>转换失败：{0}</value>
+  </data>
+  <data name="Redump2CdiRunError" xml:space="preserve">
+    <value>运行 redump2cdi 时出错：{0}</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>源目录不存在或找不到：{0}</value>
+  </data>
+  <data name="CantReadDataFromFile" xml:space="preserve">
+    <value>无法从文件读取数据</value>
+  </data>
+  <data name="UnableToOpenImageFormat" xml:space="preserve">
+    <value>无法打开镜像格式</value>
+  </data>
+  <data name="CantLoadGameFile" xml:space="preserve">
+    <value>无法加载游戏文件</value>
+  </data>
+  <data name="MissingFile" xml:space="preserve">
+    <value>缺少文件：{0}</value>
+  </data>
+  <data name="NoValidImageFoundOnFolder" xml:space="preserve">
+    <value>文件夹中未找到有效镜像</value>
+  </data>
+  <data name="ConvertingItemTo" xml:space="preserve">
+    <value>正在将 {0} 转换为 {1}...</value>
+  </data>
+  <data name="FailedToConvertTo" xml:space="preserve">
+    <value>无法将 {0} 转换为 {1}：{2}</value>
+  </data>
+  <data name="NoDataTrackFound" xml:space="preserve">
+    <value>在 {0} 文件中未找到数据轨道</value>
+  </data>
+  <data name="FileNotInImageFiles" xml:space="preserve">
+    <value>在镜像文件列表中未找到 {0} 文件</value>
+  </data>
+  <data name="FileNotFoundAfterExtraction" xml:space="preserve">
+    <value>解压后未找到 {0} 文件</value>
+  </data>
+  <data name="Redump2CdiTimedOut" xml:space="preserve">
+    <value>转换在 {0} 分钟后超时</value>
+  </data>
+  <data name="ImageFilesListEmpty" xml:space="preserve">
+    <value>{0} 项目的镜像文件列表为空</value>
+  </data>
 </root>

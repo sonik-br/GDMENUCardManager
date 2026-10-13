@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -53,7 +54,7 @@ namespace GDMENUCardManager.Core
                 string targetFolder = Path.GetFullPath(outputDirectory);
 
                 if (string.Equals(sourceFolder, targetFolder, StringComparison.OrdinalIgnoreCase))
-                    return (false, "The output folder must differ from the source folder.");
+                    return (false, AppStrings.GdiShrinkOutputFolderMustDiffer);
 
                 Directory.CreateDirectory(targetFolder);
 
@@ -67,7 +68,7 @@ namespace GDMENUCardManager.Core
                     var filesystem = new GdRomFileSystem(image);
                     List<DirectoryRecord> files = filesystem.ReadFiles();
                     if (files.Count == 0)
-                        return (false, "The disc has no files to preserve.");
+                        return (false, AppStrings.GdiShrinkNoFilesToPreserve);
 
                     long gameDataLba = sourceTracks[sourceTracks.Count - 1].Lba;
                     long firstFileLba = long.MaxValue;
@@ -82,7 +83,7 @@ namespace GDMENUCardManager.Core
                     }
 
                     if (firstFileLba == long.MaxValue)
-                        return (false, "No file starts inside the game data track.");
+                        return (false, AppStrings.GdiShrinkNoFileInDataTrack);
 
                     (firstBlank, firstFile) = FindWidestBlankRun(
                         image, filesystem.EndOfDirectories, firstFileLba, cancellationToken);
@@ -121,7 +122,7 @@ namespace GDMENUCardManager.Core
                 File.WriteAllBytes(outputGdiPath, Encoding.ASCII.GetBytes(GdiIndex.Compose(outputTracks)));
 
                 if (!VerifyLastFile(outputGdiPath, expected))
-                    return (false, "The shrunk disc did not read back correctly and may be incomplete.");
+                    return (false, AppStrings.GdiShrinkVerifyFailed);
 
                 return (true, null);
             }

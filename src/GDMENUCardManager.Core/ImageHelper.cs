@@ -2,6 +2,7 @@
 using Aaru.CommonTypes.Interfaces;
 using Aaru.Filesystems;
 using DiscUtils.Iso9660;
+using GDMENUCardManager.Core.Resources;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -102,7 +103,7 @@ namespace GDMENUCardManager.Core
             }
 
             if (itemImageFile == null)
-                throw new Exception("Cant't read data from file");
+                throw new Exception(AppStrings.CantReadDataFromFile);
 
             if (item.FileFormat == FileFormat.Uncompressed &&
                 Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.OrdinalIgnoreCase) &&
@@ -212,7 +213,7 @@ namespace GDMENUCardManager.Core
             {
                 using var chd = new ChdReader(itemImageFile);
                 if (!chd.IsGdRom)
-                    throw new Exception("This CHD contains a CD-ROM image, which is not supported. Only GD-ROM CHD files are supported. Please use the original CDI or CUE/BIN files instead.");
+                    throw new Exception(AppStrings.ChdCdRomNotSupported);
 
                 var ipData = chd.GetIpBin();
                 // CHD returns raw 2352-byte sectors. Try parsing as-is first,
@@ -225,7 +226,7 @@ namespace GDMENUCardManager.Core
                     ip = GetIpData(userData);
                 }
                 if (ip == null)
-                    throw new Exception("Cannot read Dreamcast IP.BIN from CHD image");
+                    throw new Exception(AppStrings.ChdIpBinNotReadable);
 
                 item.FileFormat = FileFormat.Chd;
                 item.ImageFiles.Add(Path.GetFileName(itemImageFile));
@@ -403,7 +404,7 @@ namespace GDMENUCardManager.Core
                             var temp = await CreateGdItem2Async(itemImageFile);
 
                             if (temp == null || temp.Ip == null)
-                                throw new Exception("Unable to open image format");
+                                throw new Exception(AppStrings.UnableToOpenImageFormat);
 
                             ip = temp.Ip;
                             item = temp;
@@ -429,7 +430,7 @@ namespace GDMENUCardManager.Core
             }
 
             if (ip == null)
-                throw new Exception("Cant't read data from file");
+                throw new Exception(AppStrings.CantReadDataFromFile);
 
 
             item.Ip = ip;
@@ -635,7 +636,7 @@ namespace GDMENUCardManager.Core
                 try
                 {
                     if (! await Task.Run(() => opticalImage.Open(inputFilter)))
-                        throw new Exception("Can't load game file");
+                        throw new Exception(AppStrings.CantLoadGameFile);
 
                     Partition partition;
                     string filename = "0GDTEX.PVR";
@@ -740,7 +741,7 @@ namespace GDMENUCardManager.Core
                     
                     var img = Path.ChangeExtension(filePath, ".img");
                     if (!File.Exists(img))
-                        throw new Exception("Missing file: " + img);
+                        throw new Exception(string.Format(AppStrings.MissingFile, img));
                     item.ImageFiles.Add(Path.GetFileName(img));
 
                     var sub = Path.ChangeExtension(filePath, ".sub");
@@ -753,7 +754,7 @@ namespace GDMENUCardManager.Core
                 {
                     var mdf = Path.ChangeExtension(filePath, ".mdf");
                     if (!File.Exists(mdf))
-                        throw new Exception("Missing file: " + mdf);
+                        throw new Exception(string.Format(AppStrings.MissingFile, mdf));
                     item.ImageFiles.Add(Path.GetFileName(mdf));
 
                     dataFile = mdf;
@@ -768,7 +769,7 @@ namespace GDMENUCardManager.Core
 
 
             if (ip == null)
-                throw new Exception("Cant't read data from file");
+                throw new Exception(AppStrings.CantReadDataFromFile);
 
 
             item.Ip = ip;

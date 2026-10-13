@@ -2,6 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -63,11 +64,11 @@ namespace GDMENUCardManager.Core
                 long consumed = 0;
                 DirectoryRecord root = ReadRecord(ref consumed);
                 if (root == null)
-                    throw new InvalidDataException("The volume descriptor has no root directory record.");
+                    throw new InvalidDataException(AppStrings.GdiNoRootDirectoryRecord);
                 return root;
             }
 
-            throw new InvalidDataException("No primary volume descriptor was found.");
+            throw new InvalidDataException(AppStrings.GdiNoPrimaryVolumeDescriptor);
         }
 
         // Collects every file record on the volume.

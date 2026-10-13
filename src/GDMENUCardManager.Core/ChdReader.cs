@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -38,9 +39,9 @@ namespace GDMENUCardManager.Core
         {
             var error = chd_open(filePath, CHD_OPEN_READ, IntPtr.Zero, out _chdHandle);
             if (error == ChdError.RequiresParent)
-                throw new Exception("This CHD file requires a parent CHD. Delta/diff CHDs are not supported. Please use a standalone (merged) CHD file.");
+                throw new Exception(AppStrings.ChdRequiresParent);
             if (error != ChdError.None)
-                throw new Exception($"Failed to open CHD file: {chd_error_string_safe(error)} ({error})");
+                throw new Exception(string.Format(AppStrings.ChdOpenFailed, chd_error_string_safe(error), error));
 
             ReadHeader();
             ReadTracks();
@@ -50,7 +51,7 @@ namespace GDMENUCardManager.Core
         {
             IntPtr headerPtr = chd_get_header(_chdHandle);
             if (headerPtr == IntPtr.Zero)
-                throw new Exception("Failed to read CHD header");
+                throw new Exception(AppStrings.ChdHeaderReadFailed);
 
             Header = new ChdHeader
             {
@@ -62,9 +63,9 @@ namespace GDMENUCardManager.Core
             };
 
             if (Header.Version < 1 || Header.Version > 5)
-                throw new Exception($"Unsupported CHD version: {Header.Version}");
+                throw new Exception(string.Format(AppStrings.ChdUnsupportedVersion, Header.Version));
             if (Header.HunkBytes == 0)
-                throw new Exception("Invalid CHD: hunkbytes is 0");
+                throw new Exception(AppStrings.ChdInvalidHunkBytes);
         }
 
         private void ReadTracks()
@@ -91,7 +92,7 @@ namespace GDMENUCardManager.Core
             }
 
             if (tracks.Count == 0)
-                throw new Exception("No track metadata found in CHD file. This may not be a disc image.");
+                throw new Exception(AppStrings.ChdNoTrackMetadata);
 
             tracks.Sort((a, b) => a.TrackNumber.CompareTo(b.TrackNumber));
             Tracks = tracks.AsReadOnly();
@@ -173,7 +174,7 @@ namespace GDMENUCardManager.Core
             {
                 var error = chd_read(_chdHandle, hunkNum, buffer);
                 if (error != ChdError.None)
-                    throw new Exception($"Failed to read CHD hunk {hunkNum}: {chd_error_string_safe(error)}");
+                    throw new Exception(string.Format(AppStrings.ChdHunkReadFailed, hunkNum, chd_error_string_safe(error)));
 
                 byte[] sectorData = new byte[ChdSectorDataSize];
                 Marshal.Copy(buffer + (frameInHunk * ChdFrameSize), sectorData, 0, ChdSectorDataSize);
@@ -207,7 +208,7 @@ namespace GDMENUCardManager.Core
                     {
                         var error = chd_read(_chdHandle, hunkNum, buffer);
                         if (error != ChdError.None)
-                            throw new Exception($"Failed to read CHD hunk {hunkNum}: {chd_error_string_safe(error)}");
+                            throw new Exception(string.Format(AppStrings.ChdHunkReadFailed, hunkNum, chd_error_string_safe(error)));
                         lastHunk = hunkNum;
                     }
 
@@ -261,7 +262,7 @@ namespace GDMENUCardManager.Core
                 }
             }
 
-            throw new Exception("No data track found in CHD file");
+            throw new Exception(string.Format(AppStrings.NoDataTrackFound, "CHD"));
         }
 
         // Extra frames chdman appends to round a track up to a 4-frame boundary. They are

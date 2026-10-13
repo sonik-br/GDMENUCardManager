@@ -420,4 +420,136 @@
   <data name="Credits" xml:space="preserve">
     <value>Créditos</value>
   </data>
+  <data name="ChdCdRomNotSupported" xml:space="preserve">
+    <value>Este arquivo CHD possui imagem de CD-ROM, o que não é suportado. Apenas arquivos CHD de GD-ROM são suportados. Por favor, utilize os arquivos originais CDI ou CUE/BIN.</value>
+  </data>
+  <data name="ChdIpBinNotReadable" xml:space="preserve">
+    <value>Não foi possível ler o IP.BIN da imagem CHD</value>
+  </data>
+  <data name="ConvertingItem" xml:space="preserve">
+    <value>Convertendo {0}...</value>
+  </data>
+  <data name="ConvertingShrinkingItem" xml:space="preserve">
+    <value>Convertendo/Comprimindo {0}...</value>
+  </data>
+  <data name="ChdNotGdRomImage" xml:space="preserve">
+    <value>Este CHD não é um GD-ROM. Use o ConvertToCueBin para arquivos CHD de CD-ROM.</value>
+  </data>
+  <data name="ChdRequiresParent" xml:space="preserve">
+    <value>Este CHD requer um CHD pai (parent). Arquivos CHD do tipo delta/diff não são suportados. Utilize um arquivo CHD independente (merged).</value>
+  </data>
+  <data name="ChdOpenFailed" xml:space="preserve">
+    <value>Falha ao abrir arquivo CHD: {0} ({1})</value>
+  </data>
+  <data name="ChdHeaderReadFailed" xml:space="preserve">
+    <value>Falha ao ler o cabeçalho CHD</value>
+  </data>
+  <data name="ChdUnsupportedVersion" xml:space="preserve">
+    <value>Versão CHD não suportada: {0}</value>
+  </data>
+  <data name="ChdInvalidHunkBytes" xml:space="preserve">
+    <value>CHD inválido: hunkbytes é 0</value>
+  </data>
+  <data name="ChdNoTrackMetadata" xml:space="preserve">
+    <value>Metadado não encontrado no arquivo CHD. Pode não ser uma imagem de disco.</value>
+  </data>
+  <data name="ChdHunkReadFailed" xml:space="preserve">
+    <value>Falha ao ler o bloco CHD {0}: {1}</value>
+  </data>
+  <data name="GdiNoTrackAt45000" xml:space="preserve">
+    <value>Nenhuma trilha começa no LBA 45000.</value>
+  </data>
+  <data name="GdiUnsupportedSectorSize" xml:space="preserve">
+    <value>A faixa {0} utiliza um tamanho de setor não suportado de {1}.</value>
+  </data>
+  <data name="GdiFewerThanThreeTracks" xml:space="preserve">
+    <value>GDI inválido: menos de três faixas.</value>
+  </data>
+  <data name="GdiMalformedTrackLine" xml:space="preserve">
+    <value>GDI inválido: linha de faixa malformada {0}.</value>
+  </data>
+  <data name="GdiTrack3NotAt45000" xml:space="preserve">
+    <value>GDI inválido: a faixa 3 deve começar no LBA 45000.</value>
+  </data>
+  <data name="GdiNoRootDirectoryRecord" xml:space="preserve">
+    <value>O descritor de volume não possui diretório raiz.</value>
+  </data>
+  <data name="GdiNoPrimaryVolumeDescriptor" xml:space="preserve">
+    <value>Descritor de volume primário não encontrado.</value>
+  </data>
+  <data name="CueNotGdRom" xml:space="preserve">
+    <value>Este não é um arquivo CUE/BIN de GD-ROM. Use o redump2cdi para imagens de CD-ROM.</value>
+  </data>
+  <data name="BinFileNotFound" xml:space="preserve">
+    <value>Arquivo BIN não encontrado: {0}</value>
+  </data>
+  <data name="GdiShrinkOutputFolderMustDiffer" xml:space="preserve">
+    <value>A pasta de saída deve ser diferente da pasta de origem.</value>
+  </data>
+  <data name="GdiShrinkNoFilesToPreserve" xml:space="preserve">
+    <value>O disco não contém arquivos a serem preservados.</value>
+  </data>
+  <data name="GdiShrinkNoFileInDataTrack" xml:space="preserve">
+    <value>Nenhum arquivo começa dentro da faixa de dados.</value>
+  </data>
+  <data name="GdiShrinkVerifyFailed" xml:space="preserve">
+    <value>O disco comprimido não foi lido corretamente e pode estar incompleto.</value>
+  </data>
+  <data name="LegacyRedumpGdiNotSupported" xml:space="preserve">
+    <value>O antigo formato GDI do Redump, de vida curta, não é suportado.</value>
+  </data>
+  <data name="Redump2CdiToolNotFound" xml:space="preserve">
+    <value>Ferramenta redump2cdi não encontrada em: {0}</value>
+  </data>
+  <data name="Redump2CdiInputCueNotFound" xml:space="preserve">
+    <value>Arquivo CUE não encontrado: {0}</value>
+  </data>
+  <data name="Redump2CdiOutputNotFound" xml:space="preserve">
+    <value>A conversão pareceu bem-sucedida, mas o arquivo de saída não foi encontrado</value>
+  </data>
+  <data name="Redump2CdiConversionFailed" xml:space="preserve">
+    <value>Conversão falhou: {0}</value>
+  </data>
+  <data name="Redump2CdiRunError" xml:space="preserve">
+    <value>Erro executando redump2cdi: {0}</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>O diretório de origem não existe ou não foi encontrado: {0}</value>
+  </data>
+  <data name="CantReadDataFromFile" xml:space="preserve">
+    <value>Não foi possível ler o arquivo</value>
+  </data>
+  <data name="UnableToOpenImageFormat" xml:space="preserve">
+    <value>Não é possível abrir o formato de imagem</value>
+  </data>
+  <data name="CantLoadGameFile" xml:space="preserve">
+    <value>Não foi possível carregar o arquivo do jogo</value>
+  </data>
+  <data name="MissingFile" xml:space="preserve">
+    <value>Faltando arquivo: {0}</value>
+  </data>
+  <data name="NoValidImageFoundOnFolder" xml:space="preserve">
+    <value>Nenhuma imagem válida encontrada na pasta</value>
+  </data>
+  <data name="ConvertingItemTo" xml:space="preserve">
+    <value>Convertendo {0} para {1}...</value>
+  </data>
+  <data name="FailedToConvertTo" xml:space="preserve">
+    <value>Falha ao converter {0} para {1}: {2}</value>
+  </data>
+  <data name="NoDataTrackFound" xml:space="preserve">
+    <value>Nenhuma faixa de dados encontrada no arquivo {0}</value>
+  </data>
+  <data name="FileNotInImageFiles" xml:space="preserve">
+    <value>Arquivo {0} não encontrado na lista de arquivos de imagens</value>
+  </data>
+  <data name="FileNotFoundAfterExtraction" xml:space="preserve">
+    <value>Arquivo {0} não encontrado após descompactar</value>
+  </data>
+  <data name="Redump2CdiTimedOut" xml:space="preserve">
+    <value>A conversão excedeu o tempo limite após {0} minutos.</value>
+  </data>
+  <data name="ImageFilesListEmpty" xml:space="preserve">
+    <value>A lista de arquivos de imagem está vazia para o item {0}</value>
+  </data>
 </root>

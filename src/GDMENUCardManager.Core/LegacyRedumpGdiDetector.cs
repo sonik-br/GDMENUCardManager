@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -36,7 +37,7 @@ namespace GDMENUCardManager.Core
     /// </summary>
     public static class LegacyRedumpGdiDetector
     {
-        public const string ShortMessage = "Redump's old, short-lived GDI format is not supported.";
+        public static string ShortMessage => AppStrings.LegacyRedumpGdiNotSupported;
 
         private const string SupportedFormatsText =
             "GD MENU Card Manager supports TOSEC GDI and modern Redump CUE/BIN disc images (both of which can be compressed as CHD), " +

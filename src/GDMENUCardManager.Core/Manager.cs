@@ -342,7 +342,7 @@ namespace GDMENUCardManager.Core
             }
 
             if (itemImageFile == null)
-                throw new Exception("No valid image found on folder");
+                throw new Exception(AppStrings.NoValidImageFoundOnFolder);
 
             var item = new GdItem
             {
@@ -950,11 +950,11 @@ namespace GDMENUCardManager.Core
 
                             // Get the CUE file path
                             if (item.ImageFiles == null || !item.ImageFiles.Any())
-                                throw new Exception("Image files list is empty for CUE/BIN item");
+                                throw new Exception(string.Format(AppStrings.ImageFilesListEmpty, "CUE/BIN"));
 
                             var cueFile = item.ImageFiles.FirstOrDefault(f => f.EndsWith(".cue", StringComparison.OrdinalIgnoreCase));
                             if (string.IsNullOrEmpty(cueFile))
-                                throw new Exception("CUE file not found in image files list");
+                                throw new Exception(string.Format(AppStrings.FileNotInImageFiles, "CUE"));
 
                             var cuePath = Path.Combine(originalFolderPath, cueFile);
 
@@ -968,7 +968,7 @@ namespace GDMENUCardManager.Core
                                 if (EnableGDIShrink && itemsToShrink.Contains(item))
                                 {
                                     // Convert to GDI in temp dir, then shrink to SD card
-                                    progress.TextContent = $"Converting/Shrinking {item.Name}...";
+                                    progress.TextContent = string.Format(AppStrings.ConvertingShrinkingItem, item.Name);
 
                                     var tempCueDir = Path.Combine(tempdir, $"cue_{folderNumber}");
                                     if (!await Helper.DirectoryExistsAsync(tempCueDir))
@@ -976,7 +976,7 @@ namespace GDMENUCardManager.Core
 
                                     var (success, message) = await GdiConverter.ConvertToGdi(cuePath, tempCueDir);
                                     if (!success)
-                                        throw new Exception($"Failed to convert {cueFile} to GDI: {message}");
+                                        throw new Exception(string.Format(AppStrings.FailedToConvertTo, cueFile, "GDI", message));
 
                                     var tempGdiItem = await ImageHelper.CreateGdItemAsync(tempCueDir);
 
@@ -999,11 +999,11 @@ namespace GDMENUCardManager.Core
                                 else
                                 {
                                     // GD-ROM: Convert to GDI format
-                                    progress.TextContent = $"Converting {item.Name} to GDI...";
+                                    progress.TextContent = string.Format(AppStrings.ConvertingItemTo, item.Name, "GDI");
 
                                     var (success, message) = await GdiConverter.ConvertToGdi(cuePath, newPath);
                                     if (!success)
-                                        throw new Exception($"Failed to convert {cueFile} to GDI: {message}");
+                                        throw new Exception(string.Format(AppStrings.FailedToConvertTo, cueFile, "GDI", message));
 
                                     // Get the converted GDI item info
                                     var gdiItem = await ImageHelper.CreateGdItemAsync(newPath);
@@ -1020,14 +1020,14 @@ namespace GDMENUCardManager.Core
                             else
                             {
                                 // CD-ROM: Convert to CDI format
-                                progress.TextContent = $"Converting {item.Name} to CDI...";
+                                progress.TextContent = string.Format(AppStrings.ConvertingItemTo, item.Name, "CDI");
 
                                 var cdiOutputName = Redump2CdiConverter.GetCdiOutputName(cuePath);
                                 var cdiOutputPath = Path.Combine(newPath, cdiOutputName);
 
                                 var (success, message) = await Task.Run(() => Redump2CdiConverter.ConvertToCdi(cuePath, cdiOutputPath));
                                 if (!success)
-                                    throw new Exception($"Failed to convert {cueFile} to CDI: {message}");
+                                    throw new Exception(string.Format(AppStrings.FailedToConvertTo, cueFile, "CDI", message));
 
                                 item.FullFolderPath = newPath;
                                 item.Work = WorkMode.None;
@@ -1048,11 +1048,11 @@ namespace GDMENUCardManager.Core
 
                             // Get the CUE file path
                             if (item.ImageFiles == null || !item.ImageFiles.Any())
-                                throw new Exception("Image files list is empty for CUE/BIN item");
+                                throw new Exception(string.Format(AppStrings.ImageFilesListEmpty, "CUE/BIN"));
 
                             var cueFile = item.ImageFiles.FirstOrDefault(f => f.EndsWith(".cue", StringComparison.OrdinalIgnoreCase));
                             if (string.IsNullOrEmpty(cueFile))
-                                throw new Exception("CUE file not found in image files list");
+                                throw new Exception(string.Format(AppStrings.FileNotInImageFiles, "CUE"));
 
                             var cuePath = Path.Combine(originalFolderPath, cueFile);
 
@@ -1061,7 +1061,7 @@ namespace GDMENUCardManager.Core
                                 await Helper.CreateDirectoryAsync(newPath);
 
                             // Convert CUE to CCD/IMG/SUB
-                            progress.TextContent = $"Converting {item.Name} to CCD...";
+                            progress.TextContent = string.Format(AppStrings.ConvertingItemTo, item.Name, "CCD");
 
                             await Cue2CcdConverter.ConvertAsync(cuePath, newPath);
 
@@ -1086,11 +1086,11 @@ namespace GDMENUCardManager.Core
 
                             // Get the CHD file path
                             if (item.ImageFiles == null || !item.ImageFiles.Any())
-                                throw new Exception("Image files list is empty for CHD item");
+                                throw new Exception(string.Format(AppStrings.ImageFilesListEmpty, "CHD"));
 
                             var chdFile = item.ImageFiles.FirstOrDefault(f => f.EndsWith(".chd", StringComparison.OrdinalIgnoreCase));
                             if (string.IsNullOrEmpty(chdFile))
-                                throw new Exception("CHD file not found in image files list");
+                                throw new Exception(string.Format(AppStrings.FileNotInImageFiles, "CHD"));
 
                             var chdPath = Path.Combine(originalFolderPath, chdFile);
 
@@ -1099,7 +1099,7 @@ namespace GDMENUCardManager.Core
                                 await Helper.CreateDirectoryAsync(newPath);
 
                             if (!ChdConverter.IsGdRomChd(chdPath))
-                                throw new Exception("This CHD contains a CD-ROM image, which is not supported. Only GD-ROM CHD files are supported. Please use the original CDI or CUE/BIN files instead.");
+                                throw new Exception(AppStrings.ChdCdRomNotSupported);
 
                             // GD-ROM CHD: Convert to GDI format
                             if (EnableGDIShrink && itemsToShrink.Contains(item))
@@ -1113,7 +1113,7 @@ namespace GDMENUCardManager.Core
 
                                 var (success, message) = await ChdConverter.ConvertToGdi(chdPath, tempChdDir);
                                 if (!success)
-                                    throw new Exception($"Failed to convert CHD to GDI: {message}");
+                                    throw new Exception(string.Format(AppStrings.FailedToConvertTo, "CHD", "GDI", message));
 
                                 var tempGdiItem = await ImageHelper.CreateGdItemAsync(tempChdDir);
 
@@ -1140,7 +1140,7 @@ namespace GDMENUCardManager.Core
 
                                 var (success, message) = await ChdConverter.ConvertToGdi(chdPath, newPath);
                                 if (!success)
-                                    throw new Exception($"Failed to convert CHD to GDI: {message}");
+                                    throw new Exception(string.Format(AppStrings.FailedToConvertTo, "CHD", "GDI", message));
 
                                 var gdiItem = await ImageHelper.CreateGdItemAsync(newPath);
                                 item.FullFolderPath = newPath;
@@ -1179,7 +1179,7 @@ namespace GDMENUCardManager.Core
                                     // CHD inside the archive: convert it to GDI in temp, then carry on as a GDI
                                     var chdFile = gdi.ImageFiles.FirstOrDefault(f => f.EndsWith(".chd", StringComparison.OrdinalIgnoreCase));
                                     if (string.IsNullOrEmpty(chdFile))
-                                        throw new Exception("CHD file not found after extraction");
+                                        throw new Exception(string.Format(AppStrings.FileNotFoundAfterExtraction, "CHD"));
 
                                     var extractedChdPath = Path.Combine(tempExtractDir, chdFile);
 
@@ -1189,7 +1189,7 @@ namespace GDMENUCardManager.Core
 
                                     var (success, message) = await ChdConverter.ConvertToGdi(extractedChdPath, tempChdGdiDir);
                                     if (!success)
-                                        throw new Exception($"Failed to convert CHD to GDI: {message}");
+                                        throw new Exception(string.Format(AppStrings.FailedToConvertTo, "CHD", "GDI", message));
 
                                     await Helper.DeleteDirectoryAsync(tempExtractDir);
                                     tempExtractDir = tempChdGdiDir;
@@ -1198,7 +1198,7 @@ namespace GDMENUCardManager.Core
                                 else if (gdi.FileFormat == FileFormat.RedumpCueBin || gdi.FileFormat == FileFormat.CueBinNonGame)
                                 {
                                     // CUE/BIN inside the archive: convert it in temp, then carry on with the result
-                                    progress.TextContent = $"Converting {item.Name}...";
+                                    progress.TextContent = string.Format(AppStrings.ConvertingItem, item.Name);
 
                                     var tempCueDir = Path.Combine(tempdir, $"cue_{folderNumber}");
                                     var convertedFiles = await ConvertExtractedCueAsync(gdi, tempExtractDir, tempCueDir);
@@ -1341,13 +1341,13 @@ namespace GDMENUCardManager.Core
                 // CHD inside the archive: convert it to GDI on the card and drop the CHD
                 var chdFile = gdi.ImageFiles.FirstOrDefault(f => f.EndsWith(".chd", StringComparison.OrdinalIgnoreCase));
                 if (string.IsNullOrEmpty(chdFile))
-                    throw new Exception("CHD file not found after extraction");
+                    throw new Exception(string.Format(AppStrings.FileNotFoundAfterExtraction, "CHD"));
 
                 var extractedChdPath = Path.Combine(newPath, chdFile);
 
                 var (success, message) = await ChdConverter.ConvertToGdi(extractedChdPath, newPath);
                 if (!success)
-                    throw new Exception($"Failed to convert CHD to GDI: {message}");
+                    throw new Exception(string.Format(AppStrings.FailedToConvertTo, "CHD", "GDI", message));
 
                 await Helper.DeleteFileAsync(extractedChdPath);
                 gdi = await ImageHelper.CreateGdItemAsync(newPath);
@@ -1388,7 +1388,7 @@ namespace GDMENUCardManager.Core
         {
             var cueFile = cueItem.ImageFiles.FirstOrDefault(f => f.EndsWith(".cue", StringComparison.OrdinalIgnoreCase));
             if (string.IsNullOrEmpty(cueFile))
-                throw new Exception("CUE file not found after extraction");
+                throw new Exception(string.Format(AppStrings.FileNotFoundAfterExtraction, "CUE"));
 
             var cuePath = Path.Combine(sourceDir, cueFile);
 
@@ -1407,7 +1407,7 @@ namespace GDMENUCardManager.Core
             {
                 var (success, message) = await GdiConverter.ConvertToGdi(cuePath, outputDir);
                 if (!success)
-                    throw new Exception($"Failed to convert {cueFile} to GDI: {message}");
+                    throw new Exception(string.Format(AppStrings.FailedToConvertTo, cueFile, "GDI", message));
 
                 return (await ImageHelper.CreateGdItemAsync(outputDir)).ImageFiles.ToList();
             }
@@ -1415,7 +1415,7 @@ namespace GDMENUCardManager.Core
             var cdiOutputName = Redump2CdiConverter.GetCdiOutputName(cuePath);
             var (cdiSuccess, cdiMessage) = await Task.Run(() => Redump2CdiConverter.ConvertToCdi(cuePath, Path.Combine(outputDir, cdiOutputName)));
             if (!cdiSuccess)
-                throw new Exception($"Failed to convert {cueFile} to CDI: {cdiMessage}");
+                throw new Exception(string.Format(AppStrings.FailedToConvertTo, cueFile, "CDI", cdiMessage));
 
             return new List<string> { cdiOutputName };
         }

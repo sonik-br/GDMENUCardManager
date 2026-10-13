@@ -420,4 +420,136 @@
   <data name="Credits" xml:space="preserve">
     <value>Благодарности</value>
   </data>
+  <data name="ChdCdRomNotSupported" xml:space="preserve">
+    <value>Этот CHD содержит образ CD-ROM, который не поддерживается. Поддерживаются только CHD-файлы GD-ROM. Используйте вместо него исходные файлы CDI или CUE/BIN.</value>
+  </data>
+  <data name="ChdIpBinNotReadable" xml:space="preserve">
+    <value>Не удалось прочитать IP.BIN Dreamcast из образа CHD</value>
+  </data>
+  <data name="ConvertingItem" xml:space="preserve">
+    <value>Конвертация {0}...</value>
+  </data>
+  <data name="ConvertingShrinkingItem" xml:space="preserve">
+    <value>Конвертация/сжатие {0}...</value>
+  </data>
+  <data name="ChdNotGdRomImage" xml:space="preserve">
+    <value>Этот CHD не является образом GD-ROM. Для CHD с CD-ROM используйте ConvertToCueBin.</value>
+  </data>
+  <data name="ChdRequiresParent" xml:space="preserve">
+    <value>Этому CHD-файлу требуется родительский CHD. Разностные (delta/diff) CHD не поддерживаются. Используйте самостоятельный (объединённый) CHD-файл.</value>
+  </data>
+  <data name="ChdOpenFailed" xml:space="preserve">
+    <value>Не удалось открыть CHD-файл: {0} ({1})</value>
+  </data>
+  <data name="ChdHeaderReadFailed" xml:space="preserve">
+    <value>Не удалось прочитать заголовок CHD</value>
+  </data>
+  <data name="ChdUnsupportedVersion" xml:space="preserve">
+    <value>Неподдерживаемая версия CHD: {0}</value>
+  </data>
+  <data name="ChdInvalidHunkBytes" xml:space="preserve">
+    <value>Недопустимый CHD: hunkbytes равно 0</value>
+  </data>
+  <data name="ChdNoTrackMetadata" xml:space="preserve">
+    <value>В CHD-файле не найдены метаданные дорожек. Возможно, это не образ диска.</value>
+  </data>
+  <data name="ChdHunkReadFailed" xml:space="preserve">
+    <value>Не удалось прочитать блок CHD {0}: {1}</value>
+  </data>
+  <data name="GdiNoTrackAt45000" xml:space="preserve">
+    <value>Ни одна дорожка не начинается с LBA 45000.</value>
+  </data>
+  <data name="GdiUnsupportedSectorSize" xml:space="preserve">
+    <value>Дорожка {0} использует неподдерживаемый размер сектора {1}.</value>
+  </data>
+  <data name="GdiFewerThanThreeTracks" xml:space="preserve">
+    <value>Недопустимый GDI: меньше трёх дорожек.</value>
+  </data>
+  <data name="GdiMalformedTrackLine" xml:space="preserve">
+    <value>Недопустимый GDI: неверная строка дорожки {0}.</value>
+  </data>
+  <data name="GdiTrack3NotAt45000" xml:space="preserve">
+    <value>Недопустимый GDI: дорожка 3 должна начинаться с LBA 45000.</value>
+  </data>
+  <data name="GdiNoRootDirectoryRecord" xml:space="preserve">
+    <value>В дескрипторе тома нет записи корневого каталога.</value>
+  </data>
+  <data name="GdiNoPrimaryVolumeDescriptor" xml:space="preserve">
+    <value>Основной дескриптор тома не найден.</value>
+  </data>
+  <data name="CueNotGdRom" xml:space="preserve">
+    <value>Это не CUE/BIN для GD-ROM. Для образов CD-ROM используйте redump2cdi.</value>
+  </data>
+  <data name="BinFileNotFound" xml:space="preserve">
+    <value>BIN-файл не найден: {0}</value>
+  </data>
+  <data name="GdiShrinkOutputFolderMustDiffer" xml:space="preserve">
+    <value>Папка вывода должна отличаться от исходной папки.</value>
+  </data>
+  <data name="GdiShrinkNoFilesToPreserve" xml:space="preserve">
+    <value>На диске нет файлов для сохранения.</value>
+  </data>
+  <data name="GdiShrinkNoFileInDataTrack" xml:space="preserve">
+    <value>Ни один файл не начинается в дорожке данных игры.</value>
+  </data>
+  <data name="GdiShrinkVerifyFailed" xml:space="preserve">
+    <value>Сжатый диск не удалось корректно прочитать, он может быть неполным.</value>
+  </data>
+  <data name="LegacyRedumpGdiNotSupported" xml:space="preserve">
+    <value>Старый недолговечный формат GDI от Redump не поддерживается.</value>
+  </data>
+  <data name="Redump2CdiToolNotFound" xml:space="preserve">
+    <value>Утилита redump2cdi не найдена: {0}</value>
+  </data>
+  <data name="Redump2CdiInputCueNotFound" xml:space="preserve">
+    <value>Входной CUE-файл не найден: {0}</value>
+  </data>
+  <data name="Redump2CdiOutputNotFound" xml:space="preserve">
+    <value>Конвертация, по-видимому, прошла успешно, но выходной файл не найден</value>
+  </data>
+  <data name="Redump2CdiConversionFailed" xml:space="preserve">
+    <value>Ошибка конвертации: {0}</value>
+  </data>
+  <data name="Redump2CdiRunError" xml:space="preserve">
+    <value>Ошибка при запуске redump2cdi: {0}</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>Исходный каталог не существует или не найден: {0}</value>
+  </data>
+  <data name="CantReadDataFromFile" xml:space="preserve">
+    <value>Не удалось прочитать данные из файла</value>
+  </data>
+  <data name="UnableToOpenImageFormat" xml:space="preserve">
+    <value>Не удалось открыть формат образа</value>
+  </data>
+  <data name="CantLoadGameFile" xml:space="preserve">
+    <value>Не удалось загрузить файл игры</value>
+  </data>
+  <data name="MissingFile" xml:space="preserve">
+    <value>Отсутствует файл: {0}</value>
+  </data>
+  <data name="NoValidImageFoundOnFolder" xml:space="preserve">
+    <value>В папке не найден допустимый образ</value>
+  </data>
+  <data name="ConvertingItemTo" xml:space="preserve">
+    <value>Конвертация {0} в {1}...</value>
+  </data>
+  <data name="FailedToConvertTo" xml:space="preserve">
+    <value>Не удалось конвертировать {0} в {1}: {2}</value>
+  </data>
+  <data name="NoDataTrackFound" xml:space="preserve">
+    <value>В файле {0} не найдена дорожка данных</value>
+  </data>
+  <data name="FileNotInImageFiles" xml:space="preserve">
+    <value>Файл {0} не найден в списке файлов образа</value>
+  </data>
+  <data name="FileNotFoundAfterExtraction" xml:space="preserve">
+    <value>Файл {0} не найден после распаковки</value>
+  </data>
+  <data name="Redump2CdiTimedOut" xml:space="preserve">
+    <value>Время конвертации истекло через {0} мин.</value>
+  </data>
+  <data name="ImageFilesListEmpty" xml:space="preserve">
+    <value>Список файлов образа для элемента {0} пуст</value>
+  </data>
 </root>

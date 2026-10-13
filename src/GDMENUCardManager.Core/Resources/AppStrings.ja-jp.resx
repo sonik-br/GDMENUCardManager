@@ -420,4 +420,136 @@
   <data name="Credits" xml:space="preserve">
     <value>クレジット</value>
   </data>
+  <data name="ChdCdRomNotSupported" xml:space="preserve">
+    <value>このCHDにはCD-ROMイメージが含まれており、サポートされていません。サポートされるのはGD-ROMのCHDファイルのみです。代わりに元のCDIまたはCUE/BINファイルを使用してください。</value>
+  </data>
+  <data name="ChdIpBinNotReadable" xml:space="preserve">
+    <value>CHDイメージからDreamcastのIP.BINを読み取れません</value>
+  </data>
+  <data name="ConvertingItem" xml:space="preserve">
+    <value>{0} を変換中...</value>
+  </data>
+  <data name="ConvertingShrinkingItem" xml:space="preserve">
+    <value>{0} を変換/圧縮中...</value>
+  </data>
+  <data name="ChdNotGdRomImage" xml:space="preserve">
+    <value>このCHDはGD-ROMイメージではありません。CD-ROMのCHDにはConvertToCueBinを使用してください。</value>
+  </data>
+  <data name="ChdRequiresParent" xml:space="preserve">
+    <value>このCHDファイルには親CHDが必要です。差分(delta/diff)CHDはサポートされていません。単体の(マージ済み)CHDファイルを使用してください。</value>
+  </data>
+  <data name="ChdOpenFailed" xml:space="preserve">
+    <value>CHDファイルを開けませんでした: {0} ({1})</value>
+  </data>
+  <data name="ChdHeaderReadFailed" xml:space="preserve">
+    <value>CHDヘッダーを読み取れませんでした</value>
+  </data>
+  <data name="ChdUnsupportedVersion" xml:space="preserve">
+    <value>サポートされていないCHDバージョン: {0}</value>
+  </data>
+  <data name="ChdInvalidHunkBytes" xml:space="preserve">
+    <value>無効なCHD: hunkbytesが0です</value>
+  </data>
+  <data name="ChdNoTrackMetadata" xml:space="preserve">
+    <value>CHDファイルにトラックのメタデータが見つかりません。ディスクイメージではない可能性があります。</value>
+  </data>
+  <data name="ChdHunkReadFailed" xml:space="preserve">
+    <value>CHDブロック {0} を読み取れませんでした: {1}</value>
+  </data>
+  <data name="GdiNoTrackAt45000" xml:space="preserve">
+    <value>LBA 45000で始まるトラックがありません。</value>
+  </data>
+  <data name="GdiUnsupportedSectorSize" xml:space="preserve">
+    <value>トラック {0} はサポートされていないセクターサイズ {1} を使用しています。</value>
+  </data>
+  <data name="GdiFewerThanThreeTracks" xml:space="preserve">
+    <value>無効なGDI: トラックが3つ未満です。</value>
+  </data>
+  <data name="GdiMalformedTrackLine" xml:space="preserve">
+    <value>無効なGDI: トラック行 {0} の形式が正しくありません。</value>
+  </data>
+  <data name="GdiTrack3NotAt45000" xml:space="preserve">
+    <value>無効なGDI: トラック3はLBA 45000で始まる必要があります。</value>
+  </data>
+  <data name="GdiNoRootDirectoryRecord" xml:space="preserve">
+    <value>ボリューム記述子にルートディレクトリのレコードがありません。</value>
+  </data>
+  <data name="GdiNoPrimaryVolumeDescriptor" xml:space="preserve">
+    <value>プライマリボリューム記述子が見つかりませんでした。</value>
+  </data>
+  <data name="CueNotGdRom" xml:space="preserve">
+    <value>これはGD-ROMのCUE/BINではありません。CD-ROMイメージにはredump2cdiを使用してください。</value>
+  </data>
+  <data name="BinFileNotFound" xml:space="preserve">
+    <value>BINファイルが見つかりません: {0}</value>
+  </data>
+  <data name="GdiShrinkOutputFolderMustDiffer" xml:space="preserve">
+    <value>出力フォルダーは元のフォルダーと異なる必要があります。</value>
+  </data>
+  <data name="GdiShrinkNoFilesToPreserve" xml:space="preserve">
+    <value>ディスクに保持するファイルがありません。</value>
+  </data>
+  <data name="GdiShrinkNoFileInDataTrack" xml:space="preserve">
+    <value>ゲームデータトラック内で始まるファイルがありません。</value>
+  </data>
+  <data name="GdiShrinkVerifyFailed" xml:space="preserve">
+    <value>圧縮したディスクを正しく読み戻せませんでした。不完全な可能性があります。</value>
+  </data>
+  <data name="LegacyRedumpGdiNotSupported" xml:space="preserve">
+    <value>Redumpの古い短命なGDI形式はサポートされていません。</value>
+  </data>
+  <data name="Redump2CdiToolNotFound" xml:space="preserve">
+    <value>redump2cdiツールが見つかりません: {0}</value>
+  </data>
+  <data name="Redump2CdiInputCueNotFound" xml:space="preserve">
+    <value>入力CUEファイルが見つかりません: {0}</value>
+  </data>
+  <data name="Redump2CdiOutputNotFound" xml:space="preserve">
+    <value>変換は成功したように見えますが、出力ファイルが見つかりません</value>
+  </data>
+  <data name="Redump2CdiConversionFailed" xml:space="preserve">
+    <value>変換に失敗しました: {0}</value>
+  </data>
+  <data name="Redump2CdiRunError" xml:space="preserve">
+    <value>redump2cdiの実行中にエラーが発生しました: {0}</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>コピー元のディレクトリが存在しないか、見つかりません: {0}</value>
+  </data>
+  <data name="CantReadDataFromFile" xml:space="preserve">
+    <value>ファイルからデータを読み取れません</value>
+  </data>
+  <data name="UnableToOpenImageFormat" xml:space="preserve">
+    <value>イメージ形式を開けません</value>
+  </data>
+  <data name="CantLoadGameFile" xml:space="preserve">
+    <value>ゲームファイルを読み込めません</value>
+  </data>
+  <data name="MissingFile" xml:space="preserve">
+    <value>ファイルがありません: {0}</value>
+  </data>
+  <data name="NoValidImageFoundOnFolder" xml:space="preserve">
+    <value>フォルダーに有効なイメージが見つかりません</value>
+  </data>
+  <data name="ConvertingItemTo" xml:space="preserve">
+    <value>{0} を {1} に変換中...</value>
+  </data>
+  <data name="FailedToConvertTo" xml:space="preserve">
+    <value>{0} を {1} に変換できませんでした: {2}</value>
+  </data>
+  <data name="NoDataTrackFound" xml:space="preserve">
+    <value>{0} ファイルにデータトラックが見つかりません</value>
+  </data>
+  <data name="FileNotInImageFiles" xml:space="preserve">
+    <value>イメージファイルの一覧に {0} ファイルが見つかりません</value>
+  </data>
+  <data name="FileNotFoundAfterExtraction" xml:space="preserve">
+    <value>展開後に {0} ファイルが見つかりません</value>
+  </data>
+  <data name="Redump2CdiTimedOut" xml:space="preserve">
+    <value>変換が {0} 分後にタイムアウトしました</value>
+  </data>
+  <data name="ImageFilesListEmpty" xml:space="preserve">
+    <value>{0} 項目のイメージファイル一覧が空です</value>
+  </data>
 </root>

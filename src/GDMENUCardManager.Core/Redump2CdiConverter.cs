@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using GDMENUCardManager.Core.Resources;
 
 namespace GDMENUCardManager.Core
 {
@@ -11,6 +12,7 @@ namespace GDMENUCardManager.Core
         private const string ToolName = "redump2cdi";
         private const string WindowsToolName = "redump2cdi.exe";
         private const string SuccessMarker = "Enjoy!";
+        private const int TimeoutMinutes = 5;
 
         /// <summary>
         /// False for GD-ROM cues and for anything that is not a cue at all.
@@ -83,7 +85,7 @@ namespace GDMENUCardManager.Core
         }
 
         /// <summary>
-        /// Runs the tool synchronously and gives up after five minutes.
+        /// Runs the tool synchronously and gives up after TimeoutMinutes.
         /// </summary>
         public static (bool success, string message) ConvertToCdi(string cuePath, string cdiOutputPath)
         {
@@ -91,12 +93,12 @@ namespace GDMENUCardManager.Core
 
             if (!File.Exists(toolPath))
             {
-                return (false, $"redump2cdi tool not found at: {toolPath}");
+                return (false, string.Format(AppStrings.Redump2CdiToolNotFound, toolPath));
             }
 
             if (!File.Exists(cuePath))
             {
-                return (false, $"Input CUE file not found: {cuePath}");
+                return (false, string.Format(AppStrings.Redump2CdiInputCueNotFound, cuePath));
             }
 
             try
@@ -123,11 +125,11 @@ namespace GDMENUCardManager.Core
                 var stdoutTask = process.StandardOutput.ReadToEndAsync();
                 var stderrTask = process.StandardError.ReadToEndAsync();
 
-                bool exited = process.WaitForExit(300000);
+                bool exited = process.WaitForExit(TimeoutMinutes * 60 * 1000);
                 if (!exited)
                 {
                     try { process.Kill(); } catch { }
-                    return (false, "Conversion timed out after 5 minutes");
+                    return (false, string.Format(AppStrings.Redump2CdiTimedOut, TimeoutMinutes));
                 }
 
                 var stdout = stdoutTask.GetAwaiter().GetResult();
@@ -144,17 +146,17 @@ namespace GDMENUCardManager.Core
                     }
                     else
                     {
-                        return (false, "Conversion appeared successful but output file not found");
+                        return (false, AppStrings.Redump2CdiOutputNotFound);
                     }
                 }
                 else
                 {
-                    return (false, $"Conversion failed: {combinedOutput}");
+                    return (false, string.Format(AppStrings.Redump2CdiConversionFailed, combinedOutput));
                 }
             }
             catch (Exception ex)
             {
-                return (false, $"Error running redump2cdi: {ex.Message}");
+                return (false, string.Format(AppStrings.Redump2CdiRunError, ex.Message));
             }
         }
 
