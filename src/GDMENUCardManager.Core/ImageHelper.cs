@@ -83,12 +83,18 @@ namespace GDMENUCardManager.Core
                     if (m.Success)
                         itemName = itemName.Substring(0, m.Index);
 
-                    ip = new IpBin
+                    if (Manager.EnableCompressedFileInfo)
+                        ip = await GetArchiveIpDataAsync(compressedFile, itemImageFile);
+
+                    if (ip == null)
                     {
-                        Name = itemName,
-                        Disc = "?/?",
-                        ProductNumber = String.Empty
-                    };
+                        ip = new IpBin
+                        {
+                            Name = itemName,
+                            Disc = "?/?",
+                            ProductNumber = String.Empty
+                        };
+                    }
 
                     item.Length = ByteSizeLib.ByteSize.FromBytes(filesInsideArchive.Sum(x => x.Value));
                     item.FileFormat = FileFormat.SevenZip;
@@ -447,6 +453,87 @@ namespace GDMENUCardManager.Core
             //item.ImageFile = Path.GetFileName(item.ImageFile);
 
             return item;
+        }
+
+        // Reads IP.BIN or PS1 metadata from compressed file
+        private static async Task<IpBin> GetArchiveIpDataAsync(string compressedFile, string itemImageFile)
+        {
+            IReadOnlyList<ArchiveEntryInfo> archiveEntries;
+            try
+            {
+                archiveEntries = await Task.Run(() =>
+                    Helper.DependencyManager.GetArchiveEntries(compressedFile));
+            }
+            catch
+            {
+                return null;
+            }
+
+            var selectedArchiveEntry = archiveEntries.FirstOrDefault(entry => entry.FullName == itemImageFile)
+                ?? archiveEntries.FirstOrDefault(entry => Manager.supportedImageFormats.Any(format =>
+                    format.Equals(Path.GetExtension(entry.FullName), StringComparison.OrdinalIgnoreCase)));
+            if (selectedArchiveEntry == null)
+                return null;
+
+            IpBin ip = null;
+            ReadOnlyMemory<byte>? gdiManifestBytes = null;
+            if (Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.OrdinalIgnoreCase))
+            {
+                ip = await ArchiveIpBinReader.TryReadLateGdiTrackOneAsync(
+                    compressedFile,
+                    archiveEntries,
+                    selectedArchiveEntry);
+                if (ip == null)
+                {
+                    var gdiInspection = await LegacyRedumpGdiDetector.InspectGdiInArchiveAsync(
+                        compressedFile,
+                        archiveEntries,
+                        selectedArchiveEntry);
+
+                    if (gdiInspection.IsLegacy)
+                        throw new UnsupportedDiscFormatException(LegacyRedumpGdiDetector.ShortMessage);
+
+                    if (gdiInspection.ReadSucceeded)
+                        gdiManifestBytes = gdiInspection.ManifestBytes;
+                }
+            }
+            else if (Path.GetExtension(itemImageFile).Equals(
+                         ".cdi",
+                         StringComparison.OrdinalIgnoreCase) ||
+                     Path.GetExtension(itemImageFile).Equals(
+                         ".ccd",
+                         StringComparison.OrdinalIgnoreCase) ||
+                     Path.GetExtension(itemImageFile).Equals(
+                         ".mds",
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                ip = await ArchiveBoundedDiscMetadataReader.TryReadAsync(
+                    compressedFile,
+                    archiveEntries,
+                    selectedArchiveEntry);
+            }
+
+            if (ip == null)
+            {
+                ip = await ArchiveIpBinReader.TryReadAsync(
+                    compressedFile,
+                    archiveEntries,
+                    selectedArchiveEntry,
+                    gdiManifestBytes);
+            }
+
+            if (ip == null &&
+                Path.GetExtension(itemImageFile).Equals(
+                    ".cue",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                ip = await ArchivePlayStationMetadataReader.TryReadAsync(
+                    compressedFile,
+                    archiveEntries,
+                    selectedArchiveEntry);
+            }
+
+            return ip;
         }
 
         private static Task<IpBin> GetIpData(IOpticalMediaImage opticalImage, Partition partition)

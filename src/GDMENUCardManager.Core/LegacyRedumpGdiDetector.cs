@@ -7,6 +7,20 @@ using System.Threading.Tasks;
 
 namespace GDMENUCardManager.Core
 {
+    internal readonly struct ArchiveGdiInspectionResult
+    {
+        public ArchiveGdiInspectionResult(bool readSucceeded, bool isLegacy, ReadOnlyMemory<byte> manifestBytes)
+        {
+            ReadSucceeded = readSucceeded;
+            IsLegacy = isLegacy;
+            ManifestBytes = manifestBytes;
+        }
+
+        public bool ReadSucceeded { get; }
+        public bool IsLegacy { get; }
+        public ReadOnlyMemory<byte> ManifestBytes { get; }
+    }
+
     /// <summary>
     /// Thrown when a disc image is in a format the application refuses to load.
     /// </summary>
@@ -66,6 +80,46 @@ namespace GDMENUCardManager.Core
             {
                 // Unreadable .gdi, let the normal loading paths report it.
                 return false;
+            }
+        }
+
+        internal static async Task<ArchiveGdiInspectionResult> InspectGdiInArchiveAsync(
+            string archivePath,
+            IReadOnlyList<ArchiveEntryInfo> archiveEntries,
+            ArchiveEntryInfo selectedGdi)
+        {
+            try
+            {
+                if (archiveEntries == null || selectedGdi == null ||
+                    !Path.GetExtension(selectedGdi.FullName)
+                        .Equals(".gdi", StringComparison.OrdinalIgnoreCase))
+                    return default;
+
+                var gdiBytes = await Task.Run(() =>
+                    Helper.DependencyManager.ReadArchiveEntryBytes(
+                        archivePath,
+                        selectedGdi,
+                        GdiTextReadBytes));
+
+                if (gdiBytes == null || gdiBytes.Length == 0)
+                    return default;
+
+                var lines = Encoding.ASCII.GetString(gdiBytes)
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                var isLegacy = CheckTrackLayout(lines, trackFileName =>
+                {
+                    return ArchiveEntryPath.FindRelativeEntry(
+                        archiveEntries,
+                        selectedGdi,
+                        trackFileName)?.Size;
+                });
+
+                return new ArchiveGdiInspectionResult(true, isLegacy, gdiBytes);
+            }
+            catch
+            {
+                return default;
             }
         }
 

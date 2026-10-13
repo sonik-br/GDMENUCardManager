@@ -12,6 +12,9 @@ namespace GDMENUCardManager.Core.Interface
 
         public void ExtractArchive(string archivePath, string extractTo);
         public Dictionary<string, long> GetArchiveFiles(string archivePath);
+
+        public IReadOnlyList<ArchiveEntryInfo> GetArchiveEntries(string archivePath);
+        public byte[] ReadArchiveEntryBytes(string archivePath, ArchiveEntryInfo requestedEntry, long maxBytes);
     }
 
     public interface IProgressWindow

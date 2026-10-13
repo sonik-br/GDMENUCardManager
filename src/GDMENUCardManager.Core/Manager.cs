@@ -18,6 +18,7 @@ namespace GDMENUCardManager.Core
 
         public static string sdPath = null;
         public static bool debugEnabled = false;
+        public static bool EnableCompressedFileInfo = false;
         public static MenuKind MenuKindSelected { get; set; } = MenuKind.None;
 
         private readonly string currentAppPath = AppDomain.CurrentDomain.BaseDirectory;

@@ -58,7 +58,7 @@ namespace GDMENUCardManager
 
             FileInfo = sb.ToString();
 
-            if (item.FileFormat == FileFormat.Uncompressed)
+            if (item.FileFormat != FileFormat.SevenZip || !string.IsNullOrWhiteSpace(item.Ip.ProductNumber))
             {
                 sb.Clear();
                 sb.AppendLine(item.Ip.Name);

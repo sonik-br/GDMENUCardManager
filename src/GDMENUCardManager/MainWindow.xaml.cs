@@ -145,6 +145,8 @@ namespace GDMENUCardManager
                 GdItem.namemaxlen = Math.Min(255, Math.Max(charLimit, 1));
             if (bool.TryParse(ConfigurationManager.AppSettings["TruncateMenuGDI"], out bool truncateMenuGDI))
                 Manager.TruncateMenuGDI = truncateMenuGDI;
+            if (bool.TryParse(ConfigurationManager.AppSettings["CompressedFileInfo"], out bool compressedFileInfo))
+                Manager.EnableCompressedFileInfo = compressedFileInfo;
 
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
