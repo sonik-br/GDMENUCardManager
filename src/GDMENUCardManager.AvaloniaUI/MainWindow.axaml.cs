@@ -212,6 +212,8 @@ namespace GDMENUCardManager
                 Manager.TruncateMenuGDI = truncateMenuGDI;
             if (bool.TryParse(ConfigurationManager.AppSettings["CompressedFileInfo"], out bool compressedFileInfo))
                 Manager.EnableCompressedFileInfo = compressedFileInfo;
+            if (bool.TryParse(ConfigurationManager.AppSettings["EnableCardCache"], out bool enableCardCache))
+                Manager.EnableCardCache = enableCardCache;
 
             TempFolder = Path.GetTempPath();
             Title = "GD MENU Card Manager " + Constants.Version;
@@ -829,7 +831,7 @@ namespace GDMENUCardManager
             IsBusy = true;
             try
             {
-                await Manager.LoadIpAll();
+                await Manager.Preload();
             }
             catch (ProgressWindowClosedException) { }
             catch (Exception ex)

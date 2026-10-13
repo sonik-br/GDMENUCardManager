@@ -38,6 +38,9 @@ namespace GDMENUCardManager.Core
         public bool EnableGDIShrinkCompressed = true;
         public bool EnableGDIShrinkBlackList = true;
         public bool TruncateMenuGDI = true;
+        public bool EnableCardCache;
+
+        public CardCacheState CardCacheState { get; private set; } = CardCacheState.NotUsed;
 
 
         public ObservableCollection<GdItem> ItemList { get; } = new ObservableCollection<GdItem>();
@@ -60,12 +63,15 @@ namespace GDMENUCardManager.Core
         {
             ItemList.Clear();
             MenuKindSelected = MenuKind.None;
+            CardCacheState = CardCacheState.NotUsed;
 
             var toAdd = new List<Tuple<int, string>>();
             var rootDirs = await Helper.GetDirectoriesAsync(sdPath);
             foreach (var item in rootDirs)//.OrderBy(x => x))
                 if (int.TryParse(Path.GetFileName(item), out int number))
                     toAdd.Add(new Tuple<int, string>(number, item));
+
+            var cached = EnableCardCache ? await LoadCardCache() : null;
 
             var invalid = new List<string>();
 
@@ -74,7 +80,13 @@ namespace GDMENUCardManager.Core
                 {
                     GdItem itemToAdd = null;
 
-                    if (EnableLazyLoading)//load item without reading ip.bin. only read name.txt+serial.txt. will be null if no name.txt or empty
+                    if (cached != null && cached.TryGetValue(Path.GetFileName(item.Item2), out var cachedItem))
+                    {
+                        cachedItem.SdNumber = item.Item1;
+                        itemToAdd = cachedItem;
+                    }
+
+                    if (itemToAdd == null && EnableLazyLoading)//load item without reading ip.bin. only read name.txt+serial.txt. will be null if no name.txt or empty
                         try
                         {
                             itemToAdd = await LazyLoadItemFromCard(item.Item1, item.Item2);
@@ -111,7 +123,8 @@ namespace GDMENUCardManager.Core
                 //For menu, try to skip lazy loading and force read
                 try
                 {
-                    await LoadIP(firstItem);
+                    if (firstItem.Ip == null || CardCacheState == CardCacheState.NotUsed)
+                        await LoadIP(firstItem);
                 }
                 catch
                 {
@@ -157,9 +170,134 @@ namespace GDMENUCardManager.Core
             }
         }
 
-        public ValueTask LoadIpAll()
+        public async ValueTask LoadIpAll()
         {
-            return loadIP(ItemList);
+            await loadIP(ItemList);
+            if (CardCacheState == CardCacheState.Partial)
+                CardCacheState = CardCacheState.Valid;
+        }
+
+        // Items for the numbered folders that still match the card cache, keyed by folder name.
+        // Null when the cache is missing, invalid or discarded by the user.
+        private async Task<Dictionary<string, GdItem>> LoadCardCache()
+        {
+            var data = await CardCache.ReadAsync(sdPath);
+            if (data == null)
+                return null;
+
+            var folders = await Task.Run(() => CardCache.GetNumberedFolders(sdPath));
+            var scans = await Task.Run(() => folders.Select(CardCache.ScanFolder).ToList());
+            var entries = data.Entries.ToDictionary(x => x.Folder, StringComparer.OrdinalIgnoreCase);
+
+            var matching = new Dictionary<string, GdItem>(StringComparer.OrdinalIgnoreCase);
+            var changed = 0;
+            foreach (var scan in scans)
+            {
+                var folderName = Path.GetFileName(scan.Path);
+                if (entries.TryGetValue(folderName, out var entry) && entry.Hash == scan.Hash && entry.Ip != null)
+                    matching.Add(folderName, CreateItemFromCache(scan, entry));
+                else
+                    changed++;
+            }
+            changed += data.Entries.Count(x => !scans.Any(y => Path.GetFileName(y.Path).Equals(x.Folder, StringComparison.OrdinalIgnoreCase)));
+
+            var rootChanged = CardCache.RootHash(folders) != data.Hash;
+            if (changed == 0 && !rootChanged)
+            {
+                CardCacheState = CardCacheState.Valid;
+                return matching;
+            }
+
+            var message = changed > 0
+                ? $"{changed} folder(s) on the SD card changed since the card cache was saved."
+                : "The folder list on the SD card changed since the card cache was saved.";
+            message += "\n\nThe card may have other changes that can't be detected." +
+                "\n\nDiscard the whole cache? (recommended)" +
+                "\nYes: read all games from the card." +
+                "\nNo: use the cache for the unchanged folders.";
+
+            if (await Helper.DependencyManager.ShowYesNoDialog("Card cache", message))
+                return null;
+
+            CardCacheState = CardCacheState.Partial;
+            return matching;
+        }
+
+        private static GdItem CreateItemFromCache(CardFolderScan scan, CardCacheEntry entry)
+        {
+            var item = new GdItem
+            {
+                Guid = Guid.NewGuid().ToString(),
+                FullFolderPath = scan.Path,
+                FileFormat = FileFormat.Uncompressed,
+                Name = entry.Name,
+                ProductNumber = entry.Serial,
+                Ip = entry.Ip,
+                Length = ByteSizeLib.ByteSize.FromBytes(scan.Files.Sum(x => x.Length)),
+            };
+            item.ImageFiles.AddRange(CardCache.RebuildImageFiles(scan));
+            return item;
+        }
+
+        private async Task SaveCardCache()
+        {
+            var folders = await Task.Run(() => CardCache.GetNumberedFolders(sdPath));
+            var data = new CardCacheData { Hash = CardCache.RootHash(folders) };
+
+            foreach (var folder in folders)
+            {
+                var scan = await Task.Run(() => CardCache.ScanFolder(folder));
+                var item = ItemList.FirstOrDefault(x => x.FullFolderPath != null
+                    && Path.GetFullPath(x.FullFolderPath).TrimEnd(Path.DirectorySeparatorChar).Equals(Path.GetFullPath(folder).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase));
+
+                if (item == null || item.Ip == null)
+                    item = await ImageHelper.CreateGdItemAsync(folder);
+
+                data.Entries.Add(new CardCacheEntry
+                {
+                    Folder = Path.GetFileName(folder),
+                    Hash = scan.Hash,
+                    Name = item.Name,
+                    Serial = item.ProductNumber,
+                    Ip = item.Ip
+                });
+            }
+
+            data.Entries = data.Entries.OrderBy(x => int.Parse(x.Folder)).ToList();
+            await CardCache.WriteAsync(sdPath, data);
+            CardCacheState = CardCacheState.Valid;
+        }
+
+        public async ValueTask Preload()
+        {
+            if (CardCacheState == CardCacheState.Partial && !ItemList.Any(x => x.SdNumber > 0 && x.Ip == null))
+                CardCacheState = CardCacheState.Valid;
+
+            if (CardCacheState == CardCacheState.Valid)
+            {
+                if (!await Helper.DependencyManager.ShowYesNoDialog("Card cache", "The card cache is valid and all games are already loaded.\n\nReload everything from the SD card anyway?"))
+                    return;
+                ClearCardItemsIp();
+            }
+            else if (CardCacheState == CardCacheState.Partial)
+            {
+                var pending = ItemList.Count(x => x.SdNumber > 0 && x.Ip == null);
+                if (!await Helper.DependencyManager.ShowYesNoDialog("Card cache", $"{pending} game(s) still need loading.\n\nLoad only these games? (recommended)"))
+                {
+                    if (!await Helper.DependencyManager.ShowYesNoDialog("Card cache", "Reload everything from the SD card?"))
+                        return;
+                    ClearCardItemsIp();
+                }
+            }
+
+            await LoadIpAll();
+        }
+
+        private void ClearCardItemsIp()
+        {
+            foreach (var item in ItemList.Where(x => x.SdNumber > 0))
+                item.Ip = null;
+            CardCacheState = CardCacheState.NotUsed;
         }
 
         public async Task LoadIP(GdItem item)
@@ -421,12 +559,16 @@ namespace GDMENUCardManager.Core
 
                     if (await Helper.DependencyManager.ShowYesNoDialog(AppStrings.Confirm, $"{AppStrings.TheFollowingFoldersNeedDeleted}\n{AppStrings.ConfirmDeletion}\n\n{sb.ToString()}") == false)
                         return false;
-
-                    foreach (var item in foldersToDelete)
-                        if (Directory.Exists(item))
-                            await Helper.DeleteDirectoryAsync(item);
                 }
                 sb.Clear();
+
+                //the card is about to change. a failed save must not leave a stale cache behind
+                await CardCache.DeleteAsync(sdPath);
+                CardCacheState = CardCacheState.NotUsed;
+
+                foreach (var item in foldersToDelete)
+                    if (Directory.Exists(item))
+                        await Helper.DeleteDirectoryAsync(item);
 
 
                 if (!tempFolderRoot.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -633,6 +775,10 @@ namespace GDMENUCardManager.Core
                     if (File.Exists(originFile))
                         File.Copy(originFile, Path.Combine(sdPath, "MENU_DEBUG.TXT"), true);
                 }
+
+                if (EnableCardCache)
+                    await SaveCardCache();
+
                 return true;
             }
             finally
@@ -743,13 +889,11 @@ namespace GDMENUCardManager.Core
                 if (isRebuilding)
                     return;
 
-                //if user's menu is not in GDI format, update to GDI format.
-                if (!Path.GetExtension(item.ImageFile).Equals(".gdi", StringComparison.OrdinalIgnoreCase))
-                {
-                    item.ImageFiles.Clear();
-                    var gdi = await ImageHelper.CreateGdItemAsync(cdiPath);
-                    item.ImageFiles.AddRange(gdi.ImageFiles);
-                }
+                //take the file list from the generated menu. the card's menu may be in another format,
+                //or come from the card cache, which only lists the .gdi
+                item.ImageFiles.Clear();
+                var gdi = await ImageHelper.CreateGdItemAsync(cdiPath);
+                item.ImageFiles.AddRange(gdi.ImageFiles);
 
                 item.FullFolderPath = cdiPath;
                 item.ImageFiles[0] = Path.GetFileName(cdiFilePath);
