@@ -34,4 +34,5 @@
   </ItemGroup>
 
   <Import Project="..\GDMENUCardManager.Core\libchdr.targets" />
+  <Import Project="..\GDMENUCardManager.Core\redump2cdi.targets" />
 </Project>

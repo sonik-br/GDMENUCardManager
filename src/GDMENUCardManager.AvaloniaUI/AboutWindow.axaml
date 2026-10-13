@@ -44,7 +44,7 @@
       <TextBlock Text=" "/>
       <TextBlock>
         <Run Text="{x:Static coreres:AppStrings.ImageFormats}"/>
-        <Run Text=": GDI, CDI, CCD, MDS."/>
+        <Run Text=": GDI, CDI, CCD, MDS, CUE/BIN."/>
       </TextBlock>
       <TextBlock>
         <Run Text="{x:Static coreres:AppStrings.CompressedFormats}"/>
@@ -95,8 +95,14 @@
         <TextBlock Text=" - Adam Hathcock; "/>
       </WrapPanel>
       <WrapPanel Orientation="Horizontal">
+        <TextBlock FontWeight="Bold" Text="gdidrop"/>
+        <TextBlock Text=" - feyris-tan; "/>
+
         <TextBlock FontWeight="Bold" Text="libchdr"/>
         <TextBlock Text=" - Romain Tisserand; "/>
+
+        <TextBlock FontWeight="Bold" Text="Redump2CDI"/>
+        <TextBlock Text=" - darc; "/>
       </WrapPanel>
 
       <WrapPanel Orientation="Horizontal">

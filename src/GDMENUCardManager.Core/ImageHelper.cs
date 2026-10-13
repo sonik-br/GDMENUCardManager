@@ -72,7 +72,7 @@ namespace GDMENUCardManager.Core
                     }
                 }
 
-                item.CanApplyGDIShrink = filesInsideArchive.Keys.Any(x => Path.GetExtension(x).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase) || Path.GetExtension(x).Equals(".chd", StringComparison.InvariantCultureIgnoreCase));
+                item.CanApplyGDIShrink = filesInsideArchive.Keys.Any(x => Path.GetExtension(x).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase) || Path.GetExtension(x).Equals(".chd", StringComparison.InvariantCultureIgnoreCase) || Path.GetExtension(x).Equals(".cue", StringComparison.InvariantCultureIgnoreCase));
 
                 if (!string.IsNullOrEmpty(itemImageFile))
                 {
@@ -99,6 +99,109 @@ namespace GDMENUCardManager.Core
                 throw new Exception("Cant't read data from file");
 
             if (item.FileFormat == FileFormat.Uncompressed &&
+                Path.GetExtension(itemImageFile).Equals(".gdi", StringComparison.OrdinalIgnoreCase) &&
+                LegacyRedumpGdiDetector.IsLegacyRedumpGdi(itemImageFile))
+                throw new UnsupportedDiscFormatException(LegacyRedumpGdiDetector.ShortMessage);
+
+            // Compressed CUE/BIN is handled later, during extraction in Manager.cs.
+            if (item.FileFormat == FileFormat.Uncompressed &&
+                Path.GetExtension(itemImageFile).Equals(".cue", StringComparison.OrdinalIgnoreCase))
+            {
+                var cueParser = new CueSheetParser();
+                cueParser.Parse(itemImageFile);
+
+                var dataTrack = cueParser.GetPrimaryDataTrack();
+                if (dataTrack != null)
+                    ip = cueParser.TryParseIpBin();
+
+                if (ip != null)
+                {
+                    // Dreamcast disc
+
+                    item.FileFormat = FileFormat.RedumpCueBin;
+                }
+                else
+                {
+                    // Not a Dreamcast disc, will convert to CCD
+                    item.FileFormat = FileFormat.CueBinNonGame;
+
+                    var itemName = Path.GetFileNameWithoutExtension(itemImageFile);
+                    var m = RegularExpressions.TosecnNameRegexp.Match(itemName);
+                    if (m.Success)
+                        itemName = itemName.Substring(0, m.Index);
+
+                    // Check if it's a PSX disc
+                    if (dataTrack != null)
+                    {
+                        var binPath = Path.Combine(cueParser.CueDirectory, dataTrack.BinFilename);
+                        if (File.Exists(binPath) && IsPlayStationDisc(binPath))
+                        {
+                            // It's a PSX disc, try to get serial from SYSTEM.CNF.
+                            var serial = TryExtractPlayStationSerial(binPath);
+
+                            ip = new IpBin
+                            {
+                                ProductNumber = serial ?? string.Empty,
+                                Region = "JUE",
+                                CRC = string.Empty,
+                                Version = string.Empty,
+                                Vga = true,
+                                Disc = "PS1",
+                                SpecialDisc = SpecialDisc.BleemGame
+                            };
+
+                            if (!string.IsNullOrEmpty(serial))
+                            {
+                                var psEntry = PlayStationDB.FindBySerial(serial);
+                                if (psEntry != null)
+                                {
+                                    ip.Name = psEntry.name;
+                                    if (DateOnly.TryParse(psEntry.releaseDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateOnly releaseDate))
+                                        ip.ReleaseDate = releaseDate.ToString("yyyyMMdd");
+                                    else
+                                        ip.ReleaseDate = "19990909";
+                                }
+                                else
+                                {
+                                    ip.Name = serial;
+                                    ip.ReleaseDate = "19990909";
+                                }
+                            }
+                            else
+                            {
+                                ip.Name = itemName;
+                                ip.ReleaseDate = "19990909";
+                            }
+                        }
+                    }
+
+                    // Not PSX, not Dreamcast.
+                    if (ip == null)
+                    {
+                        ip = new IpBin
+                        {
+                            Name = itemName,
+                            Disc = "1/1",
+                            ProductNumber = string.Empty
+                        };
+                    }
+                }
+
+                item.ImageFiles.Add(Path.GetFileName(itemImageFile));
+
+                foreach (var binFile in cueParser.GetAllBinFiles())
+                {
+                    if (!item.ImageFiles.Any(x => x.Equals(binFile, StringComparison.OrdinalIgnoreCase)))
+                        item.ImageFiles.Add(binFile);
+                }
+
+                long totalSize = new FileInfo(itemImageFile).Length;
+                totalSize += cueParser.GetTotalBinSize();
+                item.Length = ByteSizeLib.ByteSize.FromBytes(totalSize);
+
+                item.CanApplyGDIShrink = item.FileFormat == FileFormat.RedumpCueBin;
+            }
+            else if (item.FileFormat == FileFormat.Uncompressed &&
                      Path.GetExtension(itemImageFile).Equals(".chd", StringComparison.OrdinalIgnoreCase))
             {
                 using var chd = new ChdReader(itemImageFile);
@@ -603,6 +706,211 @@ namespace GDMENUCardManager.Core
 
             return item;
         }
+
+        // Scans up to 50 MB for the CD001 + PLAYSTATION PVD pattern, since the PVD is
+        // not at a fixed sector in every dump.
+        private static bool IsPlayStationDisc(string dataFilePath)
+        {
+            const long searchLimit = 50L * 1024 * 1024;
+            const int bufferSize = 65536;
+            const int overlap = 17; // pattern spans 18 bytes max (i..i+17), so overlap = 17
+
+            try
+            {
+                using var fs = new FileStream(dataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var buf = new byte[bufferSize];
+                long pos = 0;
+
+                while (pos < searchLimit)
+                {
+                    fs.Position = pos;
+                    int read = fs.Read(buf, 0, bufferSize);
+                    if (read < 18) break; // not enough bytes for the full pattern
+
+                    for (int i = 0; i <= read - 18; i++)
+                    {
+                        // "CD001" at i, then version+unused at i+5,i+6, then System Identifier at i+7
+                        if (buf[i] == 'C' && buf[i + 1] == 'D' && buf[i + 2] == '0' &&
+                            buf[i + 3] == '0' && buf[i + 4] == '1' &&
+                            buf[i + 7] == 'P' && buf[i + 8] == 'L' && buf[i + 9] == 'A' &&
+                            buf[i + 10] == 'Y' && buf[i + 11] == 'S' && buf[i + 12] == 'T' &&
+                            buf[i + 13] == 'A' && buf[i + 14] == 'T' && buf[i + 15] == 'I' &&
+                            buf[i + 16] == 'O' && buf[i + 17] == 'N')
+                            return true;
+                    }
+
+                    if (read < bufferSize) break; // reached end of file
+                    pos += bufferSize - overlap;   // slide window with overlap
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        // Minimal ISO9660 walk of PVD, root directory and SYSTEM.CNF, because Aaru cannot
+        // open a bare .bin without its cue.
+        private static string TryExtractPlayStationSerial(string dataFilePath)
+        {
+            try
+            {
+                using var fs = new FileStream(dataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                var syncCheck = new byte[12];
+                fs.Read(syncCheck, 0, 12);
+                bool isRawSector = syncCheck[0] == 0x00 && syncCheck[1] == 0xFF && syncCheck[2] == 0xFF &&
+                                   syncCheck[10] == 0xFF && syncCheck[11] == 0x00;
+
+                // User data offset: MODE2/2352=24, MODE1/2352=16, cooked 2048=0
+                int sectorSize, dataOffset;
+                if (isRawSector)
+                {
+                    sectorSize = 2352;
+                    // Mode byte at offset 15.
+                    fs.Position = 15;
+                    int mode = fs.ReadByte();
+                    dataOffset = (mode == 2) ? 24 : 16;
+                }
+                else
+                {
+                    sectorSize = 2048;
+                    dataOffset = 0;
+                }
+
+                // PVD is at sector 16, root directory record at PVD offset 156
+                var pvdData = new byte[2048];
+                fs.Position = (long)16 * sectorSize + dataOffset;
+                if (fs.Read(pvdData, 0, 2048) < 2048)
+                    return null;
+
+                // Verify PVD
+                if (pvdData[0] != 1 || pvdData[1] != 'C' || pvdData[2] != 'D' ||
+                    pvdData[3] != '0' || pvdData[4] != '0' || pvdData[5] != '1')
+                    return null;
+
+                int rootSector = BitConverter.ToInt32(pvdData, 156 + 2);  // extent location (LE)
+                int rootLength = BitConverter.ToInt32(pvdData, 156 + 10); // data length (LE)
+
+                // Read the root directory
+                int rootSectors = (rootLength + 2047) / 2048;
+                var rootData = new byte[rootSectors * 2048];
+                for (int s = 0; s < rootSectors; s++)
+                {
+                    fs.Position = (long)(rootSector + s) * sectorSize + dataOffset;
+                    fs.Read(rootData, s * 2048, 2048);
+                }
+
+                // Find SYSTEM.CNF in the root directory
+                int pos = 0;
+                while (pos < rootLength)
+                {
+                    int recordLen = rootData[pos];
+                    if (recordLen == 0)
+                    {
+                        // Skip to next sector boundary
+                        pos = ((pos / 2048) + 1) * 2048;
+                        if (pos >= rootLength) break;
+                        continue;
+                    }
+
+                    int nameLen = rootData[pos + 32];
+                    if (nameLen >= 10 && pos + 33 + nameLen <= rootData.Length)
+                    {
+                        var name = Encoding.ASCII.GetString(rootData, pos + 33, nameLen);
+                        // Filenames may have ";1" version suffix.
+                        if (name.Equals("SYSTEM.CNF;1", StringComparison.OrdinalIgnoreCase) ||
+                            name.Equals("SYSTEM.CNF", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Read the file content.
+                            int fileSector = BitConverter.ToInt32(rootData, pos + 2);
+                            int fileLength = BitConverter.ToInt32(rootData, pos + 10);
+                            if (fileLength > 4096) fileLength = 4096; // sanity cap
+
+                            var fileData = new byte[fileLength];
+                            fs.Position = (long)fileSector * sectorSize + dataOffset;
+                            fs.Read(fileData, 0, fileLength);
+
+                            // first line: "BOOT = cdrom:\SLPS_010.91;1"
+                            string firstLine;
+                            using (var ms = new MemoryStream(fileData))
+                            using (var sr = new StreamReader(ms))
+                            {
+                                firstLine = sr.ReadLine();
+                            }
+
+                            if (string.IsNullOrEmpty(firstLine))
+                                return null;
+
+                            // Parse serial from boot path.
+                            var serial = firstLine.Substring(firstLine.LastIndexOf('\\') + 1);
+                            var lastIndex = serial.LastIndexOf(';');
+                            if (lastIndex != -1)
+                                serial = serial.Substring(0, lastIndex);
+
+                            serial = serial.Replace('_', '-');
+                            serial = serial.Replace(".", string.Empty);
+
+                            if (serial.Length >= 7)
+                                return serial;
+                        }
+                    }
+
+                    pos += recordLen;
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Full paths of files referenced by index files in the same dropped batch
+        /// (cue bins, gdi tracks, ccd img/sub, mds mdf). Such files belong to their
+        /// index item and must not be treated as standalone drops.
+        /// </summary>
+        public static async Task<HashSet<string>> GetCompanionFilePathsAsync(IEnumerable<string> paths)
+        {
+            var companions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var path in paths)
+            {
+                try
+                {
+                    if ((await Helper.GetAttributesAsync(path)).HasFlag(FileAttributes.Directory))
+                        continue;
+
+                    var dir = Path.GetDirectoryName(path);
+                    switch (Path.GetExtension(path).ToLowerInvariant())
+                    {
+                        case ".cue":
+                            var cueParser = new CueSheetParser();
+                            cueParser.Parse(path);
+                            foreach (var bin in cueParser.GetAllBinFiles())
+                                companions.Add(Path.GetFullPath(Path.Combine(dir, bin)));
+                            break;
+                        case ".gdi":
+                            foreach (var track in await GetGdiFileListAsync(path))
+                                companions.Add(Path.GetFullPath(Path.Combine(dir, track)));
+                            break;
+                        case ".ccd":
+                            companions.Add(Path.ChangeExtension(path, ".img"));
+                            companions.Add(Path.ChangeExtension(path, ".sub"));
+                            break;
+                        case ".mds":
+                            companions.Add(Path.ChangeExtension(path, ".mdf"));
+                            break;
+                    }
+                }
+                catch
+                {
+                    // A malformed index contributes nothing here and will fail on
+                    // its own when it is parsed as an item.
+                }
+            }
+
+            return companions;
+        }
+
 
         private static async Task<string[]> GetGdiFileListAsync(string gdiFilePath)
         {

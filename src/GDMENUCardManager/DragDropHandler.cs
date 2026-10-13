@@ -62,15 +62,26 @@ namespace GDMENUCardManager
                 if (!(dropInfo.Data is DataObject data) || !data.ContainsFileDropList())
                     return;
 
-                foreach (var o in data.GetFileDropList())
+                var droppedFiles = data.GetFileDropList().Cast<string>().ToList();
+                // Files referenced by an index file in this same drop ride along with it.
+                var companions = await ImageHelper.GetCompanionFilePathsAsync(droppedFiles);
+
+                foreach (var o in droppedFiles)
                 {
                     try
                     {
                         if (menuAtTop && IsMenu(o))
                             continue;
 
+                        if (companions.Contains(o))
+                            continue;
+
                         var toInsert = await ImageHelper.CreateGdItemAsync(o);
                         destinationList.Insert(insertIndex++, toInsert);
+                    }
+                    catch (UnsupportedDiscFormatException ex)
+                    {
+                        invalid.Add($"{o} - {ex.Message}");
                     }
                     catch
                     {

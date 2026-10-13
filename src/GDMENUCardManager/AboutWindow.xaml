@@ -41,7 +41,7 @@
                 <Paragraph>
                     <TextBlock>
                         <Run Text="{x:Static coreres:AppStrings.ImageFormats}"/>
-                        <Run Text=": GDI, CDI, CCD, MDS."/>
+                        <Run Text=": GDI, CDI, CCD, MDS, CUE/BIN."/>
                     </TextBlock>
                     <LineBreak/>
                     <TextBlock>
@@ -69,7 +69,9 @@
                     <Bold>7z</Bold> - Igor Pavlov;&#160;
                     <Bold>SevenZipSharp</Bold> - Joel Ahlgren;&#160;
                     <LineBreak/>
+                    <Bold>gdidrop</Bold> - feyris-tan;&#160;
                     <Bold>libchdr</Bold> - Romain Tisserand;&#160;
+                    <Bold>Redump2CDI</Bold> - darc;&#160;
                     <LineBreak/>
                     <Bold>GD MENU Card Manager (ateam version fork)</Bold> - Derek Pascarella;&#160;
                 </Paragraph>

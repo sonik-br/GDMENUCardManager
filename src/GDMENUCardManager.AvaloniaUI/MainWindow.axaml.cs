@@ -461,15 +461,25 @@ namespace GDMENUCardManager
 
                 try
                 {
-                    foreach (var o in e.DataTransfer.TryGetFiles() ?? [])
+                    // Dropped files arrive as storage items, take the real path off each.
+                    var droppedItems = e.DataTransfer.TryGetFiles() ?? Array.Empty<IStorageItem>();
+                    // Files referenced by an index file in this same drop ride along with it.
+                    var companions = await ImageHelper.GetCompanionFilePathsAsync(
+                        droppedItems.Select(x => x.TryGetLocalPath()).Where(x => x != null));
+
+                    foreach (var o in droppedItems)
                     {
                         var path = o.TryGetLocalPath();
-                        if (path != null)
+                        if (path != null && !companions.Contains(path))
                         {
                             try
                             {
                                 Manager.ItemList.Insert(insertIndex, await ImageHelper.CreateGdItemAsync(path));
                                 insertIndex++;
+                            }
+                            catch (UnsupportedDiscFormatException ex)
+                            {
+                                invalid.Add($"{path} - {ex.Message}");
                             }
                             catch
                             {

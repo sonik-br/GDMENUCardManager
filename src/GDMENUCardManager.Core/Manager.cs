@@ -14,7 +14,7 @@ namespace GDMENUCardManager.Core
 {
     public sealed class Manager
     {
-        public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd", ".chd" };
+        public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd", ".cue", ".chd" };
 
         public static string sdPath = null;
         public static bool debugEnabled = false;
@@ -901,7 +901,7 @@ namespace GDMENUCardManager.Core
 
                 var shrinkableItems = ItemList.Where(x =>
                     x.Work == WorkMode.New && x.Ip.Name != "GDMENU" && x.Ip.Name != "openMenu" && x.CanApplyGDIShrink
-                        && (x.FileFormat == FileFormat.Uncompressed || x.FileFormat == FileFormat.Chd || EnableGDIShrinkCompressed)
+                        && (x.FileFormat == FileFormat.Uncompressed || x.FileFormat == FileFormat.Chd || x.FileFormat == FileFormat.RedumpCueBin || EnableGDIShrinkCompressed)
                         && !ignoreShrinkList.Contains(x.Ip.ProductNumber, StringComparer.OrdinalIgnoreCase)
                     ).OrderBy(x => x.Name).ThenBy(x => x.Ip.Disc).ToArray();
                 if (shrinkableItems.Any())
@@ -940,6 +940,142 @@ namespace GDMENUCardManager.Core
                             }
 
                             await MoveOrCopyFolder(item, shrink, i + 1);//+ ammountToIncrement
+                        }
+                        else if (item.FileFormat == FileFormat.RedumpCueBin)
+                        {
+                            var folderNumber = i + 1;
+                            var newPath = Path.Combine(sdPath, FormatFolderNumber(folderNumber));
+                            var originalFolderPath = item.FullFolderPath;
+
+                            // Get the CUE file path
+                            if (item.ImageFiles == null || !item.ImageFiles.Any())
+                                throw new Exception("Image files list is empty for CUE/BIN item");
+
+                            var cueFile = item.ImageFiles.FirstOrDefault(f => f.EndsWith(".cue", StringComparison.OrdinalIgnoreCase));
+                            if (string.IsNullOrEmpty(cueFile))
+                                throw new Exception("CUE file not found in image files list");
+
+                            var cuePath = Path.Combine(originalFolderPath, cueFile);
+
+                            // Create target directory
+                            if (!await Helper.DirectoryExistsAsync(newPath))
+                                await Helper.CreateDirectoryAsync(newPath);
+
+                            // Check if this is GD-ROM or CD-ROM CUE/BIN
+                            if (GdiConverter.IsGdRomCue(cuePath))
+                            {
+                                if (EnableGDIShrink && itemsToShrink.Contains(item))
+                                {
+                                    // Convert to GDI in temp dir, then shrink to SD card
+                                    progress.TextContent = $"Converting/Shrinking {item.Name}...";
+
+                                    var tempCueDir = Path.Combine(tempdir, $"cue_{folderNumber}");
+                                    if (!await Helper.DirectoryExistsAsync(tempCueDir))
+                                        await Helper.CreateDirectoryAsync(tempCueDir);
+
+                                    var (success, message) = await GdiConverter.ConvertToGdi(cuePath, tempCueDir);
+                                    if (!success)
+                                        throw new Exception($"Failed to convert {cueFile} to GDI: {message}");
+
+                                    var tempGdiItem = await ImageHelper.CreateGdItemAsync(tempCueDir);
+
+                                    (success, message) = await GdiShrinker.Shrink(
+                                        Path.Combine(tempCueDir, tempGdiItem.ImageFile), newPath);
+                                    if (!success)
+                                        throw new Exception($"{AppStrings.ErrorDuringGdiShrink} {tempGdiItem.ImageFile}: {message}");
+
+                                    await Helper.DeleteDirectoryAsync(tempCueDir);
+
+                                    var gdiItem = await ImageHelper.CreateGdItemAsync(newPath);
+                                    item.FullFolderPath = newPath;
+                                    item.Work = WorkMode.None;
+                                    item.SdNumber = folderNumber;
+                                    item.FileFormat = FileFormat.Uncompressed;
+                                    item.ImageFiles.Clear();
+                                    item.ImageFiles.AddRange(gdiItem.ImageFiles);
+                                    item.CanApplyGDIShrink = false;
+                                }
+                                else
+                                {
+                                    // GD-ROM: Convert to GDI format
+                                    progress.TextContent = $"Converting {item.Name} to GDI...";
+
+                                    var (success, message) = await GdiConverter.ConvertToGdi(cuePath, newPath);
+                                    if (!success)
+                                        throw new Exception($"Failed to convert {cueFile} to GDI: {message}");
+
+                                    // Get the converted GDI item info
+                                    var gdiItem = await ImageHelper.CreateGdItemAsync(newPath);
+
+                                    item.FullFolderPath = newPath;
+                                    item.Work = WorkMode.None;
+                                    item.SdNumber = folderNumber;
+                                    item.FileFormat = FileFormat.Uncompressed;
+                                    item.ImageFiles.Clear();
+                                    item.ImageFiles.AddRange(gdiItem.ImageFiles);
+                                    item.CanApplyGDIShrink = true;
+                                }
+                            }
+                            else
+                            {
+                                // CD-ROM: Convert to CDI format
+                                progress.TextContent = $"Converting {item.Name} to CDI...";
+
+                                var cdiOutputName = Redump2CdiConverter.GetCdiOutputName(cuePath);
+                                var cdiOutputPath = Path.Combine(newPath, cdiOutputName);
+
+                                var (success, message) = await Task.Run(() => Redump2CdiConverter.ConvertToCdi(cuePath, cdiOutputPath));
+                                if (!success)
+                                    throw new Exception($"Failed to convert {cueFile} to CDI: {message}");
+
+                                item.FullFolderPath = newPath;
+                                item.Work = WorkMode.None;
+                                item.SdNumber = folderNumber;
+                                item.FileFormat = FileFormat.Uncompressed;
+                                item.ImageFiles.Clear();
+                                item.ImageFiles.Add(cdiOutputName);
+                                item.CanApplyGDIShrink = false;
+                            }
+
+                            UpdateItemLength(item);
+                        }
+                        else if (item.FileFormat == FileFormat.CueBinNonGame)
+                        {
+                            var folderNumber = i + 1;
+                            var newPath = Path.Combine(sdPath, FormatFolderNumber(folderNumber));
+                            var originalFolderPath = item.FullFolderPath;
+
+                            // Get the CUE file path
+                            if (item.ImageFiles == null || !item.ImageFiles.Any())
+                                throw new Exception("Image files list is empty for CUE/BIN item");
+
+                            var cueFile = item.ImageFiles.FirstOrDefault(f => f.EndsWith(".cue", StringComparison.OrdinalIgnoreCase));
+                            if (string.IsNullOrEmpty(cueFile))
+                                throw new Exception("CUE file not found in image files list");
+
+                            var cuePath = Path.Combine(originalFolderPath, cueFile);
+
+                            // Create target directory
+                            if (!await Helper.DirectoryExistsAsync(newPath))
+                                await Helper.CreateDirectoryAsync(newPath);
+
+                            // Convert CUE to CCD/IMG/SUB
+                            progress.TextContent = $"Converting {item.Name} to CCD...";
+
+                            await Cue2CcdConverter.ConvertAsync(cuePath, newPath);
+
+                            var baseName = Path.GetFileNameWithoutExtension(cueFile);
+                            item.FullFolderPath = newPath;
+                            item.Work = WorkMode.None;
+                            item.SdNumber = folderNumber;
+                            item.FileFormat = FileFormat.Uncompressed;
+                            item.ImageFiles.Clear();
+                            item.ImageFiles.Add(baseName + ".ccd");
+                            item.ImageFiles.Add(baseName + ".img");
+                            item.ImageFiles.Add(baseName + ".sub");
+                            item.CanApplyGDIShrink = false;
+
+                            UpdateItemLength(item);
                         }
                         else if (item.FileFormat == FileFormat.Chd)
                         {
@@ -1057,6 +1193,24 @@ namespace GDMENUCardManager.Core
                                     await Helper.DeleteDirectoryAsync(tempExtractDir);
                                     tempExtractDir = tempChdGdiDir;
                                     gdi = await ImageHelper.CreateGdItemAsync(tempExtractDir);
+                                }
+                                else if (gdi.FileFormat == FileFormat.RedumpCueBin || gdi.FileFormat == FileFormat.CueBinNonGame)
+                                {
+                                    // CUE/BIN inside the archive: convert it in temp, then carry on with the result
+                                    progress.TextContent = $"Converting {item.Name}...";
+
+                                    var tempCueDir = Path.Combine(tempdir, $"cue_{folderNumber}");
+                                    var convertedFiles = await ConvertExtractedCueAsync(gdi, tempExtractDir, tempCueDir);
+
+                                    await Helper.DeleteDirectoryAsync(tempExtractDir);
+                                    tempExtractDir = tempCueDir;
+
+                                    // Only a GD-ROM, now a GDI, can be shrunk
+                                    if (!convertedFiles.First().EndsWith(".gdi", StringComparison.OrdinalIgnoreCase))
+                                        shrink = false;
+
+                                    gdi.ImageFiles.Clear();
+                                    gdi.ImageFiles.AddRange(convertedFiles);
                                 }
 
                                 if (EnableGDIShrinkBlackList)//now with the game uncompressed we can check the blacklist
@@ -1198,16 +1352,71 @@ namespace GDMENUCardManager.Core
                 gdi = await ImageHelper.CreateGdItemAsync(newPath);
             }
 
+            var isCue = gdi.FileFormat == FileFormat.RedumpCueBin || gdi.FileFormat == FileFormat.CueBinNonGame;
+            if (isCue)
+            {
+                // CUE/BIN inside the archive: move the extracted files aside and convert them into the card folder
+                var extractedCueDir = newPath + "_cue";
+                await Helper.MoveDirectoryAsync(newPath, extractedCueDir);
+
+                var convertedFiles = await ConvertExtractedCueAsync(gdi, extractedCueDir, newPath);
+                await Helper.DeleteDirectoryAsync(extractedCueDir);
+
+                gdi.ImageFiles.Clear();
+                gdi.ImageFiles.AddRange(convertedFiles);
+            }
+
             //item.ImageFiles[0] = gdi.ImageFile;
             item.ImageFiles.Clear();
             item.ImageFiles.AddRange(gdi.ImageFiles);
             item.Length = gdi.Length;
             item.Ip = gdi.Ip;
 
+            if (isCue)
+                UpdateItemLength(item);
+
             //compressed file by default will have its serial blank.
             //if still blank, read from the now extracted ip info
             if (string.IsNullOrWhiteSpace(item.ProductNumber))
                 item.ProductNumber = gdi.ProductNumber;
+        }
+
+        // Converts an extracted CUE/BIN: GD-ROM>GDI, CD-ROM>CDI, OTHER>CCD.
+        // Returns the image files written to outputDir.
+        private static async Task<List<string>> ConvertExtractedCueAsync(GdItem cueItem, string sourceDir, string outputDir)
+        {
+            var cueFile = cueItem.ImageFiles.FirstOrDefault(f => f.EndsWith(".cue", StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrEmpty(cueFile))
+                throw new Exception("CUE file not found after extraction");
+
+            var cuePath = Path.Combine(sourceDir, cueFile);
+
+            if (!await Helper.DirectoryExistsAsync(outputDir))
+                await Helper.CreateDirectoryAsync(outputDir);
+
+            if (cueItem.FileFormat == FileFormat.CueBinNonGame)
+            {
+                await Cue2CcdConverter.ConvertAsync(cuePath, outputDir);
+
+                var baseName = Path.GetFileNameWithoutExtension(cueFile);
+                return new List<string> { baseName + ".ccd", baseName + ".img", baseName + ".sub" };
+            }
+
+            if (GdiConverter.IsGdRomCue(cuePath))
+            {
+                var (success, message) = await GdiConverter.ConvertToGdi(cuePath, outputDir);
+                if (!success)
+                    throw new Exception($"Failed to convert {cueFile} to GDI: {message}");
+
+                return (await ImageHelper.CreateGdItemAsync(outputDir)).ImageFiles.ToList();
+            }
+
+            var cdiOutputName = Redump2CdiConverter.GetCdiOutputName(cuePath);
+            var (cdiSuccess, cdiMessage) = await Task.Run(() => Redump2CdiConverter.ConvertToCdi(cuePath, Path.Combine(outputDir, cdiOutputName)));
+            if (!cdiSuccess)
+                throw new Exception($"Failed to convert {cueFile} to CDI: {cdiMessage}");
+
+            return new List<string> { cdiOutputName };
         }
 
         //todo implement
@@ -1221,11 +1430,21 @@ namespace GDMENUCardManager.Core
             var invalid = new List<string>();
             if (files != null)
             {
+                // Files referenced by an index file in this same selection ride along with it.
+                var companions = await ImageHelper.GetCompanionFilePathsAsync(files);
+
                 foreach (var item in files)
                 {
+                    if (companions.Contains(item))
+                        continue;
+
                     try
                     {
                         ItemList.Add(await ImageHelper.CreateGdItemAsync(item));
+                    }
+                    catch (UnsupportedDiscFormatException ex)
+                    {
+                        invalid.Add($"{item} - {ex.Message}");
                     }
                     catch (Exception)
                     {

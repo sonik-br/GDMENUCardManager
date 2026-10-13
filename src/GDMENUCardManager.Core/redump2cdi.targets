@@ -1,0 +1,39 @@
+<Project>
+  <!-- Injects the platform-specific redump2cdi tool (by darc) into the publish output's tools folder.
+       Imported by app projects (WPF, AvaloniaUI) that reference GDMENUCardManager.Core. -->
+  <Target Name="IncludeRedump2CdiInPublish" AfterTargets="ComputeFilesToPublish">
+    <PropertyGroup>
+      <_Redump2CdiDir>$(MSBuildThisFileDirectory)runtimes</_Redump2CdiDir>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(RuntimeIdentifier)' == '' OR '$(RuntimeIdentifier)' == 'win-x64'">
+      <ResolvedFileToPublish Include="$(_Redump2CdiDir)\win-x64\native\redump2cdi.exe"
+                             Condition="Exists('$(_Redump2CdiDir)\win-x64\native\redump2cdi.exe')">
+        <RelativePath>tools\redump2cdi.exe</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RuntimeIdentifier)' == 'win-x86'">
+      <ResolvedFileToPublish Include="$(_Redump2CdiDir)\win-x86\native\redump2cdi.exe"
+                             Condition="Exists('$(_Redump2CdiDir)\win-x86\native\redump2cdi.exe')">
+        <RelativePath>tools\redump2cdi.exe</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+      <ResolvedFileToPublish Include="$(_Redump2CdiDir)\linux-x64\native\redump2cdi"
+                             Condition="Exists('$(_Redump2CdiDir)\linux-x64\native\redump2cdi')">
+        <RelativePath>tools\redump2cdi</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+      <ResolvedFileToPublish Include="$(_Redump2CdiDir)\osx-x64\native\redump2cdi"
+                             Condition="Exists('$(_Redump2CdiDir)\osx-x64\native\redump2cdi')">
+        <RelativePath>tools\redump2cdi</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
+      <ResolvedFileToPublish Include="$(_Redump2CdiDir)\osx-arm64\native\redump2cdi"
+                             Condition="Exists('$(_Redump2CdiDir)\osx-arm64\native\redump2cdi')">
+        <RelativePath>tools\redump2cdi</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+</Project>

@@ -15,9 +15,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ByteSize" Version="2.1.2" />
+    <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="gamedb.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="tosec_dc.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="gdishrink_blacklist.txt">
@@ -37,6 +41,21 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       <Link>libchdr.dll</Link>
     </Content>
+  </ItemGroup>
+  <!-- redump2cdi (by darc) for dev builds (F5 / dotnet run on Windows).
+       Release publish uses redump2cdi.targets imported by the app projects. -->
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
+    <Content Include="runtimes\win-x64\native\redump2cdi.exe" Condition="Exists('runtimes\win-x64\native\redump2cdi.exe')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      <Link>tools\redump2cdi.exe</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="redump2cdi-readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>tools\redump2cdi-readme.txt</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\AppStrings.Designer.cs">
