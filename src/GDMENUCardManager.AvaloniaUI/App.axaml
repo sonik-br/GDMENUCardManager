@@ -65,40 +65,6 @@
         <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}"/>
       </Style>-->
       
-      <Style Selector="DataGrid.dragging-up DataGridRow.dragging">
-        <Setter Property="AdornerLayer.Adorner">
-          <Template>
-            <Border BorderThickness="0 2 0 0" BorderBrush="DarkGray" />
-          </Template>
-        </Setter>
-      </Style>
-      <Style Selector="DataGrid.dragging-down DataGridRow.dragging">
-        <Setter Property="AdornerLayer.Adorner">
-          <Template>
-            <Border BorderThickness="0 0 0 2" BorderBrush="DarkGray" />
-          </Template>
-        </Setter>
-      </Style>
-      <Style Selector="DataGrid.draggable DataGridRow">
-        <Setter Property="DragDrop.AllowDrop" Value="True" />
-        <Setter Property="(Interaction.Behaviors)">
-          <BehaviorCollectionTemplate>
-            <BehaviorCollection>
-              <ContextDragBehavior />
-              <DragEnterEventTrigger RoutingStrategies="Bubble">
-                <!--<ChangePropertyAction PropertyName="Background" Value="Red" />-->
-                <AddClassAction ClassName="dragging" RemoveIfExists="True" />
-              </DragEnterEventTrigger>
-              <DragLeaveEventTrigger RoutingStrategies="Bubble">
-                <RemoveClassAction ClassName="dragging" />
-              </DragLeaveEventTrigger>
-              <DropEventTrigger RoutingStrategies="Bubble">
-                <RemoveClassAction ClassName="dragging" />
-              </DropEventTrigger>
-            </BehaviorCollection>
-          </BehaviorCollectionTemplate>
-        </Setter>
-      </Style>
 
     </Application.Styles>
 

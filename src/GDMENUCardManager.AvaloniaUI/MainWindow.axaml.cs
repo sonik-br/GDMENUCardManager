@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
@@ -9,8 +10,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Avalonia.Xaml.Interactions.DragAndDrop;
-using Avalonia.Xaml.Interactivity;
 using GDMENUCardManager.Core;
 using GDMENUCardManager.Core.Resources;
 using MsBox.Avalonia;
@@ -97,12 +96,46 @@ namespace GDMENUCardManager
 
         #region window controls
         //DataGrid dg1; // todo check
+
+        // Where a drop will land, worked out while the drag hovers and used when it lands.
+        // -1 means we have not settled on a spot yet.
+        private int _pendingDropIndex = -1;
+        private readonly DispatcherTimer _dragScrollTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(75)
+        };
+        private Point _dragScrollPosition;
+
+        // Row reorder drag state. The dragged items ride in _rowDragItems since source
+        // and target are the same window, the marker format is there because macOS
+        // refuses a drag that declares no types at all.
+        private static readonly DataFormat<byte[]> RowDragFormat =
+            DataFormat.CreateBytesApplicationFormat("gdmcm-games-row-drag");
+        private Avalonia.Input.PointerPressedEventArgs _rowDragTrigger;
+        private Point _rowDragStartPoint;
+        private GdItem _rowDragPressedItem;
+        private List<GdItem> _rowDragItems;
+        private bool _rowDragKeepSelection;
         #endregion
+
+        // Row whose cell is being edited. A reorder drag must not start from a cell editor.
+        private GdItem _editingItem;
 
         public MainWindow()
         {
             InitializeComponent();
             this.AddHandler(DragDrop.DropEvent, WindowDrop);
+            this.AddHandler(DragDrop.DragEnterEvent, WindowDragOver);
+            this.AddHandler(DragDrop.DragOverEvent, WindowDragOver);
+            this.AddHandler(DragDrop.DragLeaveEvent, WindowDragLeave);
+            _dragScrollTimer.Tick += DragScrollTimer_Tick;
+            this.Closed += (_, _) => _dragScrollTimer.Stop();
+
+            dg1.AddHandler(Avalonia.Input.InputElement.PointerPressedEvent, DataGrid_PointerPressed, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+            dg1.AddHandler(Avalonia.Input.InputElement.PointerReleasedEvent, DataGrid_PointerReleased, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+            dg1.PointerMoved += DataGrid_PointerMoved;
+            dg1.BeginningEdit += (_, e) => _editingItem = e.Row?.DataContext as GdItem;
+            dg1.CellEditEnded += (_, _) => _editingItem = null;
 #if DEBUG
             //this.AttachDevTools();
             //this.OpenDevTools();
@@ -244,13 +277,156 @@ namespace GDMENUCardManager
             }
         }
 
+        private void DataGrid_PointerPressed(object sender, Avalonia.Input.PointerPressedEventArgs e)
+        {
+            // A left press on a row may turn into a reorder drag, remember it until the
+            // pointer has moved far enough to count as one.
+            if (e.GetCurrentPoint(dg1).Properties.IsLeftButtonPressed)
+            {
+                var pressSource = e.Source as Avalonia.Controls.Control;
+                while (pressSource != null)
+                {
+                    if (pressSource is Avalonia.Controls.DataGridRow pressRow)
+                    {
+                        _rowDragPressedItem = pressRow.DataContext as GdItem;
+                        _rowDragTrigger = _rowDragPressedItem != null ? e : null;
+                        _rowDragStartPoint = e.GetPosition(this);
+
+                        // The grid would collapse a multi selection to this row on press, so keep it until release.
+                        _rowDragKeepSelection = _rowDragPressedItem != null && e.KeyModifiers == KeyModifiers.None &&
+                            dg1.SelectedItems.Count > 1 && dg1.SelectedItems.Contains(_rowDragPressedItem);
+                        if (_rowDragKeepSelection)
+                            e.Handled = true;
+                        break;
+                    }
+                    pressSource = pressSource.Parent as Avalonia.Controls.Control;
+                }
+            }
+        }
+
+        private void DataGrid_PointerReleased(object sender, Avalonia.Input.PointerReleasedEventArgs e)
+        {
+            // Released without crossing the drag threshold, so no reorder drag.
+            // A plain click on a multi selection still selects just that row.
+            if (_rowDragKeepSelection && _rowDragTrigger != null)
+                dg1.SelectedItem = _rowDragPressedItem;
+            _rowDragKeepSelection = false;
+            _rowDragTrigger = null;
+            _rowDragPressedItem = null;
+        }
+
+        private async void DataGrid_PointerMoved(object sender, Avalonia.Input.PointerEventArgs e)
+        {
+            if (_rowDragTrigger == null || _rowDragItems != null)
+                return;
+
+            if (!e.GetCurrentPoint(dg1).Properties.IsLeftButtonPressed)
+            {
+                _rowDragTrigger = null;
+                _rowDragPressedItem = null;
+                return;
+            }
+
+            if (IsBusy || Manager.sdPath == null || _editingItem != null)
+                return;
+
+            var current = e.GetPosition(this);
+            if (Math.Abs(current.X - _rowDragStartPoint.X) < 4 &&
+                Math.Abs(current.Y - _rowDragStartPoint.Y) < 4)
+                return;
+
+            // Dragging a row that is part of the selection moves the whole selection.
+            var items = new List<GdItem>();
+            if (dg1.SelectedItems != null && dg1.SelectedItems.Contains(_rowDragPressedItem) && dg1.SelectedItems.Count > 1)
+                items.AddRange(dg1.SelectedItems.OfType<GdItem>().OrderBy(x => Manager.ItemList.IndexOf(x)));
+            else
+                items.Add(_rowDragPressedItem);
+
+            // The menu entry stays in slot 0, it does not get dragged.
+            if (items.Count == 0 || items.Any(IsMenuEntry))
+            {
+                _rowDragTrigger = null;
+                _rowDragPressedItem = null;
+                return;
+            }
+
+            var trigger = _rowDragTrigger;
+            _rowDragTrigger = null;
+            _rowDragPressedItem = null;
+            _rowDragItems = items;
+
+
+            var data = new DataTransfer();
+            data.Add(DataTransferItem.Create(RowDragFormat, new byte[] { 1 }));
+
+            try
+            {
+                await DragDrop.DoDragDropAsync(trigger, data, DragDropEffects.Move);
+            }
+            catch (Exception)
+            {
+                // A failed platform drag just cancels the move.
+            }
+            finally
+            {
+                _dragScrollTimer.Stop();
+                _rowDragItems = null;
+                _pendingDropIndex = -1;
+                HideDropLine();
+            }
+        }
+
         private async void WindowDrop(object sender, DragEventArgs e)
         {
+            _dragScrollTimer.Stop();
+            HideDropLine();
+
+            int pending = _pendingDropIndex;
+            _pendingDropIndex = -1;
+
             if (Manager.sdPath == null)
                 return;
 
+            if (_rowDragItems != null && e.DataTransfer.Contains(RowDragFormat))
+            {
+                try
+                {
+                    // Reorder drop. Remove the dragged rows, walking the target index back.
+                    // for each one that sat above it, then put them back at the target spot.
+                    int moveIndex = pending >= 0 ? pending : DefaultDropIndex();
+                    moveIndex = Math.Min(moveIndex, Manager.ItemList.Count);
+
+                    foreach (var item in _rowDragItems)
+                    {
+                        var idx = Manager.ItemList.IndexOf(item);
+                        if (idx < 0)
+                            continue;
+                        Manager.ItemList.RemoveAt(idx);
+                        if (idx < moveIndex)
+                            moveIndex--;
+                    }
+
+                    if (moveIndex == 0 && Manager.ItemList.Count > 0 && IsMenuEntry(Manager.ItemList[0]))
+                        moveIndex = 1;
+                    moveIndex = Math.Min(moveIndex, Manager.ItemList.Count);
+
+                    foreach (var item in _rowDragItems)
+                        Manager.ItemList.Insert(moveIndex++, item);
+                }
+                catch (Exception ex)
+                {
+                    await MessageBoxManager.GetMessageBoxStandard(AppStrings.Error, ex.Message, icon: MsBox.Avalonia.Enums.Icon.Error).ShowWindowDialogAsync(this);
+                }
+                return;
+            }
+
             if (e.DataTransfer.Contains(DataFormat.File))
             {
+                // Land the drop where the guide line settled during the drag. The drop
+                // event position is not trustworthy on some setups, the hover position is.
+                int insertIndex = pending >= 0 ? pending : DefaultDropIndex();
+                insertIndex = Math.Min(insertIndex, Manager.ItemList.Count);
+
                 IsBusy = true;
                 var invalid = new List<string>();
 
@@ -263,7 +439,8 @@ namespace GDMENUCardManager
                         {
                             try
                             {
-                                Manager.ItemList.Add(await ImageHelper.CreateGdItemAsync(path));
+                                Manager.ItemList.Insert(insertIndex, await ImageHelper.CreateGdItemAsync(path));
+                                insertIndex++;
                             }
                             catch
                             {
@@ -283,6 +460,231 @@ namespace GDMENUCardManager
                     IsBusy = false;
                 }
             }
+        }
+
+        // The menu disc must stay in slot 0, so everything that protects that slot goes
+        // through this. Ip stays null for lazy loaded items until it is read, so check
+        // the cached name and the folder number too.
+        private static bool IsMenuEntry(GdItem item)
+        {
+            if (item == null)
+                return false;
+            if (item.Ip?.Name == "GDMENU" || item.Ip?.Name == "openMenu")
+                return true;
+            if (item.Name == "GDMENU" || item.Name == "openMenu")
+                return true;
+            return item.SdNumber == 1;
+        }
+
+        // Fallback spot when the pointer is not over a row. Anything we can't place
+        // goes to the end of the list.
+        private int DefaultDropIndex()
+        {
+            return Manager.ItemList.Count;
+        }
+
+        private void WindowDragOver(object sender, DragEventArgs e)
+        {
+            bool isFileDrag = e.DataTransfer.Contains(DataFormat.File);
+            bool isRowDrag = _rowDragItems != null && e.DataTransfer.Contains(RowDragFormat);
+
+            if (IsBusy || Manager.sdPath == null || (!isFileDrag && !isRowDrag))
+            {
+                _dragScrollTimer.Stop();
+                _pendingDropIndex = -1;
+                HideDropLine();
+                return;
+            }
+
+            if (isRowDrag)
+                e.DragEffects = DragDropEffects.Move;
+
+            _dragScrollPosition = e.GetPosition(this);
+            UpdateDropTarget(e.GetPosition(dg1));
+
+            if (GetDragScrollDirection() != 0)
+                _dragScrollTimer.Start();
+            else
+                _dragScrollTimer.Stop();
+        }
+
+        private void UpdateDropTarget(Point point)
+        {
+            var target = HitTestDropRow(point);
+            if (target == null)
+            {
+                _pendingDropIndex = DefaultDropIndex();
+                HideDropLine();
+            }
+            else
+            {
+                _pendingDropIndex = target.Value.InsertIndex;
+                ShowDropLine(target.Value.Row, target.Value.Below);
+            }
+        }
+
+        private void WindowDragLeave(object sender, RoutedEventArgs e)
+        {
+            _dragScrollTimer.Stop();
+            // DragLeave can precede Drop, so keep the last insertion index.
+            HideDropLine();
+        }
+
+        private int GetDragScrollDirection()
+        {
+            if (IsBusy || Manager.sdPath == null || !IsVisible ||
+                dg1 == null || !dg1.IsVisible)
+                return 0;
+
+            var presenter = dg1.GetVisualDescendants().OfType<DataGridRowsPresenter>().FirstOrDefault();
+            if (presenter == null)
+                return 0;
+
+            var point = this.TranslatePoint(_dragScrollPosition, presenter);
+            if (point == null || !new Rect(presenter.Bounds.Size).Contains(point.Value))
+                return 0;
+
+            double edgeHeight = Math.Min(32, presenter.Bounds.Height / 2);
+            if (point.Value.Y < edgeHeight)
+                return -1;
+            if (point.Value.Y >= presenter.Bounds.Height - edgeHeight)
+                return 1;
+            return 0;
+        }
+
+        private void DragScrollTimer_Tick(object sender, EventArgs e)
+        {
+            int direction = GetDragScrollDirection();
+            var scrollBar = dg1?.GetVisualDescendants().OfType<ScrollBar>()
+                .FirstOrDefault(x => x.Name == "PART_VerticalScrollbar");
+            if (direction == 0 || scrollBar == null || !scrollBar.IsVisible ||
+                (direction < 0 && scrollBar.Value <= scrollBar.Minimum) ||
+                (direction > 0 && scrollBar.Value >= scrollBar.Maximum))
+            {
+                _dragScrollTimer.Stop();
+                return;
+            }
+
+            if (direction < 0)
+                scrollBar.LineUp();
+            else
+                scrollBar.LineDown();
+
+            dg1.UpdateLayout();
+            var point = this.TranslatePoint(_dragScrollPosition, dg1);
+            if (point != null)
+                UpdateDropTarget(point.Value);
+        }
+
+        // Finds the row under the pointer and where an item would go. Upper half of a row
+        // means above it, lower half below. The menu entry keeps slot 0, so a drop meant.
+        // for the very top lands just under it instead. pointing at the open space under
+        // The last row means after that row. Returns null when off the rows.
+        private (DataGridRow Row, bool Below, int InsertIndex)? HitTestDropRow(Point pos)
+        {
+            try
+            {
+                var list = Manager.ItemList;
+
+                if (dg1 == null || !dg1.IsVisible)
+                    return null;
+
+                double y = pos.Y;
+
+                DataGridRow bottomRow = null;
+                GdItem bottomItem = null;
+                double bottomEdge = double.MinValue;
+
+                foreach (var row in dg1.GetVisualDescendants().OfType<DataGridRow>())
+                {
+                    // Recycled rows from a previous card load stay parked in the visual
+                    // tree, invisible, holding items that are no longer in the list. They
+                    // tile the empty area below the live rows, so they must not count as
+                    // drop targets or as the bottom row.
+                    if (!row.IsVisible)
+                        continue;
+
+                    if (!(row.DataContext is GdItem hoveredItem))
+                        continue;
+
+                    int index = list.IndexOf(hoveredItem);
+                    if (index < 0)
+                        continue;
+
+                    var rowTop = row.TranslatePoint(new Point(0, 0), dg1);
+                    if (rowTop == null)
+                        continue;
+
+                    double top = rowTop.Value.Y;
+                    double height = row.Bounds.Height;
+
+                    if (top + height > bottomEdge)
+                    {
+                        bottomEdge = top + height;
+                        bottomRow = row;
+                        bottomItem = hoveredItem;
+                    }
+
+                    if (y < top || y >= top + height)
+                        continue;
+
+                    bool below = y > top + height / 2;
+                    int insertIndex = below ? index + 1 : index;
+
+                    if (insertIndex == 0 && list.Count > 0 && IsMenuEntry(list[0]))
+                    {
+                        insertIndex = 1;
+                        below = true;
+                    }
+
+                    return (row, below, Math.Min(insertIndex, list.Count));
+                }
+
+                // Pointer is somewhere under the rows, in the grid's empty space or past
+                // the bottom of the grid itself, both read as plain white space to the
+                // user. Land the drop after the lowest row, which can only be the last
+                // item since rows fill the view when scrolled mid list. No lower bound
+                // on y, anything below the last row within the grid's width means append.
+                if (bottomRow != null && y >= bottomEdge &&
+                    pos.X >= 0 && pos.X < dg1.Bounds.Width)
+                {
+                    int index = list.IndexOf(bottomItem);
+                    if (index >= 0)
+                        return (bottomRow, true, Math.Min(index + 1, list.Count));
+                }
+
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private void ShowDropLine(DataGridRow row, bool below)
+        {
+            if (DropLine == null || dg1 == null)
+                return;
+
+            var top = row.TranslatePoint(new Point(0, 0), dg1);
+            if (top == null)
+            {
+                HideDropLine();
+                return;
+            }
+
+            double y = top.Value.Y;
+            if (below)
+                y += row.Bounds.Height;
+
+            DropLine.Margin = new Thickness(0, y - 1, 0, 0);
+            DropLine.IsVisible = true;
+        }
+
+        private void HideDropLine()
+        {
+            if (DropLine != null)
+                DropLine.IsVisible = false;
         }
 
         private async void ButtonSaveChanges_Click(object sender, RoutedEventArgs e)
@@ -845,317 +1247,4 @@ namespace GDMENUCardManager
         }
 
     }
-
-
-
-
-
-    //todo move to mainwindow class, remove generic.
-    //drag and drop based on https://github.com/AvaloniaUI/Avalonia/discussions/10877#discussion-5036074
-    //also to ckeck... https://github.com/AvaloniaUI/Avalonia.Xaml.Behaviors/pull/174/files
-    public class DataGridDnd : DropHandlerBase
-    {
-        private enum DragDirection
-        {
-            Up,
-            Down
-        }
-
-        private struct DndData
-        {
-            public DndData() { }
-            public DataGrid? SrcDataGrid = null;
-            public DataGrid DestDataGrid = null!;
-            public IList<GdItem> SrcList = null!;
-            public IList<GdItem> DestList = null!;
-            public int SrcIndex = -1;
-
-            public int DestIndex = -1;
-            public DragDirection Direction;
-        }
-
-        private const string DraggingUpClassName = "dragging-up";
-        private const string DraggingDownClassName = "dragging-down";
-
-        private DndData _dnd = new();
-
-        private bool Validate(object? sender, DragEventArgs e, object? sourceContext)
-        {
-
-            if (sourceContext == null)
-            {
-                if (_dnd.SrcDataGrid is not { } srcDg ||
-                    sender is not DataGrid destDg ||
-                    srcDg.ItemsSource is not IList<GdItem> srcList ||
-                    destDg.ItemsSource is not IList<GdItem> destList
-                    //destDg.GetVisualAt(e.GetPosition(destDg),
-                    //  v => v.FindDescendantOfType<DataGridCell>() is not null) is not Control
-                    //  {
-                    //      DataContext: T dest
-                    //  } visual
-                      )
-                {
-                    return false;
-                }
-
-
-                if (destDg.GetVisualAt(e.GetPosition(destDg),
-                      v => v.FindDescendantOfType<DataGridCell>() is not null) is not Control
-                      {
-                          DataContext: GdItem dest
-                      } visual)
-                {
-
-                    if (destList.Any())
-                    {
-                        _dnd.SrcDataGrid = srcDg;
-                        _dnd.DestDataGrid = destDg;
-                        _dnd.SrcList = srcList;
-                        _dnd.DestList = destList;
-                        _dnd.Direction = DragDirection.Down;//cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
-                        _dnd.SrcIndex = destList.Count;// destList.IndexOf(dest);// srcList.IndexOf(src);
-                        _dnd.DestIndex = destList.Count;// destList.IndexOf(dest);
-                        return true;
-                    }
-                    else
-                    {
-                        _dnd.SrcDataGrid = srcDg;
-                        _dnd.DestDataGrid = destDg;
-                        _dnd.SrcList = srcList;
-                        _dnd.DestList = destList;
-                        _dnd.Direction = DragDirection.Down;//cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
-                        _dnd.SrcIndex = 0;// destList.IndexOf(dest);// srcList.IndexOf(src);
-                        _dnd.DestIndex = 0;// destList.IndexOf(dest);
-                        return true;
-                    }
-                    var cell = destDg.FindDescendantOfType<DataGridCell>();
-                    //Debug.WriteLine(cell.DataContext);
-                    //foreach (var item in c)
-                    //{
-                    //    Debug.WriteLine(item);
-                    //}
-
-                    _dnd.SrcDataGrid = srcDg;
-                    _dnd.DestDataGrid = destDg;
-                    _dnd.SrcList = srcList;
-                    _dnd.DestList = destList;
-                    _dnd.Direction = DragDirection.Down;//cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
-                    _dnd.SrcIndex = destList.Count;// destList.IndexOf(dest);// srcList.IndexOf(src);
-                    _dnd.DestIndex = destList.Count;// destList.IndexOf(dest);
-
-                    return true;
-                }
-
-
-                if (false)
-                {
-                    return false;
-                }
-                else
-                {
-                    //nao existe (nulo) quando em cima de um objeto existente.
-                    //existe quando em espaco branco
-
-                    //visual no branco é border
-
-
-                    DataGridCell cell = visual.FindDescendantOfType<DataGridCell>()!;
-                    if (cell == null)
-                    {
-                        Debug.WriteLine("FALSE");
-                        return false;
-                    }
-                    
-                    var pos = e.GetPosition(cell);
-
-                    //Debug.WriteLine(visual.DataContext);
-                    //return false;
-
-
-                    _dnd.SrcDataGrid = srcDg;
-                    _dnd.DestDataGrid = destDg;
-                    _dnd.SrcList = srcList;
-                    _dnd.DestList = destList;
-                    _dnd.Direction = cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
-                    _dnd.SrcIndex = destList.IndexOf(dest);// srcList.IndexOf(src);
-                    _dnd.DestIndex = destList.IndexOf(dest);
-                    return true;
-
-                }
-
-                //DataGridCell cell = visual.FindDescendantOfType<DataGridCell>()!;
-                //var pos = e.GetPosition(cell);
-
-                //_dnd.SrcDataGrid = srcDg;
-                //_dnd.DestDataGrid = destDg;
-                //_dnd.SrcList = srcList;
-                //_dnd.DestList = destList;
-                //_dnd.Direction = cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
-                //_dnd.SrcIndex = srcList.IndexOf(src);
-                //_dnd.DestIndex = destList.IndexOf(dest);
-
-                return false;
-            }
-            else
-            {
-                if (_dnd.SrcDataGrid is not { } srcDg ||
-                    sender is not DataGrid destDg ||
-                    sourceContext is not GdItem src ||
-                    srcDg.ItemsSource is not IList<GdItem> srcList ||
-                    destDg.ItemsSource is not IList<GdItem> destList ||
-                    destDg.GetVisualAt(e.GetPosition(destDg),
-                      v => v.FindDescendantOfType<DataGridCell>() is not null) is not Control
-                      {
-                          DataContext: GdItem dest
-                      } visual)
-                    return false;
-
-                DataGridCell cell = visual.FindDescendantOfType<DataGridCell>()!;
-                var pos = e.GetPosition(cell);
-
-                _dnd.SrcDataGrid = srcDg;
-                _dnd.DestDataGrid = destDg;
-                _dnd.SrcList = srcList;
-                _dnd.DestList = destList;
-                _dnd.Direction = cell.DesiredSize.Height / 2 > pos.Y ? DragDirection.Up : DragDirection.Down;
-                _dnd.SrcIndex = srcList.IndexOf(src);
-                _dnd.DestIndex = destList.IndexOf(dest);
-            }
-
-            return true;
-        }
-
-        public override bool Validate(object? sender, DragEventArgs e, object? sourceContext,
-                                      object? targetContext, object? state)
-        {
-            return Validate(sender, e, sourceContext);
-        }
-
-        public override bool Execute(object? sender, DragEventArgs e, object? sourceContext,
-                                     object? targetContext, object? state)
-        {
-            if (!Validate(sender, e, sourceContext))
-                return false;
-
-            if (e.DataTransfer.Contains(DataFormat.File))
-            {
-                //MoveItem(_dnd.SrcList, _dnd.DestList, _dnd.SrcIndex, _dnd.DestIndex);
-
-                if (_dnd.Direction == DragDirection.Up && _dnd.DestIndex > 0)
-                    _dnd.DestIndex--;
-                else if (_dnd.Direction == DragDirection.Down && _dnd.DestIndex < _dnd.DestList.Count)
-                    _dnd.DestIndex++;
-
-                var insertIndex = _dnd.DestIndex;// dropInfo.UnfilteredInsertIndex;
-                Debug.WriteLine(insertIndex);
-
-                foreach (var item in e.DataTransfer.Items)
-                {
-                    var aaa = item.TryGetFile();
-                    if (aaa != null)
-                    {
-                        var o = aaa.TryGetLocalPath();
-                        if (o != null)
-                        {
-                            //var destinationList = dropInfo.TargetCollection.TryGetList();
-
-                            Dispatcher.UIThread.Invoke(async () =>
-                            {
-                                //todo try
-                                
-                                var toInsert = await ImageHelper.CreateGdItemAsync(o);
-                                InsertItem((IList<GdItem>)_dnd.DestList, toInsert, insertIndex++);
-                            });
-                        }
-                    }
-                }
-                return true;
-            }
-
-            if (_dnd.SrcDataGrid != _dnd.DestDataGrid && _dnd.Direction == DragDirection.Down)
-                _dnd.DestIndex++;
-            else if (_dnd.SrcIndex > _dnd.DestIndex && _dnd.Direction == DragDirection.Down)
-                _dnd.DestIndex++;
-            else if (_dnd.SrcIndex < _dnd.DestIndex && _dnd.Direction == DragDirection.Up)
-                _dnd.DestIndex--;
-
-            MoveItem(_dnd.SrcList, _dnd.DestList, _dnd.SrcIndex, _dnd.DestIndex);
-            _dnd.DestDataGrid.SelectedIndex = _dnd.DestIndex;
-            _dnd.DestDataGrid.ScrollIntoView(_dnd.DestList[_dnd.DestIndex], null);
-            _dnd.SrcDataGrid = null;
-            return true;
-        }
-
-        public override void Enter(object? sender, DragEventArgs e, object? sourceContext,
-                                   object? targetContext)
-        {
-            _dnd.SrcDataGrid ??= sender as DataGrid;
-            if (!Validate(sender, e, sourceContext))
-            {
-                e.DragEffects = DragDropEffects.None;
-                e.Handled = true;
-                return;
-            }
-
-            string className = _dnd.Direction switch
-            {
-                DragDirection.Down => DraggingDownClassName,
-                DragDirection.Up => DraggingUpClassName,
-                _ => throw new UnreachableException($"Invalid drag direction: {_dnd.Direction}")
-            };
-            _dnd.DestDataGrid.Classes.Add(className);
-
-            e.DragEffects |= DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link;
-            e.Handled = true;
-        }
-
-        public override void Over(object? sender, DragEventArgs e, object? sourceContext,
-                                  object? targetContext)
-        {
-            if (!Validate(sender, e, sourceContext))
-            {
-                e.DragEffects = DragDropEffects.None;
-                e.Handled = true;
-                return;
-            }
-
-            e.DragEffects |= DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link;
-            e.Handled = true;
-
-            (string toAdd, string toRemove) classUpdate = _dnd.Direction switch
-            {
-                DragDirection.Down => (DraggingDownClassName, DraggingUpClassName),
-                DragDirection.Up => (DraggingUpClassName, DraggingDownClassName),
-                _ => throw new UnreachableException($"Invalid drag direction: {_dnd.Direction}")
-            };
-            if (_dnd.DestDataGrid.Classes.Contains(classUpdate.toAdd))
-                return;
-
-            _dnd.DestDataGrid.Classes.Remove(classUpdate.toRemove);
-            _dnd.DestDataGrid.Classes.Add(classUpdate.toAdd);
-        }
-
-        public override void Leave(object? sender, RoutedEventArgs e)
-        {
-            base.Leave(sender, e);
-            RemoveDraggingClass(sender as DataGrid);
-        }
-
-        public override void Drop(object? sender, DragEventArgs e, object? sourceContext,
-                                  object? targetContext)
-        {
-            RemoveDraggingClass(sender as DataGrid);
-            base.Drop(sender, e, sourceContext, targetContext);
-            _dnd.SrcDataGrid = null;
-        }
-
-        private static void RemoveDraggingClass(DataGrid? dg)
-        {
-            if (dg is not null && !dg.Classes.Remove(DraggingUpClassName))
-                dg.Classes.Remove(DraggingDownClassName);
-        }
-    }
-
-
-
 }

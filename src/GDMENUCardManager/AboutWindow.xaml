@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GDMENUCardManager"
         xmlns:coreres="clr-namespace:GDMENUCardManager.Core.Resources;assembly=GDMENUCardManager.Core"
         mc:Ignorable="d"
-        Title="{x:Static coreres:AppStrings.About}" Height="380" Width="700" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="{x:Static coreres:AppStrings.About}" Height="400" Width="700" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
         <FlowDocumentScrollViewer VerticalScrollBarVisibility="Disabled">
             <FlowDocument>
@@ -68,6 +68,8 @@
                     <Bold>PuyoTools</Bold> - Nick Woronekin;&#160;
                     <Bold>7z</Bold> - Igor Pavlov;&#160;
                     <Bold>SevenZipSharp</Bold> - Joel Ahlgren;&#160;
+                    <LineBreak/>
+                    <Bold>GD MENU Card Manager (ateam version fork)</Bold> - Derek Pascarella;&#160;
                 </Paragraph>
 
             </FlowDocument>

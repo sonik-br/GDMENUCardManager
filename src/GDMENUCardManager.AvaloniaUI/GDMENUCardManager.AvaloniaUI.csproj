@@ -34,7 +34,6 @@
     <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
     <PackageReference Include="SharpCompress" Version="0.49.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
-    <PackageReference Include="Xaml.Behaviors.Avalonia" Version="12.0.5" />
     
   </ItemGroup>
   <ItemGroup>

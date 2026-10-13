@@ -95,6 +95,11 @@
         <TextBlock Text=" - Adam Hathcock; "/>
       </WrapPanel>
 
+      <WrapPanel Orientation="Horizontal">
+        <TextBlock FontWeight="Bold" Text="GD MENU Card Manager (ateam version fork)"/>
+        <TextBlock Text=" - Derek Pascarella; "/>
+      </WrapPanel>
+
     </StackPanel>
 
     <HeaderedContentControl Header="{x:Static coreres:AppStrings.Version}" Width="210" Height="100" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 10 0">

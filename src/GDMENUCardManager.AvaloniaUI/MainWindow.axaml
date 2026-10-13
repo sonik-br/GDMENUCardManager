@@ -146,6 +146,7 @@
         
         <!--<DataGrid Name="dg1" Items="{Binding Manager.ItemList, Mode=OneTime}" IsEnabled="{Binding Path=!IsBusy, Mode=OneWay}" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" KeyDown="GridOnKeyDown" RowBackground="{DynamicResource ThemeBackgroundBrush}" AlternatingRowBackground="{DynamicResource ThemeBackgroundBrush}">-->
         <!--https://github.com/avaloniaui/avalonia/issues/19263-->
+        <Grid>
         <DataGrid Name="dg1" ItemsSource="{Binding Manager.ItemList, Mode=OneTime}" IsEnabled="{Binding Path=!IsBusy, Mode=OneWay}" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" KeyDown="GridOnKeyDown" RowBackground="{DynamicResource ThemeBackgroundBrush}">
           <DataGrid.Styles>
             <Style Selector="DataGridRow">
@@ -221,6 +222,12 @@
             <DataGridTextColumn Header="{x:Static coreres:AppStrings.Disc}" Width="Auto" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
           </DataGrid.Columns>
         </DataGrid>
+        <Border x:Name="DropLine" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsHitTestVisible="False" IsVisible="False">
+          <Border.Background>
+            <SolidColorBrush Color="{DynamicResource SystemAccentColor}"/>
+          </Border.Background>
+        </Border>
+        </Grid>
       </DockPanel>
     </HeaderedContentControl>
 
