@@ -52,7 +52,7 @@
       <RowDefinition Height="1*"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
-      <!--<RowDefinition Height="Auto"/>-->
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
     <ProgressBar Grid.Row="0" Height="5" IsIndeterminate="{Binding IsBusy, Mode=OneWay}"/>
@@ -231,29 +231,35 @@
       </DockPanel>
     </HeaderedContentControl>
 
-    <!--<StackPanel Grid.Row="3" Margin="5 0 5 10" IsEnabled="{Binding IsBusy, Mode=OneWay}">
+    <HeaderedContentControl Grid.Row="3" Header="{x:Static coreres:AppStrings.GdiShrink}" Margin="10 0 10 10" IsEnabled="{Binding !IsBusy, Mode=OneWay}">
       <StackPanel Orientation="Horizontal">
         <CheckBox IsChecked="{Binding EnableGDIShrink}">
           <TextBlock>
-            Enable GDI Shrink for new games&#x0a;Games can use less space on SD Card
+            <Run Text="{x:Static coreres:AppStrings.GdiShrinkLine1}"/>
+            <LineBreak/>
+            <Run Text="{x:Static coreres:AppStrings.GdiShrinkLine2}"/>
           </TextBlock>
         </CheckBox>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" IsVisible="{Binding EnableGDIShrink}">
           <CheckBox IsChecked="{Binding EnableGDIShrinkCompressed}" Margin="25 0 0 0">
             <TextBlock>
-              Also shrink compressed games&#x0a;Games will be extracted to temp folder prior to shrinking
+              <Run Text="{x:Static coreres:AppStrings.GdiShrinkCompressedLine1}"/>
+              <LineBreak/>
+              <Run Text="{x:Static coreres:AppStrings.GdiShrinkCompressedLine2}"/>
             </TextBlock>
           </CheckBox>
-          <CheckBox IsChecked="{Binding EnableGDIShrinkBlackList}" Margin="25 0 0 0">
+          <CheckBox IsChecked="{Binding EnableGDIShrinkBlackList}" Margin="25 0 0 0" IsVisible="{Binding HaveGDIShrinkBlacklist}">
             <TextBlock>
-              Use Blacklist&#x0a;Skips incompatible games
+              <Run Text="{x:Static coreres:AppStrings.GdiShrinkUseBlackListLine1}"/>
+              <LineBreak/>
+              <Run Text="{x:Static coreres:AppStrings.GdiShrinkUseBlackListLine2}"/>
             </TextBlock>
           </CheckBox>
         </StackPanel>
       </StackPanel>
-    </StackPanel>-->
+    </HeaderedContentControl>
 
-    <Grid Grid.Row="3" Margin="5 0 5 10" IsEnabled="{Binding !IsBusy, Mode=OneWay}">
+    <Grid Grid.Row="4" Margin="5 0 5 10" IsEnabled="{Binding !IsBusy, Mode=OneWay}">
 
       <Grid IsEnabled="{Binding SelectedDrive, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}">
         <Grid.ColumnDefinitions>
@@ -297,7 +303,7 @@
       </Grid>
     </Grid>
 
-    <DockPanel Grid.Row="4" Margin="15 0 15 10">
+    <DockPanel Grid.Row="5" Margin="15 0 15 10">
       <Image DockPanel.Dock="Right" ToolTip.Tip="{x:Static coreres:AppStrings.MadeInBrazil}" Source="{StaticResource FlagBR}" Width="22" Height="18"/>
       <StackPanel>
         <StackPanel Orientation="Horizontal">

@@ -22,8 +22,6 @@ namespace GDMENUCardManager.Core
 
         private readonly string currentAppPath = AppDomain.CurrentDomain.BaseDirectory;
 
-        private readonly string gdishrinkPath;
-
         private string ipbinPath
         {
             get
@@ -53,7 +51,6 @@ namespace GDMENUCardManager.Core
 
         private Manager()
         {
-            gdishrinkPath = Path.Combine(currentAppPath, "tools", "gdishrink.exe");
             //ipbinPath = Path.Combine(currentAppPath, "tools", "IP.BIN");
             PlayStationDB.LoadFrom(Constants.PS1GameDBFile);
         }
@@ -822,9 +819,10 @@ namespace GDMENUCardManager.Core
             {
                 if (shrink)
                 {
-                    using (var p = CreateProcess(gdishrinkPath))
-                        if (!await RunShrinkProcess(p, Path.Combine(item.FullFolderPath, item.ImageFile), newPath))
-                            throw new Exception(AppStrings.ErrorDuringGdiShrink);
+                    var (success, message) = await GdiShrinker.Shrink(
+                        Path.Combine(item.FullFolderPath, item.ImageFile), newPath);
+                    if (!success)
+                        throw new Exception($"{AppStrings.ErrorDuringGdiShrink} {item.ImageFile}: {message}");
                 }
                 else
                 {
@@ -876,15 +874,6 @@ namespace GDMENUCardManager.Core
             item.Work = WorkMode.None;
         }
 
-        private Process CreateProcess(string fileName)
-        {
-            var p = new Process();
-            p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.FileName = fileName;
-            return p;
-        }
-
         private async Task CopyNewItems(string tempdir)
         {
             var total = ItemList.Count(x => x.Work == WorkMode.New);
@@ -917,7 +906,7 @@ namespace GDMENUCardManager.Core
                     ).OrderBy(x => x.Name).ThenBy(x => x.Ip.Disc).ToArray();
                 if (shrinkableItems.Any())
                 {
-                    var result = Helper.DependencyManager.GdiShrinkWindowShowDialog(shrinkableItems);
+                    var result = await Helper.DependencyManager.GdiShrinkWindowShowDialog(shrinkableItems);
                     if (result != null)
                         itemsToShrink.AddRange(result);
                 }
@@ -982,9 +971,10 @@ namespace GDMENUCardManager.Core
                                 {
                                     progress.TextContent = $"{AppStrings.Shrinking} {item.Name} ...";
 
-                                    using (var p = CreateProcess(gdishrinkPath))
-                                        if (!await RunShrinkProcess(p, Path.Combine(tempExtractDir, gdi.ImageFile), newPath))
-                                            throw new Exception(AppStrings.ErrorDuringGdiShrink);
+                                    var (success, message) = await GdiShrinker.Shrink(
+                                        Path.Combine(tempExtractDir, gdi.ImageFile), newPath);
+                                    if (!success)
+                                        throw new Exception($"{AppStrings.ErrorDuringGdiShrink} {gdi.ImageFile}: {message}");
 
                                     //get the new filenames
                                     gdi = await ImageHelper.CreateGdItemAsync(newPath);
@@ -1104,35 +1094,6 @@ namespace GDMENUCardManager.Core
                 item.ProductNumber = gdi.ProductNumber;
         }
 
-        private async Task<bool> RunShrinkProcess(Process p, string inputFilePath, string outputFolderPath)
-        {
-            if (!Directory.Exists(outputFolderPath))
-                Directory.CreateDirectory(outputFolderPath);
-
-            p.StartInfo.ArgumentList.Clear();
-            
-            p.StartInfo.ArgumentList.Add(inputFilePath);
-            p.StartInfo.ArgumentList.Add(outputFolderPath);
-
-            await RunProcess(p);
-            return p.ExitCode == 0;
-        }
-
-        private Task RunProcess(Process p)
-        {
-            //p.StartInfo.RedirectStandardOutput = true;
-            //p.StartInfo.RedirectStandardError = true;
-
-            //p.OutputDataReceived += (ss, ee) => { Debug.WriteLine("[OUTPUT] " + ee.Data); };
-            //p.ErrorDataReceived += (ss, ee) => { Debug.WriteLine("[ERROR] " + ee.Data); };
-
-            p.Start();
-
-            //p.BeginOutputReadLine();
-            //p.BeginErrorReadLine();
-
-            return Task.Run(() => p.WaitForExit());
-        }
         //todo implement
         internal static void UpdateItemLength(GdItem item)
         {

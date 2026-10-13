@@ -84,6 +84,31 @@ namespace GDMENUCardManager
             set { Manager.MenuKindSelected = value; RaisePropertyChanged(); }
         }
 
+        private bool _HaveGDIShrinkBlacklist;
+        public bool HaveGDIShrinkBlacklist
+        {
+            get { return _HaveGDIShrinkBlacklist; }
+            set { _HaveGDIShrinkBlacklist = value; RaisePropertyChanged(); }
+        }
+
+        public bool EnableGDIShrink
+        {
+            get { return Manager.EnableGDIShrink; }
+            set { Manager.EnableGDIShrink = value; RaisePropertyChanged(); }
+        }
+
+        public bool EnableGDIShrinkCompressed
+        {
+            get { return Manager.EnableGDIShrinkCompressed; }
+            set { Manager.EnableGDIShrinkCompressed = value; RaisePropertyChanged(); }
+        }
+
+        public bool EnableGDIShrinkBlackList
+        {
+            get { return Manager.EnableGDIShrinkBlackList; }
+            set { Manager.EnableGDIShrinkBlackList = value; RaisePropertyChanged(); }
+        }
+
         private string _Filter;
         public string Filter
         {
@@ -166,7 +191,11 @@ namespace GDMENUCardManager
                 }
             };
 
-            this.Opened += (ss, ee) => { FillDriveList(); };
+            this.Opened += (ss, ee) =>
+            {
+                HaveGDIShrinkBlacklist = System.IO.File.Exists(Constants.GdiShrinkBlacklistFile);
+                FillDriveList();
+            };
 
             this.Closing += MainWindow_Closing;
             this.PropertyChanged += MainWindow_PropertyChanged;

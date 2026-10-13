@@ -59,6 +59,43 @@ namespace GDMENUCardManager.Core
             return Task.Run(() => File.Exists(path));
         }
 
+        // Maps a referenced filename to its real spelling on disk. On a case-sensitive
+        // filesystem a .gdi or .cue may name "TRACK04.RAW" while the file is "track04.raw".
+        // The exact name always wins; the folder is only scanned when it is absent.
+        public static string ResolveActualPath(string path)
+        {
+            if (File.Exists(path))
+                return path;
+
+            var folder = Path.GetDirectoryName(path);
+            var name = Path.GetFileName(path);
+            if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(name) || !Directory.Exists(folder))
+                return path;
+
+            string match = null;
+            foreach (var candidate in Directory.EnumerateFiles(folder))
+            {
+                if (!Path.GetFileName(candidate).Equals(name, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (match != null)
+                    return path;
+                match = candidate;
+            }
+
+            return match ?? path;
+        }
+
+        // Same as ResolveActualPath for a name relative to folder, keeping any subfolder
+        // prefix the manifest used.
+        public static string ResolveActualFileName(string folder, string fileName)
+        {
+            var leaf = Path.GetFileName(fileName);
+            if (string.IsNullOrEmpty(leaf))
+                return fileName;
+            var prefix = fileName.Substring(0, fileName.Length - leaf.Length);
+            return prefix + Path.GetFileName(ResolveActualPath(Path.Combine(folder, fileName)));
+        }
+
         public static Task<FileAttributes> GetAttributesAsync(string path)
         {
             return Task.Run(() => File.GetAttributes(path));

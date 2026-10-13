@@ -49,10 +49,13 @@ namespace GDMENUCardManager
         private const int WS_MAXIMIZEBTN = 0x10000;
         private const int WS_MINIMIZEBTN = 0x20000;
 
-        public GdiShrinkWindow(System.Collections.Generic.IEnumerable<GdItem> items)
+        public GdiShrinkWindow(System.Collections.Generic.IEnumerable<GdItem> items, string title = null)
         {
             InitializeComponent();
             DataContext = this;
+
+            if (!string.IsNullOrEmpty(title))
+                this.Title = title;
 
             foreach (var item in items)
                 List.Add(new ItemToShrink { Key = item });

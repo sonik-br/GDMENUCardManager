@@ -19,10 +19,13 @@ namespace GDMENUCardManager
             return p;
         }
 
-        public GdItem[] GdiShrinkWindowShowDialog(IEnumerable<GdItem> items)
+        public ValueTask<GdItem[]> GdiShrinkWindowShowDialog(IEnumerable<GdItem> items, string title = null)
         {
-            var w = new GdiShrinkWindow(items) { Owner = getMainWindow() };
-            return w.ShowDialog().GetValueOrDefault() ? w.List.Where(x => x.Value).Select(x => x.Key).ToArray() : null;
+            var w = new GdiShrinkWindow(items, title) { Owner = getMainWindow() };
+            var picked = w.ShowDialog().GetValueOrDefault()
+                ? w.List.Where(x => x.Value).Select(x => x.Key).ToArray()
+                : null;
+            return new ValueTask<GdItem[]>(picked);
         }
 
         public ValueTask<bool> ShowYesNoDialog(string caption, string text)
