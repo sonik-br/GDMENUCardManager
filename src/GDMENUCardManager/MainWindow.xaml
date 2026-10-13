@@ -200,8 +200,8 @@
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="{x:Static coreres:AppStrings.Size}" Width="Auto" IsReadOnly="True" Binding="{Binding Length, Mode=OneWay, Converter={StaticResource ByteSizeToString}}"/>
                         <DataGridTextColumn Header="{x:Static coreres:AppStrings.Title}" Width="1*" Binding="{Binding Name, Mode=TwoWay}"/>
-                        <DataGridTextColumn Header="{x:Static coreres:AppStrings.Serial}" Width="Auto" Binding="{Binding ProductNumber, Mode=TwoWay}"/>
-                        <DataGridTextColumn Header="{x:Static coreres:AppStrings.Disc}" Width="Auto" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="{x:Static coreres:AppStrings.Serial}" Width="Auto" MinWidth="80" Binding="{Binding ProductNumber, Mode=TwoWay}"/>
+                        <DataGridTextColumn Header="{x:Static coreres:AppStrings.Disc}" Width="Auto" MinWidth="30" IsReadOnly="True" Binding="{Binding Ip.Disc, Mode=OneWay}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>
