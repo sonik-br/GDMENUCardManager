@@ -29,6 +29,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <!-- Native libchdr for dev builds (F5 / dotnet run on Windows).
+       Release publish uses libchdr.targets imported by the app projects. -->
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
+    <Content Include="runtimes\win-x64\native\libchdr.dll" Condition="Exists('runtimes\win-x64\native\libchdr.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      <Link>libchdr.dll</Link>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\AppStrings.Designer.cs">
       <DesignTime>True</DesignTime>

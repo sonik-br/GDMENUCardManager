@@ -10,7 +10,8 @@
     public enum FileFormat
     {
         Uncompressed,
-        SevenZip
+        SevenZip,
+        Chd
     }
 
     public enum SpecialDisc

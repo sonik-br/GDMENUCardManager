@@ -42,4 +42,6 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
+
+  <Import Project="..\GDMENUCardManager.Core\libchdr.targets" />
 </Project>

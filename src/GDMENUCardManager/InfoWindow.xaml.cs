@@ -87,7 +87,7 @@ namespace GDMENUCardManager
         {
             try
             {
-                if (item.FileFormat == FileFormat.SevenZip)
+                if (item.FileFormat != FileFormat.Uncompressed)
                     throw new Exception(AppStrings.CantLoadFromCompressedFiles);
 
                 var filePath = Path.Combine(item.FullFolderPath, item.ImageFile);

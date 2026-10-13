@@ -106,7 +106,7 @@ namespace GDMENUCardManager
             await Task.Delay(100);
             try
             {
-                if (item.FileFormat == FileFormat.SevenZip)
+                if (item.FileFormat != FileFormat.Uncompressed)
                     throw new Exception(AppStrings.CantLoadFromCompressedFiles);
 
                 var filePath = Path.Combine(item.FullFolderPath, item.ImageFile);

@@ -46,7 +46,7 @@
                     <LineBreak/>
                     <TextBlock>
                         <Run Text="{x:Static coreres:AppStrings.CompressedFormats}"/>
-                        <Run Text=": 7Z, RAR, ZIP."/>
+                        <Run Text=": 7Z, CHD, RAR, ZIP."/>
                     </TextBlock>
                 </Paragraph>
 
@@ -68,6 +68,8 @@
                     <Bold>PuyoTools</Bold> - Nick Woronekin;&#160;
                     <Bold>7z</Bold> - Igor Pavlov;&#160;
                     <Bold>SevenZipSharp</Bold> - Joel Ahlgren;&#160;
+                    <LineBreak/>
+                    <Bold>libchdr</Bold> - Romain Tisserand;&#160;
                     <LineBreak/>
                     <Bold>GD MENU Card Manager (ateam version fork)</Bold> - Derek Pascarella;&#160;
                 </Paragraph>

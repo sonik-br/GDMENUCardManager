@@ -72,7 +72,7 @@ namespace GDMENUCardManager.Core
                     }
                 }
 
-                item.CanApplyGDIShrink = filesInsideArchive.Keys.Any(x => Path.GetExtension(x).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase));
+                item.CanApplyGDIShrink = filesInsideArchive.Keys.Any(x => Path.GetExtension(x).Equals(".gdi", StringComparison.InvariantCultureIgnoreCase) || Path.GetExtension(x).Equals(".chd", StringComparison.InvariantCultureIgnoreCase));
 
                 if (!string.IsNullOrEmpty(itemImageFile))
                 {
@@ -98,7 +98,32 @@ namespace GDMENUCardManager.Core
             if (itemImageFile == null)
                 throw new Exception("Cant't read data from file");
 
-            if (item.FileFormat == FileFormat.Uncompressed)
+            if (item.FileFormat == FileFormat.Uncompressed &&
+                     Path.GetExtension(itemImageFile).Equals(".chd", StringComparison.OrdinalIgnoreCase))
+            {
+                using var chd = new ChdReader(itemImageFile);
+                if (!chd.IsGdRom)
+                    throw new Exception("This CHD contains a CD-ROM image, which is not supported. Only GD-ROM CHD files are supported. Please use the original CDI or CUE/BIN files instead.");
+
+                var ipData = chd.GetIpBin();
+                // CHD returns raw 2352-byte sectors. Try parsing as-is first,
+                // then try at offset 16 (MODE1_RAW: 12 sync + 4 header bytes)
+                ip = GetIpData(ipData);
+                if (ip == null && ipData.Length >= 16 + 256)
+                {
+                    var userData = new byte[ipData.Length - 16];
+                    Array.Copy(ipData, 16, userData, 0, userData.Length);
+                    ip = GetIpData(userData);
+                }
+                if (ip == null)
+                    throw new Exception("Cannot read Dreamcast IP.BIN from CHD image");
+
+                item.FileFormat = FileFormat.Chd;
+                item.ImageFiles.Add(Path.GetFileName(itemImageFile));
+                item.Length = ByteSizeLib.ByteSize.FromBytes(chd.Header.LogicalBytes);
+                item.CanApplyGDIShrink = chd.IsGdRom;
+            }
+            else if (item.FileFormat == FileFormat.Uncompressed)
             {
                 var filtersList = new FiltersList();
                 IFilter inputFilter = null;

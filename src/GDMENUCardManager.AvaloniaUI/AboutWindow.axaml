@@ -48,7 +48,7 @@
       </TextBlock>
       <TextBlock>
         <Run Text="{x:Static coreres:AppStrings.CompressedFormats}"/>
-        <Run Text=": 7Z, RAR, ZIP."/>
+        <Run Text=": 7Z, CHD, RAR, ZIP."/>
       </TextBlock>
       
       <!--<Rectangle Fill="Black" Height="1" Margin="0 10"/>-->
@@ -93,6 +93,10 @@
 
         <TextBlock FontWeight="Bold" Text="SharpCompress"/>
         <TextBlock Text=" - Adam Hathcock; "/>
+      </WrapPanel>
+      <WrapPanel Orientation="Horizontal">
+        <TextBlock FontWeight="Bold" Text="libchdr"/>
+        <TextBlock Text=" - Romain Tisserand; "/>
       </WrapPanel>
 
       <WrapPanel Orientation="Horizontal">

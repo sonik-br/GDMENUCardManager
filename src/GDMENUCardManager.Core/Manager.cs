@@ -14,7 +14,7 @@ namespace GDMENUCardManager.Core
 {
     public sealed class Manager
     {
-        public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd" };
+        public static readonly string[] supportedImageFormats = new string[] { ".gdi", ".cdi", ".mds", ".ccd", ".chd" };
 
         public static string sdPath = null;
         public static bool debugEnabled = false;
@@ -901,7 +901,7 @@ namespace GDMENUCardManager.Core
 
                 var shrinkableItems = ItemList.Where(x =>
                     x.Work == WorkMode.New && x.Ip.Name != "GDMENU" && x.Ip.Name != "openMenu" && x.CanApplyGDIShrink
-                        && (x.FileFormat == FileFormat.Uncompressed || EnableGDIShrinkCompressed)
+                        && (x.FileFormat == FileFormat.Uncompressed || x.FileFormat == FileFormat.Chd || EnableGDIShrinkCompressed)
                         && !ignoreShrinkList.Contains(x.Ip.ProductNumber, StringComparer.OrdinalIgnoreCase)
                     ).OrderBy(x => x.Name).ThenBy(x => x.Ip.Disc).ToArray();
                 if (shrinkableItems.Any())
@@ -941,6 +941,82 @@ namespace GDMENUCardManager.Core
 
                             await MoveOrCopyFolder(item, shrink, i + 1);//+ ammountToIncrement
                         }
+                        else if (item.FileFormat == FileFormat.Chd)
+                        {
+                            var folderNumber = i + 1;
+                            var newPath = Path.Combine(sdPath, FormatFolderNumber(folderNumber));
+                            var originalFolderPath = item.FullFolderPath;
+
+                            // Get the CHD file path
+                            if (item.ImageFiles == null || !item.ImageFiles.Any())
+                                throw new Exception("Image files list is empty for CHD item");
+
+                            var chdFile = item.ImageFiles.FirstOrDefault(f => f.EndsWith(".chd", StringComparison.OrdinalIgnoreCase));
+                            if (string.IsNullOrEmpty(chdFile))
+                                throw new Exception("CHD file not found in image files list");
+
+                            var chdPath = Path.Combine(originalFolderPath, chdFile);
+
+                            // Create target directory
+                            if (!await Helper.DirectoryExistsAsync(newPath))
+                                await Helper.CreateDirectoryAsync(newPath);
+
+                            if (!ChdConverter.IsGdRomChd(chdPath))
+                                throw new Exception("This CHD contains a CD-ROM image, which is not supported. Only GD-ROM CHD files are supported. Please use the original CDI or CUE/BIN files instead.");
+
+                            // GD-ROM CHD: Convert to GDI format
+                            if (EnableGDIShrink && itemsToShrink.Contains(item))
+                            {
+                                // Convert to GDI in temp dir, then shrink to SD card
+                                progress.TextContent = $"{AppStrings.Uncompressing}/{AppStrings.Shrinking} {item.Name} ...";
+
+                                var tempChdDir = Path.Combine(tempdir, $"chd_{folderNumber}");
+                                if (!await Helper.DirectoryExistsAsync(tempChdDir))
+                                    await Helper.CreateDirectoryAsync(tempChdDir);
+
+                                var (success, message) = await ChdConverter.ConvertToGdi(chdPath, tempChdDir);
+                                if (!success)
+                                    throw new Exception($"Failed to convert CHD to GDI: {message}");
+
+                                var tempGdiItem = await ImageHelper.CreateGdItemAsync(tempChdDir);
+
+                                (success, message) = await GdiShrinker.Shrink(
+                                    Path.Combine(tempChdDir, tempGdiItem.ImageFile), newPath);
+                                if (!success)
+                                    throw new Exception($"{AppStrings.ErrorDuringGdiShrink} {tempGdiItem.ImageFile}: {message}");
+
+                                await Helper.DeleteDirectoryAsync(tempChdDir);
+
+                                var gdiItem = await ImageHelper.CreateGdItemAsync(newPath);
+                                item.FullFolderPath = newPath;
+                                item.Work = WorkMode.None;
+                                item.SdNumber = folderNumber;
+                                item.FileFormat = FileFormat.Uncompressed;
+                                item.ImageFiles.Clear();
+                                item.ImageFiles.AddRange(gdiItem.ImageFiles);
+                                item.CanApplyGDIShrink = false;
+                            }
+                            else
+                            {
+                                // Convert CHD directly to GDI on SD card
+                                progress.TextContent = $"{AppStrings.Uncompressing} {item.Name} ...";
+
+                                var (success, message) = await ChdConverter.ConvertToGdi(chdPath, newPath);
+                                if (!success)
+                                    throw new Exception($"Failed to convert CHD to GDI: {message}");
+
+                                var gdiItem = await ImageHelper.CreateGdItemAsync(newPath);
+                                item.FullFolderPath = newPath;
+                                item.Work = WorkMode.None;
+                                item.SdNumber = folderNumber;
+                                item.FileFormat = FileFormat.Uncompressed;
+                                item.ImageFiles.Clear();
+                                item.ImageFiles.AddRange(gdiItem.ImageFiles);
+                                item.CanApplyGDIShrink = true;
+                            }
+
+                            UpdateItemLength(item);
+                        }
                         else//compressed file
                         {
                             if (EnableGDIShrink && EnableGDIShrinkCompressed && itemsToShrink.Contains(item))
@@ -960,6 +1036,28 @@ namespace GDMENUCardManager.Core
                                 await Task.Run(() => Helper.DependencyManager.ExtractArchive(Path.Combine(item.FullFolderPath, item.ImageFile), tempExtractDir));
 
                                 var gdi = await ImageHelper.CreateGdItemAsync(tempExtractDir);
+
+                                if (gdi.FileFormat == FileFormat.Chd)
+                                {
+                                    // CHD inside the archive: convert it to GDI in temp, then carry on as a GDI
+                                    var chdFile = gdi.ImageFiles.FirstOrDefault(f => f.EndsWith(".chd", StringComparison.OrdinalIgnoreCase));
+                                    if (string.IsNullOrEmpty(chdFile))
+                                        throw new Exception("CHD file not found after extraction");
+
+                                    var extractedChdPath = Path.Combine(tempExtractDir, chdFile);
+
+                                    var tempChdGdiDir = Path.Combine(tempdir, $"chdgdi_{folderNumber}");
+                                    if (!await Helper.DirectoryExistsAsync(tempChdGdiDir))
+                                        await Helper.CreateDirectoryAsync(tempChdGdiDir);
+
+                                    var (success, message) = await ChdConverter.ConvertToGdi(extractedChdPath, tempChdGdiDir);
+                                    if (!success)
+                                        throw new Exception($"Failed to convert CHD to GDI: {message}");
+
+                                    await Helper.DeleteDirectoryAsync(tempExtractDir);
+                                    tempExtractDir = tempChdGdiDir;
+                                    gdi = await ImageHelper.CreateGdItemAsync(tempExtractDir);
+                                }
 
                                 if (EnableGDIShrinkBlackList)//now with the game uncompressed we can check the blacklist
                                 {
@@ -1082,6 +1180,24 @@ namespace GDMENUCardManager.Core
             item.FileFormat = FileFormat.Uncompressed;
 
             var gdi = await ImageHelper.CreateGdItemAsync(newPath);
+
+            if (gdi.FileFormat == FileFormat.Chd)
+            {
+                // CHD inside the archive: convert it to GDI on the card and drop the CHD
+                var chdFile = gdi.ImageFiles.FirstOrDefault(f => f.EndsWith(".chd", StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrEmpty(chdFile))
+                    throw new Exception("CHD file not found after extraction");
+
+                var extractedChdPath = Path.Combine(newPath, chdFile);
+
+                var (success, message) = await ChdConverter.ConvertToGdi(extractedChdPath, newPath);
+                if (!success)
+                    throw new Exception($"Failed to convert CHD to GDI: {message}");
+
+                await Helper.DeleteFileAsync(extractedChdPath);
+                gdi = await ImageHelper.CreateGdItemAsync(newPath);
+            }
+
             //item.ImageFiles[0] = gdi.ImageFile;
             item.ImageFiles.Clear();
             item.ImageFiles.AddRange(gdi.ImageFiles);
