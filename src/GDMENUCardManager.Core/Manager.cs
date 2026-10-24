@@ -760,7 +760,7 @@ namespace GDMENUCardManager.Core
 
                 //write menu config to root of sdcard
                 var menuConfigPath = Path.Combine(sdPath, Constants.MenuConfigTextFile);
-                if (!await Helper.FileExistsAsync(menuConfigPath))
+                if (!await Task.Run(() => Helper.FileExistsIgnoreCase(menuConfigPath)))
                 {
                     sb.AppendLine("open_time = 150");
                     sb.AppendLine("detect_time = 150");

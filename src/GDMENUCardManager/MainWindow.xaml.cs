@@ -414,7 +414,7 @@ namespace GDMENUCardManager
 
         private void FillDriveList(bool isRefreshing = false)
         {
-            var list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || (x.DriveType == DriveType.Removable && x.DriveFormat.StartsWith("FAT")))).ToArray();
+            var list = DriveInfo.GetDrives().Where(x => showAllDrives || (x.DriveType == DriveType.Removable && x.IsReady && x.DriveFormat.StartsWith("FAT"))).ToArray();
 
             if (isRefreshing)
             {
@@ -428,7 +428,7 @@ namespace GDMENUCardManager
             {
                 DriveList.Add(drive);
                 //look for GDEMU.ini file
-                if (SelectedDrive == null && File.Exists(Path.Combine(drive.RootDirectory.FullName, Constants.MenuConfigTextFile)))
+                if (SelectedDrive == null && Helper.FileExistsIgnoreCase(Path.Combine(drive.RootDirectory.FullName, Constants.MenuConfigTextFile)))
                     SelectedDrive = drive;
             }
 

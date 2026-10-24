@@ -853,12 +853,12 @@ namespace GDMENUCardManager
         {
             DriveInfo[] list;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || (x.DriveType == DriveType.Removable && x.DriveFormat.StartsWith("FAT")))).ToArray();
+                list = DriveInfo.GetDrives().Where(x => showAllDrives || (x.DriveType == DriveType.Removable && x.IsReady && x.DriveFormat.StartsWith("FAT"))).ToArray();
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 //list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed)).ToArray();//todo need to test
-                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed || (x.DriveType == DriveType.Unknown && x.DriveFormat.Equals("lifs", StringComparison.InvariantCultureIgnoreCase)))).ToArray();//todo need to test
+                list = DriveInfo.GetDrives().Where(x => showAllDrives || (x.IsReady && (x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed || (x.DriveType == DriveType.Unknown && x.DriveFormat.Equals("lifs", StringComparison.InvariantCultureIgnoreCase))))).ToArray();//todo need to test
             else//linux
-                list = DriveInfo.GetDrives().Where(x => x.IsReady && (showAllDrives || ((x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed) && x.DriveFormat.Equals("msdos", StringComparison.InvariantCultureIgnoreCase) && (x.Name.StartsWith("/media/", StringComparison.InvariantCultureIgnoreCase) || x.Name.StartsWith("/run/media/", StringComparison.InvariantCultureIgnoreCase)) ))).ToArray();
+                list = DriveInfo.GetDrives().Where(x => showAllDrives || (x.IsReady && ((x.DriveType == DriveType.Removable || x.DriveType == DriveType.Fixed) && x.DriveFormat.Equals("msdos", StringComparison.InvariantCultureIgnoreCase) && (x.Name.StartsWith("/media/", StringComparison.InvariantCultureIgnoreCase) || x.Name.StartsWith("/run/media/", StringComparison.InvariantCultureIgnoreCase)) ))).ToArray();
             
 
             if (isRefreshing)
@@ -875,7 +875,7 @@ namespace GDMENUCardManager
                 try
                 {
                     DriveList.Add(drive);
-                    if (SelectedDrive == null && System.IO.File.Exists(Path.Combine(drive.RootDirectory.FullName, Constants.MenuConfigTextFile)))
+                    if (SelectedDrive == null && Helper.FileExistsIgnoreCase(Path.Combine(drive.RootDirectory.FullName, Constants.MenuConfigTextFile)))
                         SelectedDrive = drive;
                 }
                 catch { }

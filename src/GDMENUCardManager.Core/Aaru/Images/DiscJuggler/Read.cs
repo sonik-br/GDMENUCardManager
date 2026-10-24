@@ -90,6 +90,14 @@ namespace Aaru.DiscImages
             {
                 AaruConsole.DebugWriteLine("DiscJuggler plugin", "s = {0}", s);
 
+                // Some writers use an all-zero record to terminate the session table.
+                if (s == maxS && position <= descriptor.Length - 15 &&
+                    descriptor.Skip(position).Take(15).All(value => value == 0))
+                {
+                    position += 15;
+                    continue;
+                }
+
                 // Seems all sessions start with this data
                 if(descriptor[position + 0]  != 0x00 ||
                    descriptor[position + 2]  != 0x00 ||
@@ -497,6 +505,11 @@ namespace Aaru.DiscImages
                                     break;
                                 case 2:
                                     track.TrackRawBytesPerSector =  2352;
+
+                                    if(firstTrack)
+                                        currentOffset += 150 * (ulong)track.TrackRawBytesPerSector;
+
+                                    track.TrackFileOffset =  currentOffset;
                                     currentOffset                += trackLen * (ulong)track.TrackRawBytesPerSector;
 
                                     if(!_imageInfo.ReadableSectorTags.Contains(SectorTagType.CdSectorSync))
